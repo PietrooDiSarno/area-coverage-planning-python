@@ -1,0 +1,7 @@
+# IDE cache & config folders
+.idea/
+.vs/
+
+# Virtual environment
+venv/
+.venv/
