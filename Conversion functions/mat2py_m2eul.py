@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_m2eul in MATLAB can receive:
 # - r: DOUBLE = Array[3,3]
 # - axis3: LONG = Scalar
@@ -23,16 +24,15 @@ import numpy as np
 # The function spice.bodn2c in Python gives as output:
 # - tuple of (angle3,angle2,angle1). The type of the tuple is Tuple[float,float,float]
 
-def mat2py_m2eul(r,axis3,axis2,axis1):
+def mat2py_m2eul(r, axis3, axis2, axis1):
+    r = np.array(r).reshape(3, 3)
+    axis3 = int(axis3)
+    axis2 = int(axis2)
+    axis1 = int(axis1)
 
-    r=np.array(r).reshape(3,3)
-    axis3=int(axis3)
-    axis2=int(axis2)
-    axis1=int(axis1)
+    angle3, angle2, angle1 = spice.m2eul(r, axis3, axis2, axis1)
+    angle3 = float(angle3)
+    angle2 = float(angle2)
+    angle1 = float(angle1)
 
-    angle3,angle2,angle1=spice.m2eul(r,axis3,axis2,axis1)
-    angle3=float(angle3)
-    angle2=float(angle2)
-    angle1=float(angle1)
-
-    return angle3,angle2,angle1
+    return angle3, angle2, angle1

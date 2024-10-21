@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_sce2c in MATLAB can receive:
 # - sc: [1,1] = size(sc); int32 = class(sc)
 # - et: [1,n] = size(et); double = class(et)
@@ -20,16 +21,15 @@ import numpy as np
 # The function spice.sce2c in Python gives as output:
 # - sclkdp: float
 
-def mat2py_sce2c(sc,et):
-
-    if type(et)==float:
-        sclkdp=spice.sce2c(sc,et)
+def mat2py_sce2c(sc, et):
+    if et is float:
+        sclkdp = spice.sce2c(sc, et)
 
     else:
-       et = np.array(et).reshape(len(et), )
-       sclkdp=[]
-       for i in range(len(et)):
-         sclkdp.append(spice.sce2c(sc,float(et[i])))
-       sclkdp=np.array(sclkdp).reshape(len(sclkdp),)
+        et = np.array(et).reshape(len(et), )
+        sclkdp = []
+        for i in range(len(et)):
+            sclkdp.append(spice.sce2c(sc, float(et[i])))
+        sclkdp = np.array(sclkdp).reshape(len(sclkdp), )
 
     return sclkdp

@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_cnmfrm in MATLAB receives "cname" as input.
 # It can receive 2 types of inputs for "cname":  [n,c1]=size(cname); char = class(cname)
 # OR  [1,n] =size(cname); cell = class(cname). In Python we expect to receive a numpy.array of strings OR a list of
@@ -28,35 +29,29 @@ import numpy as np
 
 
 def mat2py_cnmfrm(cname):
-    if isinstance(cname,str):
-        cname=[cname]
+    if isinstance(cname, str):
+        cname = [cname]
     frcode = []
     frname = []
     found = []
 
-    #spice.cnmfrm takes only one name as input (differently from cspice_cnmfrm):
-    #we iterate over the names contained in cname
-    for _,name in enumerate(cname):
-      print('The name is', name)
-      try:
-        frcode.append(spice.cnmfrm(name)[0])
-        frname.append(spice.cnmfrm(name)[1])
-        found.append(1)
-      except Exception as e:
-         print(f'Exception for {name}: {e}')
-         frname.append(' ')
-         found.append(0)
-         frcode.append(0)
-    frcode=np.array(frcode,dtype='int32').reshape((len(frcode),))
-    frname=(np.array(frname,dtype='str')).reshape((len(frname),1))
-    found=np.array(found,dtype='bool').reshape((len(found),))
+    # spice.cnmfrm takes only one name as input (differently from cspice_cnmfrm):
+    # we iterate over the names contained in cname
+    for _, name in enumerate(cname):
+        print('The name is', name)
+        try:
+            frcode.append(spice.cnmfrm(name)[0])
+            frname.append(spice.cnmfrm(name)[1])
+            found.append(1)
+        except Exception as e:
+            print(f'Exception for {name}: {e}')
+            frname.append(' ')
+            found.append(0)
+            frcode.append(0)
+    frcode = np.array(frcode, dtype='int32').reshape((len(frcode),))
+    frname = (np.array(frname, dtype='str')).reshape((len(frname), 1))
+    found = np.array(found, dtype='bool').reshape((len(found),))
 
-    print('Shapes and types of frcode are',np.shape(frcode),type(frcode),'type of the first is',type(frcode[0]))
+    print('Shapes and types of frcode are', np.shape(frcode), type(frcode), 'type of the first is', type(frcode[0]))
 
-
-    return frcode,frname,found
-
-
-
-
-
+    return frcode, frname, found
