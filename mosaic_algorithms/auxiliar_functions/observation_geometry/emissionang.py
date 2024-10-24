@@ -1,5 +1,6 @@
 import numpy as np
-import conversion
+from conversion_functions import *
+
 
 def emissionang(srfpoint, t, target, obs):
     """
