@@ -2,8 +2,7 @@ import numpy as np
 from shapely.geometry import Polygon, Point
 
 
-def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea,
-                         gridPoints, vPoints, method):
+def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gridPoints, vPoints, method):
     """
     Flood-fill recursive algorithm that discretizes the target area by
     "flooding" the region with 2D rectangular elements. The grid is determined
