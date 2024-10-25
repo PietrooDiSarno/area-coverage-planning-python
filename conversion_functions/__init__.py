@@ -22,6 +22,7 @@ from mat2py_sce2c import mat2py_sce2c
 from mat2py_sincpt import mat2py_sincpt
 from mat2py_spkcov import mat2py_spkcov
 from mat2py_spkpos import mat2py_spkpos
+from mat2py_srfnrf import mat2py_srfnrf
 from mat2py_srfrec import mat2py_srfrec
 from mat2py_str2et import mat2py_str2et
 from mat2py_subpnt import mat2py_subpnt
