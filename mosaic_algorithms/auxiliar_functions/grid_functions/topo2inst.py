@@ -1,9 +1,7 @@
 import numpy as np
 import spiceypy as spice
-from conversion_functions.mat2py_cnmfrm import mat2py_cnmfrm
-from conversion_functions.mat2py_inrypl import mat2py_inrypl
-from conversion_functions.mat2py_nvp2pl import mat2py_nvp2pl
-from conversion_functions.mat2py_spkpos import mat2py_spkpos
+import copy
+from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 
 def topo2inst(inputdata, lon, lat, target, sc, inst, et):
@@ -38,6 +36,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
 
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN,NaN]
+
     ii,jj=0,0
     if isinstance(inputdata, list):
         inputdata = [point if point else [np.nan, np.nan] for point in inputdata]
@@ -45,7 +44,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
         inputdata_array = np.array(inputdata)
         ii,jj = np.unravel_index(np.arange(inputdata_array.size), inputdata_array.shape)
     else:
-        topoPoints = inputdata
+        topoPoints = copy.deepcopy(inputdata)
 
     # Pre-allocate variables
     _,targetframe,_ = mat2py_cnmfrm(target)  # get the target frame ID
