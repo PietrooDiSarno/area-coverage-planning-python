@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial import ConvexHull
+from shapely.geometry import Polygon
 
 def minimumWidthDirection(x, y):
     """
@@ -37,11 +38,9 @@ def minimumWidthDirection(x, y):
     hull = ConvexHull(np.array([x, y]).T)
     cx, cy = np.mean(hull.points[hull.vertices], axis=0)
 
+    vertices=np.array([])
     # Sort the vertices in clockwise direction
-    vertices = np.array([x, y]).T
-    angles = np.arctan2(vertices[:, 1] - cy, vertices[:, 0] - cx)
-    sorted_indices = np.argsort(angles)
-    vertices = vertices[sorted_indices]
+    vertices[:,0],vertices[:,1] = sortcw(x,y)
 
     # Minimum width direction
     npoints = 361
@@ -59,6 +58,7 @@ def minimumWidthDirection(x, y):
         # axis (this way it is easier to find the bounding box with the min and
         # max values of x/y)
         rotVertices = (rotMats[:, :, i] @ (vertices - [cx, cy]).T).T
+
         # Obtain width length of the rotated polygon
         maxx = np.max(rotVertices[:, 0])
         minx = np.min(rotVertices[:, 0])
@@ -69,7 +69,10 @@ def minimumWidthDirection(x, y):
 
     # Return minimum width direction
     thetamin = angle[mini]
-    height = np.polyarea(x, y) / minwidth
+    polygon = Polygon(np.column_stack((x, y)))
+    area = polygon.area
+    height = area / minwidth
+
 
     # Constrain angle between 0º and 180º
     if thetamin >= 180:
