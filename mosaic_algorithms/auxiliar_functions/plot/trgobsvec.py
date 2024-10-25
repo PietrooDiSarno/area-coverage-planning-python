@@ -26,7 +26,7 @@ def trgobsvec(srfpoint, t, target, obs, frame=None):
                   variable is not input, the body-fixed reference frame is
                   used by default
 
-    Outputs:
+    Returns:
       > obsvec:   observer position vector as seen from the target surface
                   point in the target body-fixed reference frame, in [km]
     """
