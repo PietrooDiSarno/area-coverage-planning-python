@@ -1,9 +1,6 @@
 import numpy as np
 import spiceypy as spice
-from conversion_functions.mat2py_cnmfrm import mat2py_cnmfrm
-from conversion_functions.mat2py_inrypl import mat2py_inrypl
-from conversion_functions.mat2py_nvp2pl import mat2py_nvp2pl
-from conversion_functions.mat2py_spkpos import mat2py_spkpos
+from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 
 def topo2inst(inputdata, lon, lat, target, sc, inst, et):
