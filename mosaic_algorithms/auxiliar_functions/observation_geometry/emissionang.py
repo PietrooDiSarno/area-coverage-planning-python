@@ -1,6 +1,7 @@
 import numpy as np
 from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
+
 def emissionang(srfpoint, t, target, obs):
     """
     This function returns the phase angle between the target normal to
