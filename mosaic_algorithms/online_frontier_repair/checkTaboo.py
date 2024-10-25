@@ -53,7 +53,7 @@ def check_taboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
 
     # Previous checks...
     if not N or not Nind:
-        return
+        return N, Nind
 
     # Define the grid boundaries (ending rows and columns in the map)
     for i in range(len(map) - 1, -1, -1):
@@ -223,12 +223,6 @@ def boustrophedonMod(grid, dir1, dir2):
 
     return currdir1, currdir2
 
-
-def map2grid(map):
-    """
-    Wrapper function for the SPICE tool to convert a map into a grid.
-    """
-    pass  # Placeholder for SPICE integration
 
 
 # [Future work]: get rid of boustrophedonMod
