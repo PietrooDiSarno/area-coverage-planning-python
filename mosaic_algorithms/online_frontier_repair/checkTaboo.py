@@ -1,7 +1,7 @@
 import numpy as np
 from mosaic_algorithms.online_frontier_repair.map2grid import map2grid
 
-def check_taboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
+def checkTaboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
     """
     This function evaluates each tile in a list of potential observation
     points (N, Nind) and determines whether it should be considered taboo,
@@ -33,12 +33,12 @@ def check_taboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
     """
 
     # Persistent variables in a way suitable for Python
-    if 'pdir1' not in check_taboo.__dict__:
-        check_taboo.pdir1 = indir1
-        check_taboo.pdir2 = indir2
+    if 'pdir1' not in checkTaboo.__dict__:
+        checkTaboo.pdir1 = indir1
+        checkTaboo.pdir2 = indir2
 
-    pdir1 = check_taboo.pdir1
-    pdir2 = check_taboo.pdir2
+    pdir1 = checkTaboo.pdir1
+    pdir2 = checkTaboo.pdir2
     ## Previous checks...
     #if not N or not Nind:
         #return
