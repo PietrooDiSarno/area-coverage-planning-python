@@ -84,7 +84,7 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
             poly2 = Polygon(fprinti['bvertices']) #create footprint polygon
 
         # Check footprint-ROI intersect
-        targetpshape = poly1
+        targetpshape = copy.deepcopy(poly1)
         areaT = targetpshape.area
         inter = targetpshape.difference(poly2)
         areaI = inter.area
@@ -102,8 +102,8 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
 
             # New time iteration
             if tour:
-                p1 = (fprinti['olon'], fprinti['olat'])
-                p2 = (tour[0][0], tour[0][1])
+                p1 = [fprinti['olon'], fprinti['olat']]
+                p2 = [tour[0][0], tour[0][1]]
                 t += tobs + slewDur(p1, p2, t, tobs, inst, target, sc, slewRate)
     else:
         empty = True
