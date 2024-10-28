@@ -3,7 +3,7 @@ import numpy as np
 from conversion_functions import *
 
 
-def insert_tiles(map, newp, indp):
+def insertTiles(map, newp, indp):
     """
     This function includes new observation points in a planned tour
     observations
