@@ -82,6 +82,9 @@ def insert_tiles(map, newp, indp):
 
     return map
 
+# The following is a MATLAB code that must be translated in Python. Since it is a comment, it is not used so it is not
+# translated for now.
+
 # [Future work]: # # Insert elements in tour?
 # switch heuristics
 #     case 'nearest neighbour'
