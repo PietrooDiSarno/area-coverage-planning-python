@@ -1,6 +1,6 @@
 import numpy as np
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
-def slew_dur(p1, p2, t, tobs, inst, target, sc, slew_rate):
+def slewDur(p1, p2, t, tobs, inst, target, sc, slew_rate):
     """
     This function determines the time it takes for a spacecraft or an
     instrument mounted on a spacecraft to rotate from one pointing direction
