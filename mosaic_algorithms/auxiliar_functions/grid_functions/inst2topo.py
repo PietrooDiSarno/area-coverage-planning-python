@@ -61,3 +61,5 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
                     grid_topo[i][j] = [lon*mat2py_dpr(), lat*mat2py_dpr()]
                 else:
                     print("Point not visible from the instrument")
+
+    return grid_topo
