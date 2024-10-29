@@ -1,8 +1,8 @@
 import copy
-
 import numpy as np
 from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
+from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amsplit
 from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection import minimumWidthDirection
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
@@ -81,7 +81,7 @@ def footprint(t, inst, sc, target, res, *args):
     # Define instrument pointing (3-axis steerable or constrained)
     if len(args) == 0:  # instrument pointing is provided by (and retrieve from) a ck
         ckpointing = True
-    elif len(args) >= 2:  # instrument is considered 3-axis steerable
+    elif len(args) >= 1:  # instrument is considered 3-axis steerable
         lon, lat = args[0], args[1]
         ckpointing = False
         if len(args) == 3:
@@ -169,7 +169,7 @@ def footprint(t, inst, sc, target, res, *args):
     if not intsec:
         fp['limb'] = 'total'
 
-    def refineFOVsearch(maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc, vec):
+    def refineFOVsearch(fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc):
         # Perform a perimetral search of the FOV to find out if the FOV
         # contains totally or partially the body limb
         Nl = 20
@@ -211,7 +211,7 @@ def footprint(t, inst, sc, target, res, *args):
     # accurate search in order to conclude if the FOV intercept the
     # body at some point
     if fp['limb'] == 'total':
-        refineFOVsearch(maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc, vec)
+        refineFOVsearch(fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc)
 
     def inFOVprojection(boundPoints,N,surfPoints):
         """
@@ -219,8 +219,6 @@ def footprint(t, inst, sc, target, res, *args):
         """
         # Close polygon
         boundPoints = np.hstack((boundPoints, boundPoints[:, [0]]))
-
-
         count = 0
 
         # high resolution
@@ -247,7 +245,6 @@ def footprint(t, inst, sc, target, res, *args):
         # Initialize variables
         maxfx, maxfy = minx, miny
         minfx, minfy = maxx, maxy
-
         count = 0
 
         old_found = False
@@ -345,7 +342,7 @@ def footprint(t, inst, sc, target, res, *args):
         soltol = 1.0e-10 # solution convergence tolerance
 
         # Limb calculation with spice.limbpt function
-        _,limb,_,_ = mat2py_limbpt(lbmethod,target,t,targetframe,abcorr,corloc,sc,refvec,ncuts,schstp,soltol,ncuts)
+        _,limb,_,_ = mat2py_limbpt(lbmethod,target,t,targetframe,abcorr,corloc,sc,refvec,delrol,ncuts,schstp,soltol,ncuts)
         # limb points expressed in targetframe ref frame
         surfPoints = limb.T
 
@@ -367,7 +364,7 @@ def footprint(t, inst, sc, target, res, *args):
     # Save values
     fp['recVertices'] = surfPoints
 
-    def footprint2map():
+    def footprint2map(surfPoints,t,target,sc,fp,inst):
 
         # Pre-allocate variables
         vertices = np.zeros([len(surfPoints),2]) # matrix that saves the
@@ -521,6 +518,6 @@ def footprint(t, inst, sc, target, res, *args):
 
     # Conversion from rectangular to latitudinal coordinates of the polygon vertices
     # and geometry computation
-    footprint2map()
+    footprint2map(surfPoints,t,target,sc,fp,inst)
 
 
