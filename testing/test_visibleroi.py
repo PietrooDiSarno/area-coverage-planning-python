@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, MultiPolygon
 from spiceypy import furnsh, utc2et, bodvrd, limbpt, dpr, twopi, reclat, cnmfrm
+from pySPICElib.kernelFetch import kernelFetch
 
 # Import modules
 from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi_gpt import visibleroi
@@ -29,13 +30,8 @@ def main():
     """
 
     # Load SPICE kernels
-    # Example kernel paths (modify these paths to point to your SPICE kernels)
-    furnsh('naif0012.tls')  # Leapseconds kernel
-    furnsh('de430.bsp')  # Planetary ephemeris
-    furnsh('pck00010.tpc')  # Planetary constants kernel
-    furnsh('mro_psp_rec.bsp')  # MRO spacecraft SPK kernel
-    furnsh('mro_v11.tf')  # MRO frames kernel
-    furnsh('mro_sclkscet_00091.tsc')  # MRO SCLK kernel
+    kf = kernelFetch()
+    kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define the target area (ROI) as a polygon in lat/lon
     roi = np.array([
