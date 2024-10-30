@@ -72,7 +72,25 @@ def interppolygon(roi0):
 from geopy.distance import great_circle
 from geopy.point import Point
 
+def calculate_azimuth(start, end):
+    lat1 = math.radians(start.latitude)
+    lon1 = math.radians(start.longitude)
+    lat2 = math.radians(end.latitude)
+    lon2 = math.radians(end.longitude)
+
+    dlon = lon2 - lon1
+    x = math.sin(dlon) * math.cos(lat2)
+    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+    initial_bearing = math.atan2(x, y)
+    initial_bearing = math.degrees(initial_bearing)
+    compass_bearing = (initial_bearing + 360) % 360
+
+    return compass_bearing
+
+
 def interpm(lat, lon, maxdiff, method='gc'):
+
+    maxdiff = maxdiff*(math.pi/180)*6371.009
 
     if method != 'gc':
             raise ValueError("This example can only handle 'gc' interpolation (Great Circle).")
@@ -84,7 +102,7 @@ def interpm(lat, lon, maxdiff, method='gc'):
         start = Point(lat[i - 1], lon[i - 1])
         end = Point(lat[i], lon[i])
 
-        dist = great_circle(start, end)
+        dist = great_circle(start, end).kilometers
 
         if dist <= maxdiff:
             latout.append(lat[i])
@@ -92,10 +110,11 @@ def interpm(lat, lon, maxdiff, method='gc'):
             continue
 
         num_points = int(dist // maxdiff)
-
+        print('num_points is',num_points)
         for j in range(1, num_points + 1):
             fraction = j / (num_points + 1)
-            intermediate_point = great_circle(fraction * dist).destination(start, start.bearing(end))
+            azimuth = calculate_azimuth(start,end)
+            intermediate_point = great_circle(kilometers=fraction * dist).destination((start.latitude,start.longitude), azimuth)
             latout.append(intermediate_point.latitude)
             lonout.append(intermediate_point.longitude)
 
@@ -103,3 +122,4 @@ def interpm(lat, lon, maxdiff, method='gc'):
         lonout.append(lon[i])
 
     return latout, lonout
+
