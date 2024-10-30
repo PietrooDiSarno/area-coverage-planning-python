@@ -48,9 +48,9 @@ count = 0
 # Regions of interest
 count += 1
 roi = np.array([[25, 25],
-                 [25, -5],
-                 [-5, -5],
-                 [-5, 25]])
+                [25, -5],
+                [-5, -5],
+                [-5, 25]])
 roistruct = [{} for _ in range(count)]  # Pre-allocate roistruct
 roistruct[count - 1]['vertices'] = roi.tolist()
 polygon = Polygon(roi)

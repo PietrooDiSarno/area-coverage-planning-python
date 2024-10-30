@@ -1,16 +1,17 @@
 """
 Test Script for visibleroi Function
 
-This script tests the `visibleroi` function by computing the visible portion of a specified region of interest (ROI) on a planetary body's surface from a given observer's viewpoint at a specific time. It visualizes both the ROI and the visible portion to verify the correctness of the algorithm.
+This script tests the `visibleroi` function by computing the visible portion of a specified region of interest (ROI)
+on a planetary body's surface from a given observer's viewpoint at a specific time. It visualizes both the ROI and
+the visible portion to verify the correctness of the algorithm.
 
-Author: [Your Name]
-Date: [Current Date]
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import Polygon, MultiPolygon
-from spiceypy import furnsh, utc2et, bodvrd, limbpt, dpr, twopi, reclat, cnmfrm
+from shapely.geometry import Polygon
+from spiceypy import str2et
+from pySPICElib.kernelFetch import kernelFetch
 
 # Import modules
 from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi_gpt import visibleroi
@@ -29,13 +30,8 @@ def main():
     """
 
     # Load SPICE kernels
-    # Example kernel paths (modify these paths to point to your SPICE kernels)
-    furnsh('naif0012.tls')  # Leapseconds kernel
-    furnsh('de430.bsp')  # Planetary ephemeris
-    furnsh('pck00010.tpc')  # Planetary constants kernel
-    furnsh('mro_psp_rec.bsp')  # MRO spacecraft SPK kernel
-    furnsh('mro_v11.tf')  # MRO frames kernel
-    furnsh('mro_sclkscet_00091.tsc')  # MRO SCLK kernel
+    kf = kernelFetch()
+    kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define the target area (ROI) as a polygon in lat/lon
     roi = np.array([
@@ -47,9 +43,9 @@ def main():
     ])  # Simple rectangle from 0° to 30° longitude and -10° to 10° latitude
 
     # Observation parameters
-    et = utc2et('2023-01-01T12:00:00')  # Observation time
-    target = 'MARS'  # Target body
-    obs = 'MRO'  # Observer (Mars Reconnaissance Orbiter)
+    et = str2et('1998 MAY 30 00:00:00.000 TDB')  # Observation time
+    target = 'EUROPA'  # Target body
+    obs = 'GALILEO ORBITER'  # Observer
 
     # Call the visibleroi function
     vroi, inter = visibleroi(roi, et, target, obs)

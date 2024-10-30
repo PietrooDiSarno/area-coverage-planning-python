@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
-from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
-
 
 def minimumWidthDirection(x, y):
     """
@@ -40,10 +38,9 @@ def minimumWidthDirection(x, y):
     hull = ConvexHull(np.array([x, y]).T)
     cx, cy = np.mean(hull.points[hull.vertices], axis=0)
 
-
+    vertices=np.array([])
     # Sort the vertices in clockwise direction
-    col1, col2 = sortcw(x,y)
-    vertices = np.hstack((col1.reshape(len(col1), 1), col2.reshape(len(col2), 1)))
+    vertices[:,0],vertices[:,1] = sortcw(x,y)
 
     # Minimum width direction
     npoints = 361
