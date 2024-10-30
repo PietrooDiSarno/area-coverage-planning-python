@@ -1,7 +1,7 @@
 from mosaic_algorithms.online_frontier_repair.frontierRepair import frontierRepair
 from mosaic_algorithms.auxiliar_functions.plot.plotTour import plotTour
 from mosaic_algorithms.paper.figure1.post_process_fig1 import post_process_fig1
-from mosaic_algorithms.paper.figure1.input_data_fig1 import * # Load mission info (kernels, SPICE ids, etc.)
+from mosaic_algorithms.paper.figure1.input_data_fig1 import *  # Load mission info (kernels, SPICE ids, etc.)
 import matplotlib.pyplot as plt
 
 # Revision of grid discretization:

@@ -1,5 +1,6 @@
 def flood_fill_algorithm(w, h, olapx, olapy, gamma,
-                         target_area, perimeter_area, grid_points, v_points, method):
+                         target_area, perimeter_area, grid_points, v_points, method,
+                         fpThreshold):
     """
     Flood-fill recursive algorithm that discretizes the target area by
     "flooding" the region with 2D rectangular elements. The grid is
@@ -35,6 +36,7 @@ def flood_fill_algorithm(w, h, olapx, olapy, gamma,
         - method:       String name of the method. '4fill' fills the ROI by
                         searching the cardinal directions. '8fill' considers
                         also the diagonal neighbors.
+        - fpThreshold:  Threshold for XXX dismissal.
 
     Outputs:
         - grid_points:  Updated list containing the discretized grid points of the
@@ -100,7 +102,9 @@ def flood_fill_algorithm(w, h, olapx, olapy, gamma,
         areaInter = areaT - areaI
         fpArea = fpshape.area
 
-        if areaInter / fpArea > 0.2:
+        # Compare area of footprint to intersection of ROI with footprint
+        # If this is below fpThreshold, the footprint is dismissed.
+        if areaInter / fpArea > fpThreshold:
             grid_points.append(gamma)
             # Visualization code omitted
         else:
@@ -112,36 +116,36 @@ def flood_fill_algorithm(w, h, olapx, olapy, gamma,
         # West
         grid_points, v_points = flood_fill_algorithm(
             w, h, olapx, olapy, [gamma[0] - w + ovlapx, gamma[1]],
-            target_area, perimeter_area, grid_points, v_points, method)
+            target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
         # South
         grid_points, v_points = flood_fill_algorithm(
             w, h, olapx, olapy, [gamma[0], gamma[1] - h + ovlapy],
-            target_area, perimeter_area, grid_points, v_points, method)
+            target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
         # North
         grid_points, v_points = flood_fill_algorithm(
             w, h, olapx, olapy, [gamma[0], gamma[1] + h - ovlapy],
-            target_area, perimeter_area, grid_points, v_points, method)
+            target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
         # East
         grid_points, v_points = flood_fill_algorithm(
             w, h, olapx, olapy, [gamma[0] + w - ovlapx, gamma[1]],
-            target_area, perimeter_area, grid_points, v_points, method)
+            target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
 
         if method == '8fill':
             # Northwest
             grid_points, v_points = flood_fill_algorithm(
                 w, h, olapx, olapy, [gamma[0] - w + ovlapx, gamma[1] + h - ovlapy],
-                target_area, perimeter_area, grid_points, v_points, method)
+                target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
             # Southwest
             grid_points, v_points = flood_fill_algorithm(
                 w, h, olapx, olapy, [gamma[0] - w + ovlapx, gamma[1] - h + ovlapy],
-                target_area, perimeter_area, grid_points, v_points, method)
+                target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
             # Northeast
             grid_points, v_points = flood_fill_algorithm(
                 w, h, olapx, olapy, [gamma[0] + w - ovlapx, gamma[1] + h - ovlapy],
-                target_area, perimeter_area, grid_points, v_points, method)
+                target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
             # Southeast
             grid_points, v_points = flood_fill_algorithm(
                 w, h, olapx, olapy, [gamma[0] + w - ovlapx, gamma[1] - h + ovlapy],
-                target_area, perimeter_area, grid_points, v_points, method)
+                target_area, perimeter_area, grid_points, v_points, method, fpThreshold)
 
     return grid_points, v_points

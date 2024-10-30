@@ -3,9 +3,6 @@ Test Script for grid2d Function
 
 This script tests the `grid2d` function by applying it to a simple polygonal region.
 It visualizes the discretized grid over the target area to verify the correctness of the algorithm.
-
-Author: Your Name
-Date: 2023-10-30
 """
 
 import numpy as np
@@ -48,9 +45,10 @@ def main():
     olapx = 0.0  # Overlap in x-direction (%)
     olapy = 0.0  # Overlap in y-direction (%)
     gamma = [5.0, 2.5]  # Starting point (seed) inside the target area
+    fpThreshold = 0.2  # Dismissal threshold
 
     # Call the grid2d function
-    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area)
+    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area, fpThreshold)
 
     # Visualization
     visualize_results(target_area, matrix_grid, fpref['width'], fpref['height'], fpref['angle'])

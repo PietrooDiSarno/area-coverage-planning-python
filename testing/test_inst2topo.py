@@ -9,6 +9,7 @@ and visualizes the results to verify the correctness of the transformations.
 import numpy as np
 import matplotlib.pyplot as plt
 import spiceypy as spice
+from pySPICElib.kernelFetch import kernelFetch
 
 # Assume inst2topo and topo2inst are defined in the same script or imported from another module
 # from your_module import inst2topo, topo2inst
@@ -27,11 +28,9 @@ def main():
     - Visualizes the original and reconstructed grids to verify the transformations.
     """
 
-    # Load necessary SPICE kernels (you need to provide the paths to your kernels)
-    spice.furnsh('path_to_leapseconds_kernel')
-    spice.furnsh('path_to_spacecraft_kernel')
-    spice.furnsh('path_to_target_body_kernel')
-    spice.furnsh('path_to_instrument_kernel')
+    # Load SPICE kernels
+    kf = kernelFetch()
+    kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define instrument frame grid points (e.g., a simple 2D grid)
     grid_size = 5
@@ -47,10 +46,10 @@ def main():
     # Spacecraft and instrument parameters
     lon = 0.0  # Instrument pointing longitude in degrees
     lat = 0.0  # Instrument pointing latitude in degrees
-    target = 'EARTH'  # Target body
-    sc = 'MRO'  # Spacecraft (e.g., Mars Reconnaissance Orbiter)
-    inst = 'MRO_CTX'  # Instrument name (e.g., Context Camera)
-    et = spice.str2et('2024-01-01 T00:00:00')  # Ephemeris time
+    target = 'EUROPA'  # Target body
+    sc = 'GALILEO ORBITER'  # Spacecraft identifier
+    inst = 'GLL_SSI'  # Instrument identifier
+    et = spice.str2et('1998 MAY 30 00:00:00.000 TDB')  # Ephemeris time
 
     # Call inst2topo to convert instrument frame grid to topographical coordinates
     grid_topo = inst2topo(grid, lon, lat, target, sc, inst, et)
@@ -60,12 +59,6 @@ def main():
 
     # Visualize the original and reconstructed grids
     visualize_results(grid, grid_reconstructed)
-
-    # Unload SPICE kernels
-    spice.unload('path_to_leapseconds_kernel')
-    spice.unload('path_to_spacecraft_kernel')
-    spice.unload('path_to_target_body_kernel')
-    spice.unload('path_to_instrument_kernel')
 
 
 def visualize_results(grid_original, grid_reconstructed):
