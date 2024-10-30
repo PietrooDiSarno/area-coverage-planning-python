@@ -1,8 +1,10 @@
 import numpy as np
 from conversion_functions import *
 from shapely.geometry import Polygon
-from pySPICElib.kernelFetch import *
+from pySPICElib import *
+import os
 
+from pySPICElib.loadKernels import loadKernels
 
 # Mosaic comparison between the different heuristics
 
@@ -25,8 +27,14 @@ target = 'EUROPA'
 method = 'ELLIPSOID'
 
 # SPICE initialization with the relevant mission kernels
-kf = kernelFetch(kernelPath_='C:\\Users\\kekka\\Documents\\SPICE\\kernels',textFilesPath_=f'{kernelpath}\\{mission.lower()}\\')
-kf.ffFile(metaK='inputkernels.txt')
+exec(open(os.path.join(kernelpath, mission.lower(), 'inputkernels.py')).read())
+
+#kf = kernelFetch(kernelPath_='C:\\Users\\kekka\\Documents\\SPICE\\kernels',textFilesPath_=f'{kernelpath}\\{mission.lower()}\\')
+#kf.ffFile(metaK='inputkernels.txt')
+#kf=kernelFetch(kernelPath_='C:\\Users\\kekka\\Documents\\SPICE\\kernels')
+#kf.ffList(METAKR)
+#print(f"Kernel pool: {mat2py_ktotal('ALL')}") # in MATLAB this is done in the function loadKernels
+loadKernels(METAKR)
 
 # Definition of ROIs
 # Pre-allocation of variables...
