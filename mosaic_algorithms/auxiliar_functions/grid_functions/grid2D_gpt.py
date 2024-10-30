@@ -40,6 +40,7 @@ def grid2d(fpref, olapx, olapy, gamma, target_area):
     from shapely.geometry import Polygon
     from scipy.spatial import ConvexHull
     # Ensure that required libraries are imported
+    from mosaic_algorithms.auxiliar_functions.grid_functions.flood_fill_algorithm_gpt import flood_fill_algorithm
 
     # Pre-allocate variables
     matrix_grid = []
@@ -92,15 +93,17 @@ def grid2d(fpref, olapx, olapy, gamma, target_area):
         unique_lat = np.unique(sorted_grid[:, 1])
 
         # Remove "similar" latitude values (differences less than 1e-5)
-        ind = np.abs(np.diff(unique_lat)) < 1e-5
-        unique_lat = unique_lat[~ind]
+        if len(unique_lat) > 1:
+            ind = np.abs(np.diff(unique_lat)) < 1e-5
+            unique_lat = unique_lat[np.append(~ind, True)]  # Append True to match the array length
 
         # Get unique longitude values
         unique_lon = np.unique(sorted_grid[:, 0])
 
         # Remove "similar" longitude values (differences less than 1e-5)
-        ind = np.abs(np.diff(unique_lon)) < 1e-5
-        unique_lon = unique_lon[~ind]
+        if len(unique_lon) > 1:
+            ind = np.abs(np.diff(unique_lon)) < 1e-5
+            unique_lon = unique_lon[np.append(~ind, True)]  # Append True to match the array length
 
         # Initialize the matrix grid as a list of lists
         matrix_grid = [[None for _ in range(len(unique_lon))] for _ in range(len(unique_lat))]
