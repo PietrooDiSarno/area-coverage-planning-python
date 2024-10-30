@@ -1,2 +1,6 @@
+# Imported python packages
+matplotlib
 numpy
+scipy
+shapely
 spiceypy
