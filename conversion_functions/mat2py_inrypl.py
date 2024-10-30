@@ -2,7 +2,7 @@
 # and returns the adapted outputs.
 import numpy as np
 import spiceypy as spice
-from mat2py_nvp2pl import mat2py_nvp2pl
+
 
 # The function cspice_inrypl in MATLAB can receive:
 # - vertex: DOUBLE = Array[3]

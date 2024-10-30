@@ -1,5 +1,6 @@
 import numpy as np
-import conversion
+from conversion_functions import *
+from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
 
 def emissionang(srfpoint, t, target, obs):
     """
@@ -32,9 +33,9 @@ def emissionang(srfpoint, t, target, obs):
 
     # If srfpoint has been input with the latitudinal coordinates, change to rectangular
     if len(srfpoint) == 2:
-        srfpoint = np.radians(srfpoint)  # [deg] to [rad]
-        srfpoint = mat2py_srfrec(mat2py_bodn2c(target), srfpoint[0],
-                                 srfpoint[1])  # surface point in rectangular coordinates
+        srfpoint = mat2py_rpd()*srfpoint  # [deg] to [rad]
+        srfpoint = mat2py_srfrec(mat2py_bodn2c(target), srfpoint[0], srfpoint[1]) # surface point in rectangular
+        # coordinates (body modeled as a tri-axial ellipsoid)
 
     else:
         # if srfpoint is input as a 1x3 instead of a 3x1, transpose array
@@ -50,7 +51,7 @@ def emissionang(srfpoint, t, target, obs):
         nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
 
     # Angle between the two vectors
-    angle = mat2py_vsep(obsvec, nrmvec)  # angle in radians
-    angle = np.degrees(angle)  # [rad] to [deg]
+    angle = mat2py_vsep(obsvec, nrmvec)
+    angle = angle * mat2py_dpr  # [rad] to [deg]
 
     return angle
