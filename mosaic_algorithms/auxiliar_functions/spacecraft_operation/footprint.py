@@ -1,13 +1,14 @@
 import copy
-
 import numpy as np
 from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
 from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection import minimumWidthDirection
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
+from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amsplit
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
+from science_opportunity_main.queries.geometric.fovray import fovray
 import warnings
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, Point
 
 def footprint(t, inst, sc, target, res, *args):
     """
@@ -423,7 +424,8 @@ def footprint(t, inst, sc, target, res, *args):
                 exit = False
                 while not exit:
                     randPoint = np.random.randint([-180, -90], [180, 90])
-                    if inpolygon(randPoint[0], randPoint[1], lblon, lblat):
+                    polygon = Polygon(zip(lblon, lblat))
+                    if polygon.contains(Point(randPoint[0], randPoint[1])):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
                             exit = True
