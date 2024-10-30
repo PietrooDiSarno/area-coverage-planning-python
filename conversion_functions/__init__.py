@@ -5,6 +5,7 @@ from conversion_functions.mat2py_ckgpav import mat2py_ckgpav
 from conversion_functions.mat2py_cnmfrm import mat2py_cnmfrm
 from conversion_functions.mat2py_dpr import mat2py_dpr
 from conversion_functions.mat2py_et2utc import mat2py_et2utc
+from conversion_functions.mat2py_fovray import mat2py_fovray
 from conversion_functions.mat2py_furnsh import mat2py_furnsh
 from conversion_functions.mat2py_getfov import mat2py_getfov
 from conversion_functions.mat2py_inrypl import mat2py_inrypl
