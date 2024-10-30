@@ -1,6 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from mosaic_algorithms.paper.figure1.input_data_fig1 import input_data_fig1
+from mosaic_algorithms.online_frontier_repair.frontierRepair import frontierRepair
+from mosaic_algorithms.auxiliar_functions.plot.plotTour import plotTour
+from mosaic_algorithms.paper.figure1.post_process_fig1 import post_process_fig1
+from mosaic_algorithms.paper.figure1.input_data_fig1 import * # Load mission info (kernels, SPICE ids, etc.)
+
 # Revision of grid discretization:
 # Grid is going to be built in the camera frame, instead of the body-fixed
 # frame. This is somewhat more complicated (it requires more calculations)
@@ -8,12 +10,8 @@ from mosaic_algorithms.paper.figure1.input_data_fig1 import input_data_fig1
 # Re-implementation of sidewinder function with these new feature (and
 # other code improvements)
 
-# Load mission info (kernels, SPICE ids, etc.)
-input_data_fig1()
-
 # Online Frontier
-A, fpList = frontierRepair(roistruct[0].inittime,
-                            stoptime, tcadence, inst, sc, target, roi, olapx, olapy, 3 * 1e-3)
+A, fpList = frontierRepair(roistruct[0]['inittime'], stoptime, tcadence, inst, sc, target, roi, olapx, olapy, 3 * 1e-3)
 
 # Plot tour
 plotTour(A, fpList, roistruct, sc, target)

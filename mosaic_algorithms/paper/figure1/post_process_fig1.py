@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('C:\\Users\kekka\Documents\pythonProjects\pySPICElib')
 
 def post_process_fig1():
     # Zoom in
