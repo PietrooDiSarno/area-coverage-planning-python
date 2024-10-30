@@ -42,7 +42,7 @@ def fovray(inst, target, obs, et, lon, lat, *varargin):
     else:
         # Check point in FOV by retrieving spacecraft attitude from CK
         abcorr = 'NONE'
-        raydir = -trgobsvec([lon, lat], et, target, sc)
+        raydir = -trgobsvec([lon, lat], et, target, obs)
         visible = mat2py_fovray(inst, raydir, rframe, abcorr, obs, et)
 
     return visible
