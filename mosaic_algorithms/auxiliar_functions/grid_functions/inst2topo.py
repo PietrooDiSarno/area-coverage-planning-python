@@ -1,4 +1,3 @@
-import spiceypy as spice
 import numpy as np
 
 from conversion_functions.mat2py_dpr import mat2py_dpr
@@ -26,7 +25,7 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
         lat:           Latitude of the observation point or area center, in [deg].
         target:        String name of the target body.
         sc:            String name of the spacecraft.
-        inst:          Strubg name of the instrument.
+        inst:          String name of the instrument.
         et:            Ephemeris time, TDB seconds past J2000 epoch.
 
     Returns:
@@ -37,7 +36,7 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
 
     # Pre-allocate
     _, _, rotmat = instpointing(inst, target, sc, et, lon, lat)  # Assuming instpointing function is defined
-    grid_topo = [[None for _ in range(len(grid[0]))] for _ in range(len(grid))]  # Pre-allocate grid_topo array
+    grid_topo = [[[] for _ in range(len(grid[0]))] for _ in range(len(grid))]  # Pre-allocate grid_topo array
     method = 'ELLIPSOID'
     _, targetframe, _ = mat2py_cnmfrm(target)  # Get target frame ID in SPICE
 
@@ -61,5 +60,6 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
                     grid_topo[i][j] = [lon*mat2py_dpr(), lat*mat2py_dpr()]
                 else:
                     print("Point not visible from the instrument")
+                    grid_topo[i][j] = None
 
     return grid_topo

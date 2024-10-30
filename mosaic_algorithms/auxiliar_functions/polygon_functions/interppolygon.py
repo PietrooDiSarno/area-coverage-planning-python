@@ -69,22 +69,57 @@ def interppolygon(roi0):
     # [roi[:, 0], roi[:, 1]] = sortcw(roi[:, 0], roi[:, 1])
     return roi
 
-def interpm(lat, lon, num_points, method):
-    """
-    Interpolates points along a great circle path.
-    """
-    from scipy.interpolate import interp1d
-    import numpy as np
+from geopy.distance import great_circle
+from geopy.point import Point
 
-    if method == 'gc':
-        distances = [0]
-        for i in range(1, len(lat)):
-            distances.append(distances[-1] + geodesic((lat[i-1], lon[i-1]), (lat[i], lon[i])).meters)
-        distances = np.array(distances)
-        total_distance = distances[-1]
-        new_distances = np.linspace(0, total_distance, num_points)
-        interp_lat = interp1d(distances, lat, kind='linear')(new_distances)
-        interp_lon = interp1d(distances, lon, kind='linear')(new_distances)
-        return interp_lat, interp_lon
-    else:
-        raise ValueError("Unsupported interpolation method")
+def calculate_azimuth(start, end):
+    lat1 = math.radians(start.latitude)
+    lon1 = math.radians(start.longitude)
+    lat2 = math.radians(end.latitude)
+    lon2 = math.radians(end.longitude)
+
+    dlon = lon2 - lon1
+    x = math.sin(dlon) * math.cos(lat2)
+    y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(dlon))
+    initial_bearing = math.atan2(x, y)
+    initial_bearing = math.degrees(initial_bearing)
+    compass_bearing = (initial_bearing + 360) % 360
+
+    return compass_bearing
+
+
+def interpm(lat, lon, maxdiff, method='gc'):
+
+    maxdiff = maxdiff*(math.pi/180)*6371.009
+
+    if method != 'gc':
+            raise ValueError("This example can only handle 'gc' interpolation (Great Circle).")
+
+    latout = [lat[0]]
+    lonout = [lon[0]]
+
+    for i in range(1, len(lat)):
+        start = Point(lat[i - 1], lon[i - 1])
+        end = Point(lat[i], lon[i])
+
+        dist = great_circle(start, end).kilometers
+
+        if dist <= maxdiff:
+            latout.append(lat[i])
+            lonout.append(lon[i])
+            continue
+
+        num_points = int(dist // maxdiff)
+        print('num_points is',num_points)
+        for j in range(1, num_points + 1):
+            fraction = j / (num_points + 1)
+            azimuth = calculate_azimuth(start,end)
+            intermediate_point = great_circle(kilometers=fraction * dist).destination((start.latitude,start.longitude), azimuth)
+            latout.append(intermediate_point.latitude)
+            lonout.append(intermediate_point.longitude)
+
+        latout.append(lat[i])
+        lonout.append(lon[i])
+
+    return latout, lonout
+
