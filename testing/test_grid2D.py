@@ -3,9 +3,6 @@ Test Script for grid2d Function
 
 This script tests the `grid2d` function by applying it to a simple polygonal region.
 It visualizes the discretized grid over the target area to verify the correctness of the algorithm.
-
-Author: Your Name
-Date: 2023-10-30
 """
 
 import numpy as np

@@ -3,9 +3,6 @@ Test Script for flood_fill_algorithm Function
 
 This script tests the `flood_fill_algorithm` function by applying it to a simple polygonal region.
 It visualizes the flood-filled grid points over the target area to verify the correctness of the algorithm.
-
-Author: [Your Name]
-Date: [Current Date]
 """
 
 # Import external packages

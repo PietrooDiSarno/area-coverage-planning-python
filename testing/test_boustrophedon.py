@@ -3,9 +3,6 @@ Test Script for boustrophedon Function
 
 This script tests the `boustrophedon` function by applying it to a grid of points.
 It visualizes the planned tour over the grid to verify the correctness of the boustrophedon path planning.
-
-Author: [Your Name]
-Date: [Current Date]
 """
 
 import numpy as np
