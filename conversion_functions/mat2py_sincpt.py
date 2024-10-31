@@ -45,15 +45,15 @@ def mat2py_sincpt(method,target,et,fixref,abcorr,obsrvr,dref,dvec):
     dvec=np.array(dvec).reshape(3,)
     try:
         spoint, trgepc, srfvec = spice.sincpt(method, target, et, fixref, abcorr, obsrvr, dref, dvec)
-        spoint=np.array(spoint).reshape(3,1)
-        srfvec=np.array(srfvec).reshape(3,1)
+        spoint=np.array(spoint).reshape(3,)
+        srfvec=np.array(srfvec).reshape(3,)
         found=True
 
     except  Exception as e:
          if str(e)=='Spice returns not found for function: sincpt':
-           spoint=np.zeros([3,1])
+           spoint=np.zeros([3,])
            trgepc=et
-           srfvec=np.zeros([3,1])
+           srfvec=np.zeros([3,])
            found=False
     return spoint, trgepc, srfvec, found
 

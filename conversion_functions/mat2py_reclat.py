@@ -35,7 +35,6 @@ def mat2py_reclat(rectan):
        lat=np.zeros(rectan.shape[1])
        for i in range(rectan.shape[1]):
            rectan_array=np.array(rectan[:,i])
-
            result=spice.reclat(rectan_array)
            radius[i]=result[0]
            lon[i]=result[1]

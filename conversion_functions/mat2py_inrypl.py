@@ -27,7 +27,7 @@ def mat2py_inrypl(vertex,dir,plane):
     dir=np.array(dir,dtype=float).reshape(3,)
     nxpts,xpt=spice.inrypl(vertex,dir,plane)
     nxpts=int(nxpts)
-    xpt=np.array(xpt,dtype=float).reshape(3,1)
+    xpt=np.array(xpt,dtype=float).reshape(3,)
 
     return nxpts,xpt
 

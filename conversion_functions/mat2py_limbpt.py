@@ -57,11 +57,11 @@ def mat2py_limbpt(method,target,et,fixref,abcorr,corloc,obsrvr,refvec,rolstp,ncu
 
     refvec=np.array(refvec).reshape(3,)
 
-    npts,points,epochs,tangts= spice.limbpt(method,target,et,fixref,abcorr,corloc,obsrvr,refvec,rolstp,ncuts,schstp,soltol,maxn)
+    npts,points_trans,epochs,tangts_trans = spice.limbpt(method,target,et,fixref,abcorr,corloc,obsrvr,refvec,rolstp,ncuts,schstp,soltol,maxn)
     nf=len(npts)
 
-    points = points.reshape(3,nf)
-    tangts = tangts.reshape(3,nf)
+    points = np.array([[row[i] for row in points_trans] for i in range(len(points_trans[0]))])
+    tangts = np.array([[row[i] for row in tangts_trans] for i in range(len(tangts_trans[0]))])
 
     if nf!=maxn:
         npts=np.concatenate((npts,np.zeros(maxn-nf)))

@@ -43,10 +43,9 @@ def mat2py_subpnt(method,target,et,fixref,abcorr,obsrvr):
     if isinstance(obsrvr, list): obsrvr = obsrvr[0]
 
     if np.size(et)==1:
-       et=np.array(et)
-       spoint,trgepc,srfvec=spice.subpnt(method,target,float(et),fixref,abcorr,obsrvr)
-       spoint=spoint.reshape(3,1)
-       srfvec=srfvec.reshape(3,1)
+       spoint,trgepc,srfvec=spice.subpnt(method,target,et,fixref,abcorr,obsrvr)
+       spoint=spoint.reshape(3,)
+       srfvec=srfvec.reshape(3,)
 
     else:
         et=np.array(et).reshape(len(et),)

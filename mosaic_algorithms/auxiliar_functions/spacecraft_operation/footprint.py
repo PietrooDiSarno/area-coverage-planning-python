@@ -135,7 +135,7 @@ def footprint(t, inst, sc, target, res, *args):
     # Project instrument FOV onto body surface
 
     # Retrieve FOV parameters
-    _, _, _, bounds = mat2py_getfov(mat2py_bodn2c(inst), 4) # instrument FOV's boundary
+    _, _, _, bounds = mat2py_getfov((mat2py_bodn2c(inst))[0], 4) # instrument FOV's boundary
     # vectors in the instrument frame
     minx = np.min(bounds[0, :]) # minimum x focal plane
     maxx = np.max(bounds[0, :]) # maximum x focal plane
@@ -297,6 +297,7 @@ def footprint(t, inst, sc, target, res, *args):
                     # if the vector intercepts the surface and is at the focal
                     # plane boundary...
                     count += 1
+                    print(surfPoints,np.shape(surfPoints))
                     surfPoints[count,:] = aux
 
                     if y == miny:
