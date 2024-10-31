@@ -45,9 +45,10 @@ def main():
     olapx = 0.0  # Overlap in x-direction (%)
     olapy = 0.0  # Overlap in y-direction (%)
     gamma = [5.0, 2.5]  # Starting point (seed) inside the target area
+    fpThreshold = 0.2  # Dismissal threshold
 
     # Call the grid2d function
-    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area)
+    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area, fpThreshold)
 
     # Visualization
     visualize_results(target_area, matrix_grid, fpref['width'], fpref['height'], fpref['angle'])

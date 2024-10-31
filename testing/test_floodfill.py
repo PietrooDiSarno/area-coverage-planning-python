@@ -47,6 +47,7 @@ def main():
     olapy = 0.0  # Overlap in y-direction (%)
     gamma = [5.0, 2.5]  # Starting point (seed) inside the target area
     method = '4fill'  # Flood fill method ('4fill' or '8fill')
+    fpThreshold = 0.2  # Dismissal threshold
 
     # Initialize grid points and visited points lists
     grid_points = []
@@ -55,7 +56,7 @@ def main():
     # Call the flood fill algorithm
     grid_points, v_points = flood_fill_algorithm(
         w, h, olapx, olapy, gamma,
-        target_area, perimeter_area, grid_points, v_points, method
+        target_area, perimeter_area, grid_points, v_points, method, fpThreshold
     )
 
     # Convert grid points to NumPy array for plotting

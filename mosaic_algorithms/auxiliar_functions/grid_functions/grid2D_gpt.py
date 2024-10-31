@@ -1,4 +1,4 @@
-def grid2d(fpref, olapx, olapy, gamma, target_area):
+def grid2d(fpref, olapx, olapy, gamma, target_area, fpThreshold):
     """
     Grid discretization (using flood-fill algorithm) of a region of interest
     given a reference footprint (unit measure to create the allocatable cells).
@@ -79,8 +79,10 @@ def grid2d(fpref, olapx, olapy, gamma, target_area):
     peri_area = aux[hull.vertices]
 
     # Flood-fill algorithm to get the grid points of the oriented ROI
-    grid_points, _ = flood_fill_algorithm(fpref['width'], fpref['height'], olapx, olapy,
-                                          gamma, oriented_area, peri_area.tolist(), [], [], '4fill')
+    grid_points, _ = flood_fill_algorithm(
+        fpref['width'], fpref['height'], olapx, olapy,
+        gamma, oriented_area, peri_area.tolist(),
+        [], [], '4fill', fpThreshold)
 
     if grid_points:
         # Convert grid_points to NumPy array for processing
