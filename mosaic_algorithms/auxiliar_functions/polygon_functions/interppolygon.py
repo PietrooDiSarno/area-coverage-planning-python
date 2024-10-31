@@ -110,7 +110,6 @@ def interpm(lat, lon, maxdiff, method='gc'):
             continue
 
         num_points = int(dist // maxdiff)
-        print('num_points is',num_points)
         for j in range(1, num_points + 1):
             fraction = j / (num_points + 1)
             azimuth = calculate_azimuth(start,end)

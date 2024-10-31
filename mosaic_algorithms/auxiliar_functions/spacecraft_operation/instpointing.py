@@ -65,7 +65,7 @@ def instpointing(inst, target, sc, t, *args):
 
 
     # Retrieve FOV parameters
-    shape,instframe,boresight,bounds = mat2py_getfov(mat2py_bodn2c(inst),4) # instrument FOV's boundary
+    shape,instframe,boresight,bounds = mat2py_getfov((mat2py_bodn2c(inst))[0],4) # instrument FOV's boundary
     # vectors in the instrument frame
     if shape in ["CIRCLE", "ELLIPSE"]:
         raise ValueError("Circular and ellipsoidal FOV shapes have not been implemented yet")
@@ -119,8 +119,8 @@ def instpointing(inst, target, sc, t, *args):
 
         if found:
             _, lon, lat = mat2py_reclat(xpoint)
-            lon = lon*mat2py_dpr
-            lat = lat*mat2py_dpr
+            lon = lon*mat2py_dpr()
+            lat = lat*mat2py_dpr()
         else:
             # not visible
             print(f"On {mat2py_et2utc(t, 'C', 0)}, {inst} is not pointing at {target}")

@@ -30,5 +30,4 @@ def mat2py_str2et(timstr):
     et= np.array(et).reshape(np.size(et),)
     if len(et)==1:
         et=float(et[0])
-
     return et

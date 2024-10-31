@@ -23,7 +23,7 @@ import numpy as np
 
 # mat2py_cnmfrm returns:
 # - frcode: numpy.array of int whose shape is [n,] (1-D)
-# - frname: numpy.array of strings whose shape is [n,1]
+# - frname: list of n strings
 # - found: numpy.array of bool whose shape is [n,] (1-D)
 
 
@@ -37,7 +37,7 @@ def mat2py_cnmfrm(cname):
     #spice.cnmfrm takes only one name as input (differently from cspice_cnmfrm):
     #we iterate over the names contained in cname
     for _,name in enumerate(cname):
-      print('The name is', name)
+
       try:
         frcode.append(spice.cnmfrm(name)[0])
         frname.append(spice.cnmfrm(name)[1])
@@ -47,14 +47,14 @@ def mat2py_cnmfrm(cname):
          frname.append(' ')
          found.append(0)
          frcode.append(0)
-    frcode=np.array(frcode,dtype='int32').reshape((len(frcode),))
-    frname=(np.array(frname,dtype='str')).reshape((len(frname),1))
-    found=np.array(found,dtype='bool').reshape((len(found),))
 
-    print('Shapes and types of frcode are',np.shape(frcode),type(frcode),'type of the first is',type(frcode[0]))
+    if len(frname)==1:
+        return frcode[0],frname[0], found[0]
+    else:
+        frcode=np.array(frcode,dtype='int32')
+        found=np.array(found,dtype='bool')
 
-
-    return frcode,frname,found
+        return frcode,frname,found
 
 
 

@@ -59,8 +59,8 @@ def visibleroi(roi, et, target, obs):
     _, limb, _, _ = mat2py_limbpt(method, target, et, targetframe, abcorr,
                                    corloc, obs, refvec, delrol, ncuts, schstp, soltol, ncuts)  # limb points expressed in targetframe ref frame
     _, lblon, lblat = mat2py_reclat(limb)  # conversion from rectangular to latitudinal coordinates
-    lblon = lblon * mat2py_dpr
-    lblat = lblat * mat2py_dpr
+    lblon = lblon * mat2py_dpr()
+    lblat = lblat * mat2py_dpr()
 
     # Check for north/south pole
     northpole = False
@@ -87,11 +87,11 @@ def visibleroi(roi, et, target, obs):
         exit = 0
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            if Polygon(lblon, lblat).contains(Point(randPoint)):
+            if Polygon(list(zip(lblon, lblat))).contains(Point(randPoint[0],randPoint[1])):
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
                     exit = 1
-                    poly1 = Polygon(lblon, lblat)
+                    poly1 = Polygon((list(zip(lblon, lblat))))
             else:
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
@@ -100,8 +100,8 @@ def visibleroi(roi, et, target, obs):
                     # [Future work]
                     lonmap = np.array([-180, -180, 180, 180])
                     latmap = np.array([-90, 90, 90, -90])
-                    polymap = Polygon(lonmap, latmap)
-                    poly1 = Polygon(lblon, lblat)
+                    polymap = Polygon(list(zip(lonmap, latmap)))
+                    poly1 = Polygon(list(zip(lblon, lblat)))
                     poly1 = poly1.difference(polymap)
     else:
         # Case 2.
@@ -125,10 +125,10 @@ def visibleroi(roi, et, target, obs):
                 lblat[-1] = -90
             lblon[1:-1] = auxlon
             lblat[1:-1] = auxlat
-        poly1 = Polygon(lblon, lblat)
+        poly1 = Polygon((list(zip(lblon, lblat))))
 
     # roi and limb intersection
-    poly2 = Polygon(roi[:, 0], roi[:, 1])
+    poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
     inter = poly1.intersection(poly2)
 
     # output visible roi
