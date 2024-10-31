@@ -68,8 +68,9 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
 
     # Project ROI to the instrument plane
     targetArea = topo2inst(roi, cx, cy, target, sc, inst, inittime)
-    origin[0], origin[1] = (Polygon(targetArea).centroid.xy[0][0],
-    Polygon(targetArea).centroid.xy[1][0])
+    coordinates = [tuple(point) for point in targetArea]
+    origin[0], origin[1] = (Polygon(coordinates).centroid.xy[0][0],
+    Polygon(coordinates).centroid.xy[1][0])
 
     # Get minimum width direction of the footprint
     angle = minimumWidthDirection(targetArea[:,0],targetArea[:,1])

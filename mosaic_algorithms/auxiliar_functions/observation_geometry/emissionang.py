@@ -36,7 +36,6 @@ def emissionang(srfpoint, t, target, obs):
         srfpoint = mat2py_rpd()*srfpoint  # [deg] to [rad]
         srfpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], srfpoint[0], srfpoint[1]) # surface point in rectangular
         # coordinates (body modeled as a tri-axial ellipsoid)
-        print(srfpoint)
     else:
         # if srfpoint is input as a 1x3 instead of a 3x1, transpose array
         if srfpoint.ndim == 1:

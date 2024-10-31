@@ -53,7 +53,9 @@ def instpointing(inst, target, sc, t, *args):
     """
     #Pre-allocate variables
     axis3=False # boolean variable that indicates if the spacecraft is 3-axis steerable
-    if len(args) > 4:
+    lon=0
+    lat=0
+    if len(args) > 0:
         lon = args[0]
         lat = args[1]
         axis3 = True
@@ -80,10 +82,10 @@ def instpointing(inst, target, sc, t, *args):
         lat = lat*mat2py_rpd()
 
         # Boresight of the instrument must point at the target point
-        recpoint = mat2py_srfrec(mat2py_bodn2c(target), lon,lat)  # rectangular
+        recpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], lon,lat)  # rectangular
         # coordinates of the target point in the body-fixed reference frame
 
-        instpos = mat2py_spkpos(sc, t, targetframe, abcorr,target) # rectangular coordinates
+        instpos,_ = mat2py_spkpos(sc, t, targetframe, abcorr,target) # rectangular coordinates
         # of the instrument in the body-fixed reference frame
         v1 = recpoint - instpos  # distance vector to the target point from the instrument in the body-fixed reference frame
         boresight = v1 / np.linalg.norm(v1)  # boresight of the instrument in the
@@ -102,11 +104,11 @@ def instpointing(inst, target, sc, t, *args):
 
         # Define y-axis using cross product to ensure perpendicularity
         yinst = np.cross(boresight, reference_vector)
-        yinst = np.linalg.norm(yinst)  # normalize yinst
+        yinst = yinst/np.linalg.norm(yinst)  # normalize yinst
 
         # Define x-axis using cross product between boresight and yinst
         xinst = np.cross(yinst, boresight)
-        xinst = np.linalg.norm(xinst)  # normalize xinst
+        xinst = xinst/np.linalg.norm(xinst)  # normalize xinst
 
         # Assign to rotation matrix
         rotmat[:, 0] = xinst
@@ -145,7 +147,7 @@ def instpointing(inst, target, sc, t, *args):
         visible = True
 
     # Output values
-    if len(args) > 4:
+    if len(args) > 0:
         return fovbounds, boresight, rotmat, visible, lon, lat
     else:
         return fovbounds, boresight, rotmat, visible
