@@ -40,15 +40,13 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN, NaN]
     ii, jj,aux = [], [], []
-
+    print('type inputdata =',type(inputdata))
     if isinstance(inputdata, list):
         if len(inputdata)==2:
             inputdata = [inputdata]
         aux = [[point if point else [np.nan, np.nan] for point in row] for row in inputdata]
-        #topoPoints = np.vstack([point for sublist in aux for point in sublist])
         topoPoints = np.vstack([[point for point in sublist] for sublist in aux])
-        #print(topoPoints, np.shape(topoPoints), type(topoPoints), topoPoints.shape[0],topoPoints[0])
-        ii, jj = np.unravel_index(range(len(inputdata)), np.shape(inputdata))
+        ii, jj = np.unravel_index(np.array(range(np.size(topoPoints))), np.shape(topoPoints))
     else:
         topoPoints = copy.deepcopy(inputdata)
 
@@ -92,12 +90,14 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
             tArea[i, :] = np.full(3, np.nan)
 
     instcoord = tArea[:, :2]  # extract 2D instrument frame coordinates
-
+    print('instcoord  ',instcoord,'type inputdata', type(inputdata))
     # Prepare output data matching the format of the input,i.e., cell array or
     # matrix
     outputData = [[None for _ in row] for row in inputdata]
     if isinstance(inputdata, list):
+        print('lenii=', len(ii), 'ii=',ii)
         for k in range(len(ii)):
+            print('k=',k)
             if not np.isnan(instcoord[k]).any():
                 outputData[ii[k]][jj[k]] = instcoord[k, :]
     else:
