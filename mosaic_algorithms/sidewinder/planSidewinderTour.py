@@ -79,7 +79,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
 
     # Retrieve the field of view (FOV) bounds of the instrument and calculate
     # the dimensions of a reference observation footprint
-    _, _, _, bounds = mat2py_getfov(mat2py_bodn2c(inst), 4) # get fovbounds in the instrument's reference frame
+    _, _, _, bounds = mat2py_getfov(mat2py_bodn2c(inst)[0], 4) # get fovbounds in the instrument's reference frame
     maxx, minx = np.max(bounds[0, :]), np.min(bounds[0, :])
     maxy, miny = np.max(bounds[1, :]), np.min(bounds[1, :])
 
