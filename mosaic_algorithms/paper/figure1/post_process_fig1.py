@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import sys
-sys.path.append('C:\\Users\kekka\Documents\pythonProjects\pySPICElib')
+sys.path.append('C:\\Users\pietr\PycharmProjects\area coverage planning python\pySPICElib')
 
 def post_process_fig1():
     # Zoom in

@@ -12,7 +12,7 @@ def loadKernels(metakr):
     #HOMESPICE = getHomeSpice
     #kernelpath_ = os.path.join(getHomeSpice, 'kernels')
 
-    kernelpath_ = 'C:\\Users\\kekka\\Documents\\SPICE\\kernels'
+    kernelpath_ = 'C:\\Users\\pietr\\kernels'
 
     # load kernels
     kf=kernelFetch(kernelPath_= kernelpath_)

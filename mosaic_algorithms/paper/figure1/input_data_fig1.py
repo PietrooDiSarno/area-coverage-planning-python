@@ -9,7 +9,7 @@ from pySPICElib.loadKernels import loadKernels
 # Mosaic comparison between the different heuristics
 
 # Relevant paths
-kernelpath = 'C:\\Users\\kekka\\Documents\\pythonProjects\\area-coverage-planning-python\\input'
+kernelpath = 'C:\\Users\\pietr\\PycharmProjects\\area coverage planning python\\input'
 
 
 # Case study
