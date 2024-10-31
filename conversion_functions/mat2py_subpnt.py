@@ -26,7 +26,7 @@ import numpy as np
 # The function cspice_subpnt in MATLAB gives as output:
 # - spoint: [3,n] = size(spoint); double = class(spoint)
 # - trgepc: [1,n] = size(trgepc); double = class(trgepc)
-# - srfvec: [3,n] = size(spoint); double = class(spoint)
+# - srfvec: [3,n] = size(spoint); double = class(srfvec)
 # The function spice.subpnt in Python gives as output:
 # - tuple of (spoint,trgepc,srfvec). The type of the tuple is Tuple (ndarray, float, ndarray)
 
