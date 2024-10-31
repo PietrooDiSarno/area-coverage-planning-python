@@ -109,9 +109,10 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # will determine the coverage path)
     gt1[0],gt1[1] = groundtrack(sc, inittime, target) # initial ground track position
     gt2[0],gt2[1] = groundtrack(sc, inittime + 500, target) # future ground track position
+    print(gt1, gt2, type(gt1), type(gt2))
     gt1 = topo2inst(gt1, cx, cy, target, sc, inst, inittime) # projected initial position
     gt2 = topo2inst(gt2, cx, cy, target, sc, inst, inittime + 500) # projected future position
-
+    print(gt1,gt2,type(gt1),type(gt2))
     # Calculate the closest side of the target area to the spacecraft's ground track,
     # determining the observation sweep direction
     sweepDir1, sweepDir2 = closestSide(gt1, gt2, targetArea, angle)
