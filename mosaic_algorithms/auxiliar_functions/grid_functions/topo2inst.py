@@ -49,11 +49,12 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
         topoPoints = copy.deepcopy(inputdata)
 
     # Pre-allocate variables
-    targetframe = mat2py_cnmfrm(target)  # target frame ID in SPICE
+    _, targetframe,_ = mat2py_cnmfrm(target)  # target frame ID in SPICE
 
     # Build focal plane
-    fovbounds, boresight, rotmat = instpointing(inst, target, sc, et, lon, lat)
-    vertex = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
+    fovbounds, boresight, rotmat ,_,_,_ = instpointing(inst, target, sc, et, lon, lat)
+
+    vertex,_ = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
     point = vertex + fovbounds[:, 0]
 
     # Create a plane based on the boresight and a point in the focal plane
@@ -64,7 +65,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
 
     for i in range(topoPoints.shape[0]):
         if not np.isnan(topoPoints[i]).any():
-            dir = -trgobsvec(topoPoints[i], et, target, sc)
+            dir = -(trgobsvec(topoPoints[i], et, target, sc))[0]
             found, spoint[i, :] = mat2py_inrypl(vertex, dir, plane)
 
             if found:
@@ -97,7 +98,11 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
                 outputData[ii[k]][jj[k]] = instcoord[k, :]
     else:
         instcoord = instcoord[~np.isnan(instcoord[:, 0])]
-        aux[:,0],aux[:,1] = sortcw(instcoord[:, 0], instcoord[:, 1])
+        if np.size(aux)==0:
+            col1, col2 = sortcw(instcoord[:, 0], instcoord[:, 1])
+            aux = np.hstack((col1.reshape(len(col1),1),col2.reshape(len(col2),1)))
+        else:
+            aux[:,0],aux[:,1] = sortcw(instcoord[:, 0], instcoord[:, 1])
         outputData = aux
 
     return outputData

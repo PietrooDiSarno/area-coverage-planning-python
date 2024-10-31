@@ -119,7 +119,7 @@ def footprint(t, inst, sc, target, res, *args):
     if ckpointing: # constrained pointing
         bounds, boresight, pointingRotation, found, lon, lat = instpointing(inst, target, sc, t)
     else:
-        bounds, boresight, pointingRotation, found = instpointing(inst, target, sc, t, lon, lat)
+        bounds, boresight, pointingRotation, found,_,_ = instpointing(inst, target, sc, t, lon, lat)
 
     if not found:
         return fp  # the point is not visible from the instrument's FOV, therefore
@@ -215,14 +215,14 @@ def footprint(t, inst, sc, target, res, *args):
     if fp['limb'] == 'total':
         refineFOVsearch(fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc)
 
-    def inFOVprojection(boundPoints,N,surfPoints):
+    def inFOVprojection(boundPoints,N,surfPoints,count):
         """
         The FOV projection is enclosed in the target surface.
         """
         # Close polygon
         boundPoints = np.hstack((boundPoints, boundPoints[:, [0]]))
-        count = 0
-
+        #count = 0
+        surfPoints = np.zeros([N*(len(boundPoints) - 1),3])
         # high resolution
         for i in range(len(boundPoints) - 1):
             # linear (approximation) interpolation between vertices to define
@@ -230,15 +230,14 @@ def footprint(t, inst, sc, target, res, *args):
             v = boundPoints[:, i + 1] - boundPoints[:, i]
             lambda_vals = np.linspace(0, 1, N)  # line parametrization
             for l in range(N):
-                count += 1
                 surfPoints[count,0] = boundPoints[0, i] + v[0] * lambda_vals[l]
                 surfPoints[count,1] = boundPoints[1, i] + v[1] * lambda_vals[l]
                 surfPoints[count,2] = boundPoints[2, i] + v[2] * lambda_vals[l]
-
+                count += 1
         return
 
     def plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,
-                           res):
+                           res,count):
         # Warning message
         if res == 'lowres':
             warnings.warn(
@@ -247,7 +246,7 @@ def footprint(t, inst, sc, target, res, *args):
         # Initialize variables
         maxfx, maxfy = minx, miny
         minfx, minfy = maxx, maxy
-        count = 0
+        #count = 0
 
         old_found = False
         old_surfPoint = None
@@ -297,8 +296,10 @@ def footprint(t, inst, sc, target, res, *args):
                     # if the vector intercepts the surface and is at the focal
                     # plane boundary...
                     count += 1
-                    print(surfPoints,np.shape(surfPoints))
-                    surfPoints[count,:] = aux
+                    if np.size(surfPoints) == 0:
+                        surfPoints = aux
+                    else:
+                     surfPoints = np.vstack((surfPoints,aux))
 
                     if y == miny:
                         minfy = miny
@@ -315,9 +316,15 @@ def footprint(t, inst, sc, target, res, *args):
                     # one, we're sweeping across the object's limb
                     count += 1
                     if old_found:
-                        surfPoints[count,:] = old_surfPoint # save the previous intercept
+                        if np.size(surfPoints) == 0:
+                            surfPoints = old_surfPoint # save the previous intercept
+                        else:
+                            surfPoints = np.vstack((surfPoints, old_surfPoint)) # save the previous intercept
                     else:
-                        surfPoints[count,:] = aux # save the current intercept
+                        if np.size(surfPoints) == 0:
+                            surfPoints = aux # save the current intercept
+                        else:
+                            surfPoints = np.vstack((surfPoints, aux)) # save the current intercept
 
                     if x < minfx:
                         minfx = x
@@ -352,10 +359,10 @@ def footprint(t, inst, sc, target, res, *args):
     # Compute footprint
     if fp['limb'] == 'none':
         # FOV projects entirely on the body surface
-        inFOVprojection(boundPoints, N, surfPoints)
+        inFOVprojection(boundPoints, N, surfPoints, count)
     elif fp['limb'] == 'partial':
         #FOV contains partially the limb
-        plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,res)
+        plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,res,count)
     else:
         #FOV contains the whole body (total limb=
         tlimbFOVprojection(surfPoints,target,t,targetframe,sc)
