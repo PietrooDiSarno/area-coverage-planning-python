@@ -30,7 +30,7 @@ def mat2py_srfnrm(method,target,et,fixref,srfpts):
     if isinstance(fixref,list): fixref=fixref[0]
     if len(srfpts) == 3:
         srfpts=np.array(srfpts).reshape(1,3)
-        normls = spice.srfnrm(method, target, et, fixref, srfpts)
+        normls = spice.srfnrm(method, target, et, fixref, srfpts) #output is array (1,3)
     else:
         srfpts_trans =np.array( [[row[i] for row in srfpts] for i in range(len(srfpts[0]))])
         normls_trans = spice.srfnrm(method,target,et,fixref,srfpts_trans)

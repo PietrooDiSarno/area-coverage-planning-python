@@ -18,7 +18,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     Usage:        outputData = topo2inst(inputdata, lon, lat, target, sc, inst, et)
 
     Inputs:
-      > inputdata:     A list of lists or ndarray of points in topographic
+      > inputdata:     A list of lists  or ndarray of points in topographic
                        coordinates to be transformed. Each point is a row with
                        [longitude, latitude] format
       > lon:           longitude of the observation point or area center, in
@@ -40,7 +40,6 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN, NaN]
     ii, jj,aux = [], [], []
-    print('type inputdata =',type(inputdata))
     if isinstance(inputdata, list):
         if len(inputdata)==2:
             inputdata = [inputdata]

@@ -37,9 +37,8 @@ def emissionang(srfpoint, t, target, obs):
         srfpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], srfpoint[0], srfpoint[1]) # surface point in rectangular
         # coordinates (body modeled as a tri-axial ellipsoid)
     else:
-        # if srfpoint is input as a 1x3 instead of a 3x1, transpose array
-        if srfpoint.ndim == 1:
-            srfpoint = srfpoint.reshape(3, 1)
+        # if srfpoint is input as a (1,3) or (3,1), make it (3,)
+        srfpoint = srfpoint.reshape(3,)
 
     # Compute the observer position as seen from the srfpoint
     obsvec,_ = trgobsvec(srfpoint, t, target, obs)
@@ -47,10 +46,10 @@ def emissionang(srfpoint, t, target, obs):
     # Obtain the outwards surface normal vector
     nrmvec = np.zeros((3, np.size(t)))
     if np.size(t)==1:
-        nrmvec[:,0] = (mat2py_srfnrm(method, target, t, targetframe, srfpoint)).reshape(3,)  # normal to surface
+        nrmvec[:,0] = (mat2py_srfnrm(method, target, t, targetframe, srfpoint)) # normal to surface
     else:
         for i in range(len(t)):
-            nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint).reshape(3,)  # normal to surface
+            nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
 
     # Angle between the two vectors
     angle = mat2py_vsep(obsvec, nrmvec)

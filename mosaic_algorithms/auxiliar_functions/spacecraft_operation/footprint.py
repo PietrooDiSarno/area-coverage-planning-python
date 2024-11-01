@@ -103,13 +103,13 @@ def footprint(t, inst, sc, target, res, *args):
         'sc': sc,
         'target': target,
         't': t,
-        'bvertices': [], # footprint boundary vertices, in latitudinal coordinates, in [deg]
+        'bvertices':np.array([]), # footprint boundary vertices, in latitudinal coordinates, in [deg]
         'olon': np.nan, # longitude value of FOV boresight projection onto the body surface, in [deg]
         'olat': np.nan, # latitude value of FOV boresight projection onto the body surface, in [deg]
-        'fovbsight': [], # FOV boresight in target frame centered at the spacecraft position
-        'fovbounds': [], # FOV bounds in target frame centered at the spacecraft position
+        'fovbsight': np.array([]), # FOV boresight in target frame centered at the spacecraft position
+        'fovbounds': np.array([]), # FOV bounds in target frame centered at the spacecraft position
         'limb': 'none', # boolean that defines if the FOV projects onto the planetary body's limb
-        'recVertices': [], # matrix that contains the rectangular coordinates of the footprint boundary vertices
+        'recVertices': np.array([]), # matrix that contains the rectangular coordinates of the footprint boundary vertices
         'angle': np.nan,
         'width': np.nan,
         'height': np.nan
@@ -119,7 +119,7 @@ def footprint(t, inst, sc, target, res, *args):
     if ckpointing: # constrained pointing
         bounds, boresight, pointingRotation, found, lon, lat = instpointing(inst, target, sc, t)
     else:
-        bounds, boresight, pointingRotation, found,_,_ = instpointing(inst, target, sc, t, lon, lat)
+        bounds, boresight, pointingRotation, found = instpointing(inst, target, sc, t, lon, lat)
 
     if not found:
         return fp  # the point is not visible from the instrument's FOV, therefore
@@ -143,7 +143,7 @@ def footprint(t, inst, sc, target, res, *args):
     maxy = np.max(bounds[1, :]) # maximum y focal plane
     z = bounds[2, 0] # z-coordinate of the boundary vectors
 
-    boundPoints = np.zeros((3, bounds.shape[1])) # intercept points of the FOV
+    boundPoints = np.zeros((3, max(bounds.shape))) # intercept points of the FOV
     # boundary, in Cartesian coordinates, and in the body-fixed reference frame
     # In its simplest form, the footprint should have the same number of
     # vertices as boundaries has the instrument's FOV
@@ -155,7 +155,7 @@ def footprint(t, inst, sc, target, res, *args):
     intsec = False # boolean that indicates if at least one of the boundary
     # vectors intercepts the body surface
 
-    for i in range(fp['fovbounds'].shape[1]):
+    for i in range(max(fp['fovbounds'].shape)):
         boundPoints[:, i], _, _, found = mat2py_sincpt(method, target, t, targetframe, abcorr, sc, targetframe, fp['fovbounds'][:, i])
         # If the FOV boundary does not intercept the
         # object's surface, then we're seeing (at least, partially)
@@ -180,7 +180,7 @@ def footprint(t, inst, sc, target, res, *args):
             # Vertical sweep of the focal perimeter
             x = (maxx - minx) * ii + minx
             for jj in range(Nl + 1):
-                y = (maxy - miny) * jj / Nl + miny
+                y = (maxy - miny) * jj/Nl + miny
                 vec = np.array([x, y, z]).shape([3,1])
                 vec = np.dot(pointingRotation,vec)  # transform vector coordinates to target frame
                 _, _, _, found = mat2py_sincpt(method, target, t, targetframe, abcorr, sc, targetframe,
@@ -220,11 +220,11 @@ def footprint(t, inst, sc, target, res, *args):
         The FOV projection is enclosed in the target surface.
         """
         # Close polygon
-        boundPoints = np.hstack((boundPoints, boundPoints[:, [0]]))
+        boundPoints = np.hstack((boundPoints, boundPoints[:,[0]]))
         #count = 0
-        surfPoints = np.zeros([N*(len(boundPoints) - 1),3])
+        surfPoints = np.zeros([N*(max(boundPoints.shape) - 1),3])
         # high resolution
-        for i in range(len(boundPoints) - 1):
+        for i in range(max(boundPoints.shape) - 1):
             # linear (approximation) interpolation between vertices to define
             # the boundary of the footprint
             v = boundPoints[:, i + 1] - boundPoints[:, i]
