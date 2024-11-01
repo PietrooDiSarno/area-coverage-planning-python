@@ -85,6 +85,7 @@ def visibleroi(roi, et, target, obs):
         # Check if we are keeping the correct polygon (full disk polygons may be
         # misleading, we can only guarantee through emission angle check)
         exit = 0
+
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
             if Polygon(list(zip(lblon, lblat))).contains(Point(randPoint[0],randPoint[1])):
@@ -102,11 +103,11 @@ def visibleroi(roi, et, target, obs):
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
                     poly1 = Polygon(list(zip(lblon, lblat)))
-                    poly1 = poly1.difference(polymap)
+                    poly1 = polymap.difference(poly1)
     else:
         # Case 2.
         lblon, indsort = np.sort(lblon), np.argsort(lblon)
-        lblat = [lblat[i] for i in indsort]
+        lblat = np.array([lblat[i] for i in indsort])
         if northpole or southpole:
             # Include northpole to close polygon
             auxlon = lblon

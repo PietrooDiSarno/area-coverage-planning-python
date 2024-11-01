@@ -65,14 +65,13 @@ def instpointing(inst, target, sc, t, *args):
     _,targetframe,_ = mat2py_cnmfrm(target) #target frame ID in SPICE
     abcorr = 'LT' #one-way light time aberration correction parameter.
 
-
     # Retrieve FOV parameters
     shape,instframe,boresight,bounds = mat2py_getfov((mat2py_bodn2c(inst))[0],4) # instrument FOV's boundary
     # vectors in the instrument frame
     if shape in ["CIRCLE", "ELLIPSE"]:
         raise ValueError("Circular and ellipsoidal FOV shapes have not been implemented yet")
 
-    fovbounds = np.zeros((3, len(bounds)))
+    fovbounds = np.zeros((3, max(np.shape(bounds))))
     rotmat = np.zeros((3, 3))
     visible = False
 
@@ -136,8 +135,8 @@ def instpointing(inst, target, sc, t, *args):
         #instrument in the body-fixed reference frame
 
     # Transform coordinates
-    fovbounds = np.zeros(bounds.shape)
-    for i in range(bounds.shape[1]):
+    fovbounds = np.zeros([3,max(np.shape(bounds))])
+    for i in range(max(np.shape(bounds))):
         fovbounds[:, i] = np.dot(rotmat, bounds[:, i])  # instrument FOV's boundary vectors in the target frame
 
     # Check if the point is visible as seen from the instrument
@@ -148,6 +147,6 @@ def instpointing(inst, target, sc, t, *args):
 
     # Output values
     if len(args) > 0:
-        return fovbounds, boresight, rotmat, visible, lon, lat
-    else:
         return fovbounds, boresight, rotmat, visible
+    else:
+        return fovbounds, boresight, rotmat, visible, lon, lat

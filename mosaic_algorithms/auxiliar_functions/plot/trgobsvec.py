@@ -1,8 +1,8 @@
-import spiceypy as spice
+from conversion_functions import *
 import numpy as np
 
 
-def trgobsvec(srfpoint, t, target, obs, frame=None):
+def trgobsvec(srfpoint, t, target, obs, inputframe=None):
     """
     Distance vector between the target point P and the observer at time t
 
@@ -20,44 +20,45 @@ def trgobsvec(srfpoint, t, target, obs, frame=None):
     """
 
     # Target frame
-    frame_info = spice.cnmfrm(target)
-    target_frame = frame_info[1]
-    if frame is None:
-        frame = target_frame
+    _, frame, _ = mat2py_cnmfrm(target)
 
     abcorr = 'NONE'  # Assumption: geometric positions, no light aberrations
 
     # Convert latitudinal coordinates to rectangular if needed
     if len(srfpoint) == 2:
         srfpoint = np.radians(srfpoint)  # [deg] to [rad]
-        srfpoint = spice.srfrec(spice.bodn2c(target), srfpoint[0], srfpoint[1])
+        srfpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], srfpoint[0], srfpoint[1])
     else:
-        srfpoint = np.array(srfpoint).reshape(-1, 1)
+            srfpoint = np.array(srfpoint).reshape(3,)
 
     # Compute the observer position as seen from the srfpoint
-    obspos, _ = spice.spkpos(obs, t, frame, abcorr, target)
-    obsvec = obspos - srfpoint.T  # srfpoint-observer distance vector
+    obspos, _ = mat2py_spkpos(obs, t, frame, abcorr, target)
+    if np.size(t) == 1:
+        obsvec = obspos - srfpoint
+    else:
+        obsvec = obspos - srfpoint.reshape(3,1)  # srfpoint-observer distance vector
 
     # If a different reference frame is requested
-    if frame:
+    if inputframe:
         # Process each time point if t is an array of times
         if np.size(t) > 1:
             # Initialize a rotation matrix list
-            rotmat_list = [spice.pxform(target_frame, frame, time_point) for time_point in t] # rotation matrix from body-fixed reference frame to the requested one
+            rotmat_list = [mat2py_pxform(frame, inputframe, time_point) for time_point in t] # rotation matrix from body-fixed reference frame to the requested one
             # Apply rotation for each time point
             for i, rotmat in enumerate(rotmat_list):
                 # Ensure obsvec[:, i] is a 3D vector
-                obsvec[i] = np.dot(rotmat, obsvec[i])
-
-            # Compute distance
-            dist = np.zeros(obsvec.shape[0])
-            for i in range(obsvec.shape[0]):
-                dist[i] = np.linalg.norm(obsvec[i], axis=0)
+                obsvec[:,i] = np.dot(rotmat, obsvec[:,i])
         else:
             # Process a single time point
-            rotmat = spice.pxform(target_frame, frame, t)
-            obsvec = np.dot(rotmat, obsvec.T)
-            # Compute distance
-            dist = np.linalg.norm(obsvec)
+            rotmat = mat2py_pxform(frame, inputframe, t)
+            obsvec = np.dot(rotmat, obsvec)
+
+    # Compute distance
+    if np.size(t) >1:
+        dist = np.zeros(obsvec.shape[1])
+        for i in range(obsvec.shape[1]):
+            dist[i] = np.linalg.norm(obsvec[:,i])
+    else:
+        dist = np.linalg.norm(obsvec)
 
     return obsvec, dist
