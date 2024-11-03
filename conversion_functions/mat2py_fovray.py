@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_fovray in MATLAB can receive:
 # - inst:   [1,c1] = size(inst); char = class(inst) OR  [1,1] = size(inst); cell = class(inst)
 # - raydir: [3,1] = size(raydir), double = class(raydir)
@@ -28,19 +29,18 @@ import numpy as np
 # Since MATLAB function can handle more values in "et", while Python cannot, a "for" cycle is required in order to make
 # consistent inputs and outputs.
 
-def mat2py_fovray(inst,raydir,rframe,abcorr,obsrvr,et):
+def mat2py_fovray(inst, raydir, rframe, abcorr, obsrvr, et):
+    if isinstance(inst, list): bodynm = inst[0]
+    if isinstance(rframe, list): rframe = rframe[0]
+    if isinstance(abcorr, list): abcorr = abcorr[0]
+    if isinstance(obsrvr, list): obsrvr = obsrvr[0]
 
-    if isinstance(inst,list): bodynm=inst[0]
-    if isinstance(rframe,list): rframe=rframe[0]
-    if isinstance(abcorr,list): abcorr=abcorr[0]
-    if isinstance(obsrvr,list): obsrvr=obsrvr[0]
-
-    visibl=[]
-    if np.size(et)==1:
+    visibl = []
+    if np.size(et) == 1:
         visibl.append(spice.fovray(inst, raydir, rframe, abcorr, obsrvr, et))
         return visibl
-    for _,t in enumerate(et):
-      visibl.append(spice.fovray(inst,raydir,rframe,abcorr,obsrvr,t))
+    for _, t in enumerate(et):
+        visibl.append(spice.fovray(inst, raydir, rframe, abcorr, obsrvr, t))
 
     visibl = np.array(visibl)
     return visibl

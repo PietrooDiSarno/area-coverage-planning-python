@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_getfov in MATLAB can receive:
 # - instid: [1,1] = size(instid); int32 = class(instid)
 # - room: [1,1] = size(room); int32 = class(room)
@@ -22,11 +23,10 @@ import numpy as np
 # The function spice.getfov in Python gives as output:
 # - tuple of (shape,frame,bsight,n,bounds). The type of the tuple is Tuple[str, str, ndarray, int, ndarray]
 
-def mat2py_getfov(instid,room):
+def mat2py_getfov(instid, room):
+    shape, frame, bsight, n, bounds = spice.getfov(instid, room)
 
-    shape,frame,bsight,n,bounds=spice.getfov(instid,room)
+    bsight = bsight.reshape(3, 1)
+    bounds = bounds.reshape(3, n)
 
-    bsight=bsight.reshape(3,1)
-    bounds=bounds.reshape(3,n)
-
-    return shape,frame,bsight,bounds
+    return shape, frame, bsight, bounds

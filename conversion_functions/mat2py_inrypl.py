@@ -6,12 +6,12 @@ import spiceypy as spice
 
 # The function cspice_inrypl in MATLAB can receive:
 # - vertex: DOUBLE = Array[3]
-# - dir:DOUBLE = Array[3]ù
+# - direction: DOUBLE = Array[3]
 # - plane:STRUCT = CSPICE_PLANE
 
 # The function spice.inrypl in Python receives:
 # - vertex: iterable[floats]
-# - dir: iterable[floats]
+# - direction: iterable[floats]
 # - plane: plane
 
 # The function cspice_inrypl in MATLAB gives as output:
@@ -21,13 +21,11 @@ import spiceypy as spice
 # The function spice.inrypl in Python gives as output:
 # - Tuple of [nxpts,xpt] whose shape is Tuple[int,ndarray]
 
-def mat2py_inrypl(vertex,dir,plane):
+def mat2py_inrypl(vertex, direction, plane):
+    vertex = np.array(vertex, dtype=float).reshape(3, )
+    direction = np.array(direction, dtype=float).reshape(3, )
+    nxpts, xpt = spice.inrypl(vertex, direction, plane)
+    nxpts = int(nxpts)
+    xpt = np.array(xpt, dtype=float).reshape(3, 1)
 
-    vertex=np.array(vertex,dtype=float).reshape(3,)
-    dir=np.array(dir,dtype=float).reshape(3,)
-    nxpts,xpt=spice.inrypl(vertex,dir,plane)
-    nxpts=int(nxpts)
-    xpt=np.array(xpt,dtype=float).reshape(3,1)
-
-    return nxpts,xpt
-
+    return nxpts, xpt

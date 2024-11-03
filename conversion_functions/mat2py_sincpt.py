@@ -34,26 +34,32 @@
 import spiceypy as spice
 import numpy as np
 
-def mat2py_sincpt(method,target,et,fixref,abcorr,obsrvr,dref,dvec):
-    if isinstance(method,list): method=method[0]
-    if isinstance(target,list): target=target[0]
-    et=float(et)
-    if isinstance(fixref,list): fixref=fixref[0]
-    if isinstance(abcorr,list): abcorr=abcorr[0]
-    if isinstance(obsrvr,list): obsrvr=obsrvr[0]
-    if isinstance(dref,list): dref=dref[0]
-    dvec=np.array(dvec).reshape(3,)
+
+def mat2py_sincpt(method, target, et, fixref, abcorr, obsrvr, dref, dvec):
+    spoint = None
+    trgepc = None
+    srfvec = None
+    found = False
+
+    if isinstance(method, list): method = method[0]
+    if isinstance(target, list): target = target[0]
+    et = float(et)
+    if isinstance(fixref, list): fixref = fixref[0]
+    if isinstance(abcorr, list): abcorr = abcorr[0]
+    if isinstance(obsrvr, list): obsrvr = obsrvr[0]
+    if isinstance(dref, list): dref = dref[0]
+    dvec = np.array(dvec).reshape(3, )
     try:
         spoint, trgepc, srfvec = spice.sincpt(method, target, et, fixref, abcorr, obsrvr, dref, dvec)
-        spoint=np.array(spoint).reshape(3,1)
-        srfvec=np.array(srfvec).reshape(3,1)
-        found=True
+        spoint = np.array(spoint).reshape(3, 1)
+        srfvec = np.array(srfvec).reshape(3, 1)
+        found = True
 
-    except  Exception as e:
-         if str(e)=='Spice returns not found for function: sincpt':
-           spoint=np.zeros([3,1])
-           trgepc=et
-           srfvec=np.zeros([3,1])
-           found=False
+    except Exception as e:
+        if str(e) == 'Spice returns not found for function: sincpt':
+            spoint = np.zeros([3, 1])
+            trgepc = et
+            srfvec = np.zeros([3, 1])
+            found = False
+
     return spoint, trgepc, srfvec, found
-

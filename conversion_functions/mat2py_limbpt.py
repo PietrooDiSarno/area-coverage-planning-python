@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_limbpt in MATLAB can receive:
 # - method: [1,c1] = size(method); char = class(method) OR [1,1] = size(method); cell = class(method)
 # - target: [1,c2] = size(target); char = class(target) OR [1,1] = size(target); cell = class(target)
@@ -47,27 +48,27 @@ import numpy as np
 # The function spice.limbpt in Python gives as output:
 # - tuple of (npts,points,epochs,tangts). The type of the tuple is Tuple[ndarray, ndarray,ndarray,ndarray]
 
-def mat2py_limbpt(method,target,et,fixref,abcorr,corloc,obsrvr,refvec,rolstp,ncuts,schstp,soltol,maxn):
+def mat2py_limbpt(method, target, et, fixref, abcorr, corloc, obsrvr, refvec, rolstp, ncuts, schstp, soltol, maxn):
     if isinstance(method, list): method = method[0]
     if isinstance(target, list): target = target[0]
     if isinstance(fixref, list): fixref = fixref[0]
     if isinstance(abcorr, list): abcorr = abcorr[0]
     if isinstance(obsrvr, list): obsrvr = obsrvr[0]
-    if isinstance(corloc,list): corloc = corloc[0]
+    if isinstance(corloc, list): corloc = corloc[0]
 
-    refvec=np.array(refvec).reshape(3,)
+    refvec = np.array(refvec).reshape(3, )
 
-    npts,points,epochs,tangts= spice.limbpt(method,target,et,fixref,abcorr,corloc,obsrvr,refvec,rolstp,ncuts,schstp,soltol,maxn)
-    nf=len(npts)
+    npts, points, epochs, tangts = spice.limbpt(
+        method, target, et, fixref, abcorr, corloc, obsrvr, refvec, rolstp, ncuts, schstp, soltol, maxn)
+    nf = len(npts)
 
-    points = points.reshape(3,nf)
-    tangts = tangts.reshape(3,nf)
+    points = points.reshape(3, nf)
+    tangts = tangts.reshape(3, nf)
 
-    if nf!=maxn:
-        npts=np.concatenate((npts,np.zeros(maxn-nf)))
-        points=np.hstack((points,np.zeros([3,maxn-nf])))
-        epochs=np.concatenate((epochs,np.zeros(maxn-nf)))
-        tangts = np.hstack((tangts, np.zeros([3,maxn-nf])))
+    if nf != maxn:
+        npts = np.concatenate((npts, np.zeros(maxn - nf)))
+        points = np.hstack((points, np.zeros([3, maxn - nf])))
+        epochs = np.concatenate((epochs, np.zeros(maxn - nf)))
+        tangts = np.hstack((tangts, np.zeros([3, maxn - nf])))
 
-    return npts,points,epochs,tangts
-
+    return npts, points, epochs, tangts

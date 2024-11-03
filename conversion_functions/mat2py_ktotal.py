@@ -2,6 +2,7 @@
 # for our code.
 import spiceypy as spice
 
+
 # The function cspice_ktotal in MATLAB can receive:
 # - kind :  [1,c1] = size(kind); char = class(kind) OR [1,1] = size(kind); cell = class(kind)
 
@@ -15,10 +16,9 @@ import spiceypy as spice
 # - count: int
 
 def mat2py_ktotal(kind):
+    if isinstance(kind, list):
+        kind = kind[0]
 
-    if isinstance(kind,list):
-        kind=kind[0]
-
-    count=spice.ktotal(kind)
+    count = spice.ktotal(kind)
 
     return count

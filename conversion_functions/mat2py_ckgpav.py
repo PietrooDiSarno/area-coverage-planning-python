@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_ckgpav in MATLAB can receive:
 # - inst: [1,1] = size(inst); int32 = class(inst)
 # - sclkdp: [1,n] = size(sclkdp); double = class(sclkdp)
@@ -11,7 +12,7 @@ import numpy as np
 
 # The function spice.ckgpav in Python receives:
 # - inst: int
-# - sclkdp: float --> a "for" cycle is required since MATLAB can handle over more values of "sclkdp", while Python cannot
+# - sclkdp: float --> a "for" cycle is required since MATLAB can handle more values of "sclkdp", but Python can't
 # - tol: float OR int
 # - ref: str
 
@@ -25,40 +26,44 @@ import numpy as np
 # The function spice.ckgpav in Python gives as output:
 # - tuple of (cmat,av,clkout,found). The type of the tuple is Tuple[ndarray, ndarray, float, bool]
 
-def mat2py_ckgpav(inst,sclkdp,tol,ref):
+def mat2py_ckgpav(inst, sclkdp, tol, ref):
+    cmat = None
+    av = None
+    clkout = None
+    found = False
 
-    if np.size(sclkdp)==1:
+    if np.size(sclkdp) == 1:
         try:
-          cmat,av,clkout=spice.ckgpav(inst,sclkdp,tol,ref)
-          av=av.reshape(3,1)
-          found=True
+            cmat, av, clkout = spice.ckgpav(inst, sclkdp, tol, ref)
+            av = av.reshape(3, 1)
+            found = True
         except Exception as e:
             if str(e) == 'Spice returns not found for function: ckgpav':
-                cmat=np.zeros((3,3))
-                av=np.zeros((3,1))
-                clkout=0
-                found=False
+                cmat = np.zeros((3, 3))
+                av = np.zeros((3, 1))
+                clkout = 0
+                found = False
 
     else:
-      sclkdp = np.array(sclkdp).reshape(len(sclkdp), )
-      n = len(sclkdp)
-      cmat = np.array([])
-      av = np.array([])
-      clkout = np.array([])
-      found = np.array([],dtype=bool)
-      for i in range(n):
-       try:
-        Cmat,Av,Clkout=spice.ckgpav(inst,sclkdp[i],tol,ref)
-        Av=Av.reshape(3,1)
-        cmat=np.stack((cmat,Cmat),axis=2)
-        av=np.stack((av,Av),axis=1)
-        clkout=np.append(clkout,Clkout)
-        found=np.append(found,True)
-       except Exception as e:
-           if str(e) == 'Spice returns not found for function: ckgpav':
-               cmat=np.stack((cmat,np.zeros((3, 3))),axis=2)
-               av=np.stack((av,np.zeros((3, 1))),axis=1)
-               clkout=np.append(clkout,0)
-               found=np.append(found,False)
+        sclkdp = np.array(sclkdp).reshape(len(sclkdp), )
+        n = len(sclkdp)
+        cmat = np.array([])
+        av = np.array([])
+        clkout = np.array([])
+        found = np.array([], dtype=bool)
+        for i in range(n):
+            try:
+                Cmat, Av, Clkout = spice.ckgpav(inst, sclkdp[i], tol, ref)
+                Av = Av.reshape(3, 1)
+                cmat = np.stack((cmat, Cmat), axis=2)
+                av = np.stack((av, Av), axis=1)
+                clkout = np.append(clkout, Clkout)
+                found = np.append(found, True)
+            except Exception as e:
+                if str(e) == 'Spice returns not found for function: ckgpav':
+                    cmat = np.stack((cmat, np.zeros((3, 3))), axis=2)
+                    av = np.stack((av, np.zeros((3, 1))), axis=1)
+                    clkout = np.append(clkout, 0)
+                    found = np.append(found, False)
 
-    return cmat,av,clkout,found
+    return cmat, av, clkout, found

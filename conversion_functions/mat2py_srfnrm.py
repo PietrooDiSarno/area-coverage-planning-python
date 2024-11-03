@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_srfnrm in MATLAB can receive:
 # - method :  [1,c1] = size(method); char = class(method) OR  [1,1] = size(method); cell = class(method)
 # - target: [1,c1] = size(target); char = class(target) OR  [1,1] = size(target); cell = class(target)
@@ -23,14 +24,13 @@ import numpy as np
 # The function spice.srfnrm in Python gives as output:
 # - normls: ndarray of shape [n,3]
 
-def mat2py_srfnrm(method,target,et,fixref,srfpts):
-
+def mat2py_srfnrm(method, target, et, fixref, srfpts):
     if isinstance(method, list): method = method[0]
     if isinstance(target, list): target = target[0]
-    if isinstance(fixref,list): fixref=fixref[0]
+    if isinstance(fixref, list): fixref = fixref[0]
 
-    srfpts_trans =np.array( [[row[i] for row in srfpts] for i in range(len(srfpts[0]))])
-    normls_trans = spice.srfnrm(method,target,et,fixref,srfpts_trans)
+    srfpts_trans = np.array([[row[i] for row in srfpts] for i in range(len(srfpts[0]))])
+    normls_trans = spice.srfnrm(method, target, et, fixref, srfpts_trans)
 
-    normls = np.array( [[row[i] for row in normls_trans] for i in range(len(normls_trans[0]))])
+    normls = np.array([[row[i] for row in normls_trans] for i in range(len(normls_trans[0]))])
     return normls
