@@ -2,6 +2,9 @@ import numpy as np
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
 
+from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
+
+
 def minimumWidthDirection(x, y):
     """
     This function computes the orientation (angle) at which the width of the
@@ -27,7 +30,7 @@ def minimumWidthDirection(x, y):
                       axes (width, height)
    """
 
-    # Check if the polygon is divided in two (a.m. intersection)...
+    # Check if the polygon is divided into two (a.m. intersection)...
     ind = np.where(np.isnan(x))[0]
     if ind.size > 0:
         x[:ind[0]] += 360
@@ -38,9 +41,9 @@ def minimumWidthDirection(x, y):
     hull = ConvexHull(np.array([x, y]).T)
     cx, cy = np.mean(hull.points[hull.vertices], axis=0)
 
-    vertices=np.array([])
+    vertices = np.array([])
     # Sort the vertices in clockwise direction
-    vertices[:,0],vertices[:,1] = sortcw(x,y)
+    vertices[:, 0], vertices[:, 1] = sortcw(x, y)
 
     # Minimum width direction
     npoints = 361
@@ -72,7 +75,6 @@ def minimumWidthDirection(x, y):
     polygon = Polygon(np.column_stack((x, y)))
     area = polygon.area
     height = area / minwidth
-
 
     # Constrain angle between 0º and 180º
     if thetamin >= 180:
