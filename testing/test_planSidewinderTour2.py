@@ -12,6 +12,7 @@ the planned tour, are visualized for intuitive understanding.
 # Import external modules
 import matplotlib.pyplot as plt
 import numpy as np
+from pySPICElib import kernelFetch
 from shapely.geometry import Polygon
 
 # Helper functions (amsplit, grid2D, boustrophedon, etc.)
@@ -29,6 +30,11 @@ def main():
     - Calls the planSidewinderTour2 function.
     - Visualizes the grid points and the planned tour.
     """
+
+    # Load SPICE kernels
+    kf = kernelFetch()
+    kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
+
     # Define the target area as a simple rectangular ROI
     roi = [
         [0, 0],
@@ -39,9 +45,9 @@ def main():
     ]  # Rectangle from (0,0) to (20,10)
 
     # Define planning parameters
-    target = 'Earth'  # Target body
-    sc = 'SC-001'  # Spacecraft identifier
-    inst = 'INST-001'  # Instrument identifier
+    target = 'EUROPA'  # Target body
+    sc = 'GALILEO ORBITER'  # Spacecraft identifier
+    inst = 'GLL_SSI'  # Instrument identifier
     inittime = 0.0  # Initial time of observation (arbitrary units)
     ovlapx = 0.2  # 20% overlap in x-direction
     ovlapy = 0.2  # 20% overlap in y-direction

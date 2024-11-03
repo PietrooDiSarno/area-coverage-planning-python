@@ -49,8 +49,8 @@ def main():
 
     # Observation parameters
     t = utc2et('2023-01-01T12:00:00')  # Observation time
-    target = 'MARS'  # Target body (planet)
-    sc = 'MRO'  # Spacecraft (Mars Reconnaissance Orbiter)
+    target = 'EUROPA'  # Target body
+    sc = 'GALILEO ORBITER'  # Spacecraft identifier
     angle = 45  # Rotation angle in degrees
 
     # Call the closestSide function

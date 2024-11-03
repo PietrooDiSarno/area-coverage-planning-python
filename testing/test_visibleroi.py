@@ -44,8 +44,8 @@ def main():
 
     # Observation parameters
     et = utc2et('2023-01-01T12:00:00')  # Observation time
-    target = 'MARS'  # Target body
-    obs = 'MRO'  # Observer (Mars Reconnaissance Orbiter)
+    target = 'EUROPA'  # Target body
+    obs = 'GALILEO ORBITER'  # Observer
 
     # Call the visibleroi function
     vroi, inter = visibleroi(roi, et, target, obs)

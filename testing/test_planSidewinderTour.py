@@ -26,6 +26,7 @@ def main():
     - Calls the planSidewinderTour function.
     - Visualizes the results.
     """
+
     # Load SPICE kernels
     kf = kernelFetch()
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
@@ -40,9 +41,9 @@ def main():
     ])  # A rectangle from 0° to 30° longitude and -10° to 10° latitude
 
     # Observation parameters
-    target = 'MARS'  # Target body
-    sc = 'MRO'  # Spacecraft (Mars Reconnaissance Orbiter)
-    inst = 'MRO_CTX'  # Instrument (e.g., Context Camera)
+    target = 'EUROPA'  # Target body
+    sc = 'GALILEO ORBITER'  # Spacecraft identifier
+    inst = 'GLL_SSI'  # Instrument identifier
     inittime = utc2et('2023-01-01T12:00:00')  # Start time in ET (TDB seconds past J2000)
     olapx = 0.2  # 20% overlap in x-direction
     olapy = 0.2  # 20% overlap in y-direction

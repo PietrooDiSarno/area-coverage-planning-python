@@ -46,9 +46,9 @@ def main():
     # Spacecraft and instrument parameters
     lon = 0.0  # Instrument pointing longitude in degrees
     lat = 0.0  # Instrument pointing latitude in degrees
-    target = 'EARTH'  # Target body
-    sc = 'MRO'  # Spacecraft (e.g., Mars Reconnaissance Orbiter)
-    inst = 'MRO_CTX'  # Instrument name (e.g., Context Camera)
+    target = 'EUROPA'  # Target body
+    sc = 'GALILEO ORBITER'  # Spacecraft identifier
+    inst = 'GLL_SSI'  # Instrument identifier
     et = spice.str2et('2024-01-01 T00:00:00')  # Ephemeris time
 
     # Call inst2topo to convert instrument frame grid to topographical coordinates
