@@ -1,137 +1,113 @@
 import numpy as np
 from conversion_functions import *
+from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
 from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
+from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 
 
 def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     """
-    Transforms topographical coordinates to instrument frame coordinates.
+    Transforms a set of points from the topographic coordinate system (latitude and longitude on the target body)
+    to the instrument frame coordinates.
 
     Parameters:
-    -----------
-    inputdata : list of lists or numpy array
-        Topographical points (longitude, latitude in degrees). Can be a nested list or a numpy array.
-    lon : float
-        Longitude of the instrument pointing in degrees.
-    lat : float
-        Latitude of the instrument pointing in degrees.
-    target : str
-        Name of the target body (e.g., 'Earth').
-    sc : str
-        Name of the spacecraft.
-    inst : str
-        Name of the instrument.
-    et : float
-        Ephemeris time (seconds past J2000).
+        inputdata (list or numpy array): Points in topographic
+            coordinates to be transformed. Each point is [longitude, latitude].
+            Can be a list of lists (equivalent to MATLAB cell array) or a numpy array.
+        lon (float): Longitude of the observation point or area center, in degrees.
+        lat (float): Latitude of the observation point or area center, in degrees.
+        target (str): Name of the target body.
+        sc (str): Name of the spacecraft.
+        inst (str): Name of the instrument.
+        et (float): Ephemeris time, TDB seconds past J2000 epoch.
 
     Returns:
-    --------
-    outputData : list of lists or numpy array
-        Instrument frame coordinates corresponding to the input topographical points.
-        If inputdata is a nested list, outputData will be a nested list with the same structure.
-        If inputdata is a numpy array, outputData will be a numpy array.
+        outputData (list or numpy array): The input points transformed
+            to the instrument frame coordinates. The format matches the input (list or array).
     """
 
-    # Import necessary modules
-    # Note: Ensure that mat2py_xxxx functions, instpointing, and trgobsvec are properly imported.
-
-    # Check if inputdata is a list (nested list representing a cell array)
+    # Handle input data in list (cell array) format, ensuring all empty entries are replaced with [NaN, NaN]
     if isinstance(inputdata, list):
-        # Flatten the inputdata into topoPoints, and keep track of indices
         aux = []
         ii = []
         jj = []
-        for i, row in enumerate(inputdata):
-            for j, item in enumerate(row):
-                if item is not None:
-                    aux.append(item)
+        for i in range(len(inputdata)):
+            for j in range(len(inputdata[i])):
+                if inputdata[i][j] is not None:
+                    aux.append(inputdata[i][j])
                 else:
                     aux.append([np.nan, np.nan])
                 ii.append(i)
                 jj.append(j)
-        # Convert aux to numpy array for vectorized operations
         topoPoints = np.array(aux)
     else:
-        # Inputdata is already a numpy array
-        topoPoints = np.array(inputdata)
-        # No need to keep track of indices
-        ii = None
-        jj = None
+        # Assume inputdata is a numpy array
+        topoPoints = inputdata
 
     # Pre-allocate variables
-    # Get the target body-fixed frame ID in SPICE
+    # Get target frame name in SPICE
     _, targetframe, _ = mat2py_cnmfrm(target)
 
     # Build focal plane
-    # Get the field of view bounds, boresight vector, and rotation matrix from instrument frame to body-fixed frame
+    # Call instpointing to get fovbounds, boresight, rotmat
     fovbounds, boresight, rotmat = instpointing(inst, target, sc, et, lon, lat)
-
-    # Get the position of the spacecraft in the target frame
-    vertex, _ = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
-
-    # Define a point in the focal plane using the first column of fovbounds
+    # Get spacecraft position relative to target
+    vertex = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
+    vertex = vertex.flatten()  # Ensure vertex is a 1D array
+    # Create a point in the focal plane
     point = vertex + fovbounds[:, 0]
-
-    # Define the plane using the normal vector (boresight) and a point in the plane
+    # Create a plane based on the boresight and a point in the focal plane
     plane = mat2py_nvp2pl(boresight, point)
 
-    # Initialize spoint array to store intersection points
+    # For each topographic point, find its intersection with the focal plane
     spoint = np.zeros((topoPoints.shape[0], 3))
-
-    # Intersect topoPoints with focal plane
     for i in range(topoPoints.shape[0]):
-        if not np.any(np.isnan(topoPoints[i, :])):
-            # Convert longitude and latitude from degrees to radians
-            lon_rad = topoPoints[i, 0] / mat2py_dpr()
-            lat_rad = topoPoints[i, 1] / mat2py_dpr()
-            # Compute the position vector from latitude and longitude
-            # Original MATLAB function may have used a function like cspice_latrec
-            xpoint = mat2py_latrec(lon_rad, lat_rad, 1.0)  # Assuming unit radius
-            # Compute the direction vector from target to observer (spacecraft)
-            # Note: trgobsvec is a custom function that needs to be defined
+        if not np.isnan(topoPoints[i, :]).any():
+            # Compute the direction vector from target point to spacecraft
             dir_vector = -trgobsvec(topoPoints[i, :], et, target, sc)
-            # Find the intersection of the line with the plane
-            # Original MATLAB function: [found, spoint(i, :)] = cspice_inrypl(vertex, dir, plane);
-            found, spoint_i = mat2py_inrypl(vertex, dir_vector, plane)
+            found, intersection_point = mat2py_inrypl(vertex, dir_vector, plane)
             if found:
-                spoint[i, :] = spoint_i
+                emnang = emissionang(topoPoints[i, :], et, target, sc)
+                if emnang >= 90:
+                    found = False
+            if found:
+                spoint[i, :] = intersection_point
             else:
-                # Intersection not found
-                print(f"No intersection at point index {i}")
-                spoint[i, :] = np.array([np.nan, np.nan, np.nan])
+                spoint[i, :] = [np.nan, np.nan, np.nan]
         else:
-            # topoPoint contains NaN values
-            spoint[i, :] = np.array([np.nan, np.nan, np.nan])
+            spoint[i, :] = [np.nan, np.nan, np.nan]
 
-    # Transform coordinates from body-fixed frame to instrument frame
-    tArea = np.zeros((spoint.shape[0], 3))
+    # Transform coordinates from body-fixed to instrument frame
+    tArea = np.zeros_like(spoint)
     for i in range(spoint.shape[0]):
-        if not np.any(np.isnan(spoint[i, :])):
-            # Compute the vector from vertex (spacecraft) to spoint
+        if not np.isnan(spoint[i, :]).any():
             vpoint = -(vertex - spoint[i, :])
-            # Transform to instrument frame coordinates using the rotation matrix
-            # Original MATLAB operation: tArea(i, :) = rotmat \ vpoint;
+            # Apply inverse rotation to transform to instrument frame
             tArea[i, :] = np.linalg.solve(rotmat, vpoint)
         else:
-            tArea[i, :] = np.array([np.nan, np.nan, np.nan])
+            tArea[i, :] = [np.nan, np.nan, np.nan]
 
-    # Extract the first two components (x, y) as instrument coordinates
+    # Extract 2D instrument frame coordinates
     instcoord = tArea[:, 0:2]
 
-    # Prepare the output data in the same structure as inputdata
+    # Prepare output data matching the format of the input
     if isinstance(inputdata, list):
-        # Reconstruct outputData as a nested list with the same structure as inputdata
         outputData = [[None for _ in row] for row in inputdata]
-        for idx in range(len(ii)):
-            i = ii[idx]
-            j = jj[idx]
-            if not np.any(np.isnan(instcoord[idx, :])):
+        idx = 0
+        for i, j in zip(ii, jj):
+            if not np.isnan(instcoord[idx, :]).any():
                 outputData[i][j] = instcoord[idx, :].tolist()
             else:
                 outputData[i][j] = None
+            idx += 1
     else:
-        # Inputdata was a numpy array; return instcoord as numpy array
-        outputData = instcoord
+        # Remove rows with NaNs
+        valid_indices = ~np.isnan(instcoord[:, 0])
+        instcoord = instcoord[valid_indices, :]
+        # Sort coordinates clockwise
+        aux_x, aux_y = sortcw(instcoord[:, 0], instcoord[:, 1])
+        outputData = np.column_stack((aux_x, aux_y))
 
     return outputData
+
