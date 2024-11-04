@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from shapely.geometry import Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi import visibleroi
 from mosaic_algorithms.auxiliar_functions.polygon_functions.interppolygon import interppolygon
@@ -84,7 +85,7 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     ind = np.where(np.diff(np.sort(inroi[:, 0])) >= 180)[0]  # find the discontinuity index
     if ind.size > 0:
         amIntercept = True
-        roi = inroi
+        roi = copy.deepcopy(inroi)
         roi[roi[:, 0] < 0, 0] += 360  # adjust longitudes
         roi[:,0],roi[:,1] = sortcw(roi[:,0],roi[:,1])  # sort coordinates clockwise
 
@@ -95,7 +96,7 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     # [Future work]: Solve this incompatibility
 
     # Define target area as a polygon
-    poly1 = Polygon(roi)
+    poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
     cx, cy = poly1.centroid.xy
 
     ## Frontier Repair algorithm

@@ -29,10 +29,10 @@ def groundtrack(obs, t, target):
     _, tframe, _ = mat2py_cnmfrm(target)  # body-fixed frame
 
     # Get ground track
-    sctrack = mat2py_subpnt(method, target, t, tframe, abcorr, obs)  # sub-spacecraft point
+    sctrack, _, _ = mat2py_subpnt(method, target, t, tframe, abcorr, obs)  # sub-spacecraft point
     _, gtlon, gtlat = mat2py_reclat(sctrack)  # convert to latitudinal coordinates
 
-    gtlon = gtlon * mat2py_dpr  # [rad] to [deg]
-    gtlat = gtlat * mat2py_dpr  # [rad] to [deg]
+    gtlon = gtlon * mat2py_dpr()  # [rad] to [deg]
+    gtlat = gtlat * mat2py_dpr()  # [rad] to [deg]
 
     return gtlon, gtlat

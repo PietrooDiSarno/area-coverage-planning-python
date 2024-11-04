@@ -22,7 +22,6 @@ import numpy as np
 def mat2py_pxform(frm,to,et):
 
     if np.size(et)==1:
-        et = np.array(et)
         rotate=spice.pxform(frm,to,et)
 
     else:

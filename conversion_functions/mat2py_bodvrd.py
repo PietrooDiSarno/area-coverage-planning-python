@@ -36,7 +36,7 @@ def mat2py_bodvrd(bodynm, item, maxn):
     dim,values = spice.bodvrd(bodynm,item,maxn)
     while len(values)!=dim:
         values=np.delete(values,-1)
-    values=np.reshape(values,[dim,1])
+    values=np.reshape(values,[dim,])
     return values
 
 
