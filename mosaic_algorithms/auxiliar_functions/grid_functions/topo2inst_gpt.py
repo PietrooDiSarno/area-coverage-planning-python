@@ -51,7 +51,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
 
     # Build focal plane
     # Call instpointing to get fovbounds, boresight, rotmat
-    fovbounds, boresight, rotmat = instpointing(inst, target, sc, et, lon, lat)
+    fovbounds, boresight, rotmat, visible, lon_out, lat_out = instpointing(inst, target, sc, et, lon, lat)
     # Get spacecraft position relative to target
     vertex = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
     vertex = vertex.flatten()  # Ensure vertex is a 1D array

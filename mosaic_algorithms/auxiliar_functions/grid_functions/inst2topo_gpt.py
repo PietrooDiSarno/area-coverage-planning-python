@@ -26,7 +26,7 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
     # Pre-allocate
     # Call instpointing to get rotation matrix rotmat
     # Note: instpointing is assumed to be implemented in Python with the same interface
-    _, _, rotmat = instpointing(inst, target, sc, et, lon, lat)
+    fovbounds, boresight, rotmat, visible, lon_out, lat_out = instpointing(inst, target, sc, et, lon, lat)
     # Initialize grid_topo as a list of lists, same size as grid
     grid_topo = [[None for _ in row] for row in grid]
     method = 'ELLIPSOID'
