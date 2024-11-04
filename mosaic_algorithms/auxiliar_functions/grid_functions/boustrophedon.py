@@ -38,7 +38,7 @@ def boustrophedon(grid, dir1, dir2):
 
     # Particular case: len(grid) == 1
 
-    if len(grid) == 1:
+    if len(grid) == 1 and len(grid[0]) == 1:
         tour=grid[0]
 
     sweep = dir2 in ['east', 'south']
@@ -51,7 +51,7 @@ def boustrophedon(grid, dir1, dir2):
         else:
             bearing = False #right -> left
 
-        tour = [[] for _ in range(np.count_nonzero([item is not None for item in grid]))] #list of planned observations
+        tour = [[] for _ in range(np.count_nonzero([item is not None for row in grid for item in row]))] #list of planned observations
         ii = 0
         for i in range(len(grid)):
             #Sweep across latitude
@@ -80,7 +80,7 @@ def boustrophedon(grid, dir1, dir2):
         else:
             bearing = False # down -> top
 
-        tour = [[] for _ in range(np.count_nonzero([item is not None for item in grid]))] #list of planned observations
+        tour = [[] for _ in range(np.count_nonzero([item is not None for row in grid for item in row]))] #list of planned observations
         ii = 0
         for i in range(len(grid[0])):
             if dir1 == 'west':
