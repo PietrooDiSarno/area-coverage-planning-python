@@ -1,7 +1,7 @@
 import numpy as np
 from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
-from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
+from mosaic_algorithms.auxiliar_functions.plot.trgobsvec_gpt import trgobsvec
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing_gpt import instpointing
 
@@ -67,7 +67,8 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     for i in range(topoPoints.shape[0]):
         if not np.isnan(topoPoints[i, :]).any():
             # Compute the direction vector from target point to spacecraft
-            dir_vector = -trgobsvec(topoPoints[i, :], et, target, sc)
+            dir_vector, _ = trgobsvec(topoPoints[i, :], et, target, sc)
+            dir_vector = -dir_vector
             found, intersection_point = mat2py_inrypl(vertex, dir_vector, plane)
             if found:
                 emnang = emissionang(topoPoints[i, :], et, target, sc)
