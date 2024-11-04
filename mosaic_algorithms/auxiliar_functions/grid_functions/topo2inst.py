@@ -40,20 +40,24 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN, NaN]
     ii, jj,aux = [], [], []
+    print(inputdata)
     if isinstance(inputdata, list):
-        if len(inputdata)==2:
-            inputdata = [inputdata]
         aux = [[point if point else [np.nan, np.nan] for point in row] for row in inputdata]
         topoPoints = np.vstack([[point for point in sublist] for sublist in aux])
-        ii, jj = np.unravel_index(np.array(range(np.size(topoPoints))), np.shape(topoPoints))
+        for i in range(len(inputdata)):
+            for j in range(len(inputdata[i])):
+                ii.append(i)
+                jj.append(j)
     else:
+        if np.shape(inputdata) == (2,):
+            inputdata = inputdata.reshape(1,2)
         topoPoints = copy.deepcopy(inputdata)
 
     # Pre-allocate variables
     _, targetframe,_ = mat2py_cnmfrm(target)  # target frame ID in SPICE
 
     # Build focal plane
-    fovbounds, boresight, rotmat ,_,_,_ = instpointing(inst, target, sc, et, lon, lat)
+    fovbounds, boresight, rotmat ,_ = instpointing(inst, target, sc, et, lon, lat)
 
     vertex,_ = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
     point = vertex + fovbounds[:, 0]
@@ -89,14 +93,11 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
             tArea[i, :] = np.full(3, np.nan)
 
     instcoord = tArea[:, :2]  # extract 2D instrument frame coordinates
-    print('instcoord  ',instcoord,'type inputdata', type(inputdata))
     # Prepare output data matching the format of the input,i.e., cell array or
     # matrix
     outputData = [[None for _ in row] for row in inputdata]
     if isinstance(inputdata, list):
-        print('lenii=', len(ii), 'ii=',ii)
         for k in range(len(ii)):
-            print('k=',k)
             if not np.isnan(instcoord[k]).any():
                 outputData[ii[k]][jj[k]] = instcoord[k, :]
     else:

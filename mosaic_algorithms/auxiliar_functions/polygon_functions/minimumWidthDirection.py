@@ -2,6 +2,9 @@ import numpy as np
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
 
+from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
+
+
 def minimumWidthDirection(x, y):
     """
     This function computes the orientation (angle) at which the width of the
@@ -38,7 +41,7 @@ def minimumWidthDirection(x, y):
     hull = ConvexHull(np.array([x, y]).T)
     cx, cy = np.mean(hull.points[hull.vertices], axis=0)
 
-    vertices=np.array([])
+    vertices=np.zeros([np.size(x),2])
     # Sort the vertices in clockwise direction
     vertices[:,0],vertices[:,1] = sortcw(x,y)
 
