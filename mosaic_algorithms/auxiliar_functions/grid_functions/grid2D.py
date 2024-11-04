@@ -95,8 +95,9 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     # Flood-fill algorithm to get the grid points of the oriented roi
     # gridPoints = floodFillAlgorithm(fpref['sizex'], fpref['sizey'], ovlapx, ovlapy, gamma, orientedArea, gridPoints,np.array([]),
     #                               np.array([]),'8fill')
-    gridPoints = floodFillAlgorithm(fpref['sizex'], fpref['sizey'], olapx, olapy, gamma, orientedArea, periArea,
+    gridPoints,_ = floodFillAlgorithm(fpref['width'], fpref['height'], olapx, olapy, gamma, orientedArea, periArea,
                                     np.array([]), np.array([]),'4fill')
+    print(gridPoints, type(gridPoints))
 
     if gridPoints.size != 0:
 
@@ -115,7 +116,7 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
         # plt.show()
 
         # Sort grid points
-        sortedGrid = sorted(gridPoints, key=lambda x: -x[1])  # the elements of gridPoints are sorted by latitude (+ to -)
+        sortedGrid = np.array(sorted(gridPoints, key=lambda x: -x[1])) # the elements of gridPoints are sorted by latitude (+ to -)
         uniqueLat = np.unique([pt[1] for pt in sortedGrid]) # get the different latitude values
         ind = np.abs(np.diff(uniqueLat)) < 1e-5 # double check that there are no "similar" latitude values (it may happen)
         ind = np.append(ind, False)
@@ -138,7 +139,7 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
                 lon = mrow[j]
                 for k in range(len(uniqueLon)):
                     if indlon[k]:
-                        matrixGrid[i][k] = np.array([cx, cy]) + rotmat.T @ (np.array([lon[0], lat]) - np.array([cx, cy]))
+                        matrixGrid[i][k] = np.array([cx, cy]) + rotmat.T @ (np.array([lon, lat]) - np.array([cx, cy]))
 
     return matrixGrid, dirx, diry
 
