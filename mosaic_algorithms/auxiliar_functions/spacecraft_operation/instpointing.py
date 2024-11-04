@@ -125,7 +125,10 @@ def instpointing(inst, target, sc, t, *args):
         else:
             # not visible
             print(f"On {mat2py_et2utc(t, 'C', 0)}, {inst} is not pointing at {target}")
-            return None
+            if len(args) > 0:
+                return fovbounds, boresight, rotmat, visible
+            else:
+                return fovbounds, boresight, rotmat, visible, lon, lat
 
         # Boresight of the instrument must point at the target point
         recpoint = xpoint  # rectangular coordinates of the target point in the body-fixed reference frame
@@ -141,7 +144,10 @@ def instpointing(inst, target, sc, t, *args):
 
     # Check if the point is visible as seen from the instrument
     if np.dot(v1, recpoint) > 0:  # check if the point is visible as seen from the instrument
-        return None
+        if len(args) > 0:
+            return fovbounds, boresight, rotmat, visible
+        else:
+            return fovbounds, boresight, rotmat, visible, lon, lat
     else:
         visible = True
 

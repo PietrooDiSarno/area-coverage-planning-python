@@ -103,8 +103,8 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
         angle = 0
     fpref['angle'] = angle
 
-    gt1 = [0,0]
-    gt2 = [0,0]
+    gt1 = np.array([0,0])
+    gt2 = np.array([0,0])
     # Closest polygon side to the spacecraft's ground track position (this
     # will determine the coverage path)
     gt1[0],gt1[1] = groundtrack(sc, inittime, target) # initial ground track position

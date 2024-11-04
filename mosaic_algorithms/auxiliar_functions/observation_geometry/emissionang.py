@@ -47,6 +47,7 @@ def emissionang(srfpoint, t, target, obs):
     nrmvec = np.zeros((3, np.size(t)))
     if np.size(t)==1:
         nrmvec[:,0] = (mat2py_srfnrm(method, target, t, targetframe, srfpoint)) # normal to surface
+        obsvec = obsvec.reshape(3,1)
     else:
         for i in range(len(t)):
             nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
