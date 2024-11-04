@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pySPICElib import kernelFetch
 from shapely.geometry import Polygon
+from spiceypy import str2et
 
 # Helper functions (amsplit, grid2D, boustrophedon, etc.)
 # Assuming these functions are defined in the same module or are imported
@@ -48,7 +49,7 @@ def main():
     target = 'EUROPA'  # Target body
     sc = 'GALILEO ORBITER'  # Spacecraft identifier
     inst = 'GLL_SSI'  # Instrument identifier
-    inittime = 0.0  # Initial time of observation (arbitrary units)
+    inittime = str2et('1998 MAY 30 00:00:00.000 TDB')  # Initial time of observation
     ovlapx = 0.2  # 20% overlap in x-direction
     ovlapy = 0.2  # 20% overlap in y-direction
     angle = 45.0  # Coverage path angle in degrees
