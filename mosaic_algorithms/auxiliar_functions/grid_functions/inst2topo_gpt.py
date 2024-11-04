@@ -32,6 +32,7 @@ def inst2topo(grid, lon, lat, target, sc, inst, et):
     method = 'ELLIPSOID'
     # Get target frame name in SPICE
     _, targetframe, _ = mat2py_cnmfrm(target)
+    targetframe = targetframe[0][0]
 
     # Convert grid into topographical coordinates
     for i in range(len(grid)):
