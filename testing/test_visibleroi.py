@@ -1,16 +1,16 @@
 """
 Test Script for visibleroi Function
 
-This script tests the `visibleroi` function by computing the visible portion of a specified region of interest (ROI) on a planetary body's surface from a given observer's viewpoint at a specific time. It visualizes both the ROI and the visible portion to verify the correctness of the algorithm.
+This script tests the `visibleroi` function by computing the visible portion of a specified region of interest (ROI)
+on a planetary body's surface from a given observer's viewpoint at a specific time. It visualizes both the ROI and
+the visible portion to verify the correctness of the algorithm.
 
-Author: [Your Name]
-Date: [Current Date]
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import Polygon, MultiPolygon
-from spiceypy import furnsh, utc2et, bodvrd, limbpt, dpr, twopi, reclat, cnmfrm
+from shapely.geometry import Polygon
+from spiceypy import str2et
 from pySPICElib.kernelFetch import kernelFetch
 
 # Import modules
@@ -43,7 +43,7 @@ def main():
     ])  # Simple rectangle from 0° to 30° longitude and -10° to 10° latitude
 
     # Observation parameters
-    et = utc2et('2023-01-01T12:00:00')  # Observation time
+    et = str2et('1998 MAY 30 00:00:00.000 TDB')  # Observation time
     target = 'EUROPA'  # Target body
     obs = 'GALILEO ORBITER'  # Observer
 
