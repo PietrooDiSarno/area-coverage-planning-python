@@ -1,6 +1,6 @@
 import numpy as np
 from conversion_functions import *
-from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
+from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing_gpt import instpointing
 
 
 def inst2topo(grid, lon, lat, target, sc, inst, et):

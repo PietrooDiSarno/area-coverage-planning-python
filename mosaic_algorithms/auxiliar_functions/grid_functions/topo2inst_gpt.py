@@ -3,7 +3,7 @@ from conversion_functions import *
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
 from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
-from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
+from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing_gpt import instpointing
 
 
 def topo2inst(inputdata, lon, lat, target, sc, inst, et):
