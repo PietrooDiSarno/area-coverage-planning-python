@@ -48,6 +48,7 @@ def visibleroi(roi, et, target, obs):
     method = 'TANGENT/ELLIPSOID'
     # Get the body-fixed frame of the target
     code, targetframe, found = mat2py_cnmfrm(target)  # body-fixed frame
+    targetframe = targetframe[0][0]
     abcorr = 'XLT+S'
     corloc = 'CENTER'
     refvec = np.array([0.0, 0.0, 1.0])  # First of the sequence of cutting half-planes
