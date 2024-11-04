@@ -39,7 +39,7 @@ def sortcw(*args):
         centroid = polygon.centroid
         cx, cy = centroid.x, centroid.y # polygon centroid
 
-        angle = np.arctan2(y - cy, x - cx)  # obtain angle
+        angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices
         x_sorted = np.array(x)[ind] # sort the longitude values according to the angle order
         y_sorted = np.array(y)[ind] # sort the latitude values according to the angle order
@@ -50,7 +50,7 @@ def sortcw(*args):
         # https://stackoverflow.com/questions/47949485/
         # sorting-a-list-of-3d-points-in-clockwise-order
         x, y, z = args[0], args[1], args[2]
-        innerpoint = np.array([np.mean(x), np.mean(y), np.mean(z)])  # find an inner point (this
+        innerpoint = np.array([np.mean(np.array(x)), np.mean(np.array(y)), np.mean(np.array(z))])  # find an inner point (this
         # is not the centroid but still works)
 
         i, j, k = np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])

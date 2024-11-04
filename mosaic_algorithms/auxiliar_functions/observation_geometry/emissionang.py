@@ -33,7 +33,7 @@ def emissionang(srfpoint, t, target, obs):
 
     # If srfpoint has been input with the latitudinal coordinates, change to rectangular
     if len(srfpoint) == 2:
-        srfpoint = mat2py_rpd()*srfpoint  # [deg] to [rad]
+        srfpoint = np.deg2rad(srfpoint)  # [deg] to [rad]
         srfpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], srfpoint[0], srfpoint[1]) # surface point in rectangular
         # coordinates (body modeled as a tri-axial ellipsoid)
     else:
@@ -47,6 +47,7 @@ def emissionang(srfpoint, t, target, obs):
     nrmvec = np.zeros((3, np.size(t)))
     if np.size(t)==1:
         nrmvec[:,0] = (mat2py_srfnrm(method, target, t, targetframe, srfpoint)) # normal to surface
+        obsvec = obsvec.reshape(3,1)
     else:
         for i in range(len(t)):
             nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
