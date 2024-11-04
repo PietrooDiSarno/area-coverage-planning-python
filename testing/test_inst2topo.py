@@ -49,7 +49,7 @@ def main():
     target = 'EUROPA'  # Target body
     sc = 'GALILEO ORBITER'  # Spacecraft identifier
     inst = 'GLL_SSI'  # Instrument identifier
-    et = spice.str2et('2024-01-01 T00:00:00')  # Ephemeris time
+    et = spice.str2et('1998 MAY 30 00:00:00.000 TDB')  # Ephemeris time
 
     # Call inst2topo to convert instrument frame grid to topographical coordinates
     grid_topo = inst2topo(grid, lon, lat, target, sc, inst, et)
