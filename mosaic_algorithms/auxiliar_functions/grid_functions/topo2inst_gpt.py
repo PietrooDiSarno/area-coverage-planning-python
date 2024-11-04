@@ -1,6 +1,6 @@
 import numpy as np
 from conversion_functions import *
-from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
+from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang_gpt import emissionang
 from mosaic_algorithms.auxiliar_functions.plot.trgobsvec_gpt import trgobsvec
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing_gpt import instpointing
@@ -75,7 +75,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
                 if emnang >= 90:
                     found = False
             if found:
-                spoint[i, :] = intersection_point
+                spoint[i, :] = intersection_point.flatten()
             else:
                 spoint[i, :] = [np.nan, np.nan, np.nan]
         else:
