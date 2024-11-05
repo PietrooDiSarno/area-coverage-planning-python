@@ -1,6 +1,7 @@
 import numpy as np
 from shapely.geometry import Polygon, LineString
 from math import cos, sin, radians
+import math
 from conversion_functions import *
 
 def closestSide(gt1, gt2, targetArea, angle):
@@ -33,16 +34,16 @@ def closestSide(gt1, gt2, targetArea, angle):
     rotmat = np.array([[cos(angle), -sin(angle)],
                        [sin(angle), cos(angle)]])
     cx, cy = Polygon(targetArea).centroid.coords[0]
-    roi = np.zeros((len(targetArea), 2))
-    for j in range(len(targetArea)):
+    roi = np.zeros((max(np.shape(targetArea)), 2))
+    for j in range(max(np.shape(targetArea))):
         roi[j, :] = np.dot(rotmat, (targetArea[j] - np.array([cx, cy]))) + np.array([cx, cy])
 
     # Adjust ground track position for spacecraft movement analysis with respect to the oriented area
     # Assumption: Tri-axial ellipsoid to model the target surface
     # Initial position
-    sclon, sclat = np.dot(rotmat, (np.array(gt1) - np.array([cx, cy]))) + np.array([cx, cy])
+    sclon, sclat = np.dot(rotmat, ((np.array(gt1)).reshape(2,) - np.array([cx, cy]))) + np.array([cx, cy])
     # Subsequent position
-    sclon_, sclat_ = np.dot(rotmat, (np.array(gt2) - np.array([cx, cy]))) + np.array([cx, cy])
+    sclon_, sclat_ = np.dot(rotmat, ((np.array(gt2)).reshape(2,) - np.array([cx, cy]))) + np.array([cx, cy])
 
     # Find the 4 boundary vertices of the rotated target area
     maxlon, minlon = np.max(roi[:, 0]), np.min(roi[:, 0])
@@ -59,11 +60,24 @@ def closestSide(gt1, gt2, targetArea, angle):
     line = LineString([(sclon, sclat), (cx, cy)])
     intersection = line.intersection(boundary_box) #check if the line intersects with the boundary box to determine
     # closest side
-    xi, yi = intersection.x, intersection.y
+
+    if not intersection.is_empty:
+        if intersection.geom_type == 'Point':
+            xi, yi = intersection.x, intersection.y
+        elif intersection.geom_type == 'MultiPoint':
+            xi, yi = zip(*[(pt.x, pt.y) for pt in intersection])
+            if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.02:
+                xi = xi[0]
+                yi = yi[0]
+
+        elif intersection.geom_type == 'LineString':
+            xi, yi = zip(*intersection.coords)
+            if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.02:
+                xi = xi[0]
+                yi = yi[0]
 
     # Determine closest side based on the intersection points
     if intersection.is_empty:  # The ground track is inside the ROI's boundary box (no intersection)
-
         # Define corner points of the boundary box
         p1 = np.array([maxlon, maxlat])
         p2 = np.array([maxlon, minlat])

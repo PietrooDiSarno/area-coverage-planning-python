@@ -40,7 +40,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN, NaN]
     ii, jj,aux = [], [], []
-    print(inputdata)
+
     if isinstance(inputdata, list):
         aux = [[point if point else [np.nan, np.nan] for point in row] for row in inputdata]
         topoPoints = np.vstack([[point for point in sublist] for sublist in aux])

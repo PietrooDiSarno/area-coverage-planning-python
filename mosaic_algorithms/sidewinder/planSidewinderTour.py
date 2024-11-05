@@ -59,7 +59,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     """
 
     # Pre-allocate variables
-    origin = np.array([0, 0]) # initialize grid origin for grid generation
+    origin = np.array([0., 0.]) # initialize grid origin for grid generation
     x, y = roi[:, 0], roi[:, 1]
     polygon = Polygon(zip(x, y))
     centroid = polygon.centroid.xy
@@ -73,7 +73,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     Polygon(coordinates).centroid.xy[1][0])
 
     # Get minimum width direction of the footprint
-    angle = minimumWidthDirection(targetArea[:,0],targetArea[:,1])
+    angle,_,_,_ = minimumWidthDirection(targetArea[:,0],targetArea[:,1])
     # observation angle, influencing the orientation of the observation footprints and,
     # therefore, the coverage path orientation
 
@@ -98,21 +98,20 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # [Check]: there is no need to compute the angle because the targetArea
     # projection already accounts for that
     if fpref['width'] <= fpref['height']:
-        angle = 0
+        angle = 0.
     else:
-        angle = 0
+        angle = 0.
     fpref['angle'] = angle
 
-    gt1 = np.array([0,0])
-    gt2 = np.array([0,0])
+    gt1 = np.array([0.,0.])
+    gt2 = np.array([0.,0.])
     # Closest polygon side to the spacecraft's ground track position (this
     # will determine the coverage path)
     gt1[0],gt1[1] = groundtrack(sc, inittime, target) # initial ground track position
     gt2[0],gt2[1] = groundtrack(sc, inittime + 500, target) # future ground track position
-    print(gt1, gt2, type(gt1), type(gt2))
     gt1 = topo2inst(gt1, cx, cy, target, sc, inst, inittime) # projected initial position
     gt2 = topo2inst(gt2, cx, cy, target, sc, inst, inittime + 500) # projected future position
-    print(gt1,gt2,type(gt1),type(gt2))
+
     # Calculate the closest side of the target area to the spacecraft's ground track,
     # determining the observation sweep direction
     sweepDir1, sweepDir2 = closestSide(gt1, gt2, targetArea, angle)
@@ -125,7 +124,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
 
     # Convert grid and tour from instrument frame to topographical coordinates
-    topo_tour = inst2topo(inst_tour, cx, cy, target, sc, inst, inittime)
+    topo_tour = inst2topo(np.array(inst_tour), cx, cy, target, sc, inst, inittime)
 
     # Remove empty elements from the tour, which may result from unobservable regions
     # within the planned path 
