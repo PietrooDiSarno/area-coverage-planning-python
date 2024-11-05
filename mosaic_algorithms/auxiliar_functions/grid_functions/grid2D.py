@@ -70,8 +70,8 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     polygon = Polygon(targetArea)
     cx, cy = polygon.centroid.x, polygon.centroid.y
 
-    orientedArea = np.zeros_like(targetArea)
-    for j in range(len(targetArea)):
+    orientedArea = np.zeros([max(np.shape(targetArea)),2])
+    for j in range(max(np.shape(targetArea))):
         orientedArea[j, :] = np.array([cx, cy]) + rotmat @ (targetArea[j, :] - np.array([cx, cy]))
 
     gamma = np.array([cx, cy]) + rotmat @ (np.array(gamma) - np.array([cx, cy]))
@@ -97,7 +97,7 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     #                               np.array([]),'8fill')
     gridPoints,_ = floodFillAlgorithm(fpref['width'], fpref['height'], olapx, olapy, gamma, orientedArea, periArea,
                                     np.array([]), np.array([]),'4fill')
-    print(gridPoints, type(gridPoints))
+
 
     if gridPoints.size != 0:
 
@@ -127,17 +127,17 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
         uniqueLon = uniqueLon[~ind]
 
         # Sort and rotate the grid points and insert them in the grid matrix
-        matrixGrid = [[None for _ in range(len(uniqueLon))] for _ in range(len(uniqueLat))]
-        for i in range(len(uniqueLat)):
+        matrixGrid = [[None for _ in range(max(np.shape(uniqueLon)))] for _ in range(max(np.shape(uniqueLat)))]
+        for i in range(max(np.shape(uniqueLat))):
             # We will sweep across the grid by, first, latitude and, second, longitude
-            lat = uniqueLat[len(uniqueLat) - 1 - i]
+            lat = uniqueLat[max(np.shape(uniqueLat)) - 1 - i]
             indlat = np.abs(sortedGrid[:, 1] - lat) < 1e-5
             mrow = sortedGrid[indlat]
             mrow = np.sort(mrow[:,0], axis=0)
-            for j in range(len(mrow)):
+            for j in range(max(np.shape(mrow))):
                 indlon=np.abs(uniqueLon-mrow[j]) < 1e-5
                 lon = mrow[j]
-                for k in range(len(uniqueLon)):
+                for k in range(max(np.shape(uniqueLon))):
                     if indlon[k]:
                         matrixGrid[i][k] = np.array([cx, cy]) + rotmat.T @ (np.array([lon, lat]) - np.array([cx, cy]))
 

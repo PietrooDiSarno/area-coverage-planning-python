@@ -33,7 +33,8 @@ def sortcw(*args):
         #  and sort the vertices according to their respective angle value.
         #  This algorithm does not work with non-convex polygons
         x, y = args[0], args[1]
-
+        if np.size(x) == 1:
+            return x,y
         points = list(zip(x, y))
         polygon = Polygon(points)
         centroid = polygon.centroid
