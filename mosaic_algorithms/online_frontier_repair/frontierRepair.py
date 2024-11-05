@@ -97,7 +97,8 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
 
     # Define target area as a polygon
     poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
-    cx, cy = poly1.centroid.xy
+    cx = poly1.centroid.x
+    cy = poly1.centroid.y
 
     ## Frontier Repair algorithm
     # The first time iteration is the starting time in the planning horizon

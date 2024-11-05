@@ -207,13 +207,14 @@ def footprint(t, inst, sc, target, res, *args):
                         break
                 if found:
                     break
-        return
+        return  fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc
 
     # When the footprint is likely to contain the limb, perform a more
     # accurate search in order to conclude if the FOV intercept the
     # body at some point
     if fp['limb'] == 'total':
-        refineFOVsearch(fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc)
+        fp,maxx,minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc = refineFOVsearch(fp,maxx,
+                                            minx,maxy,miny,pointingRotation, method, target, t, targetframe, abcorr,sc)
 
     def inFOVprojection(boundPoints,N,surfPoints,count):
         """
@@ -234,7 +235,7 @@ def footprint(t, inst, sc, target, res, *args):
                 surfPoints[count,1] = boundPoints[1, i] + v[1] * lambda_vals[l]
                 surfPoints[count,2] = boundPoints[2, i] + v[2] * lambda_vals[l]
                 count += 1
-        return
+        return boundPoints,N,surfPoints,count
 
     def plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,
                            res,count):
@@ -337,6 +338,7 @@ def footprint(t, inst, sc, target, res, *args):
 
                 old_found = found # save element intercept status
                 old_surfPoint = aux # save element intercept point
+        return surfPoints, pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc, res, count
 
     def tlimbFOVprojection(surfPoints,target,t,targetframe,sc):
         # Compute limb with SPICE function (easier)
@@ -355,19 +357,20 @@ def footprint(t, inst, sc, target, res, *args):
         _,limb,_,_ = mat2py_limbpt(lbmethod,target,t,targetframe,abcorr,corloc,sc,refvec,delrol,ncuts,schstp,soltol,ncuts)
         # limb points expressed in targetframe ref frame
         surfPoints = limb.T
+        return surfPoints,target,t,targetframe,sc
 
     # Compute footprint
     if fp['limb'] == 'none':
         # FOV projects entirely on the body surface
-        inFOVprojection(boundPoints, N, surfPoints, count)
+       boundPoints, N, surfPoints, count = inFOVprojection(boundPoints, N, surfPoints, count)
     elif fp['limb'] == 'partial':
         #FOV contains partially the limb
-        plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,res,count)
+        surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,res,count = plimbFOVprojection(surfPoints,pointingRotation, minx, maxx, miny, maxy, z, N, t, method, target, targetframe, abcorr, sc,res,count)
     else:
-        #FOV contains the whole body (total limb=
-        tlimbFOVprojection(surfPoints,target,t,targetframe,sc)
+        #FOV contains the whole body (total limb)
+        surfPoints,target,t,targetframe,sc = tlimbFOVprojection(surfPoints,target,t,targetframe,sc)
 
-    if not surfPoints: # the FOV does not intercept with the object at any point
+    if surfPoints.size == 0: # the FOV does not intercept with the object at any point
         # of its focal plane
         return fp
 
@@ -377,7 +380,7 @@ def footprint(t, inst, sc, target, res, *args):
     def footprint2map(surfPoints,t,target,sc,fp,inst):
 
         # Pre-allocate variables
-        vertices = np.zeros([len(surfPoints),2]) # matrix that saves the
+        vertices = np.zeros([max(np.shape(surfPoints)),2]) # matrix that saves the
         # latitudinal coordinates of the intercept points between the FOV
         # perimeter and the body surface
 
@@ -385,7 +388,7 @@ def footprint(t, inst, sc, target, res, *args):
         surfPoints[:,0],surfPoints[:,1],surfPoints[:,2] = sortcw(surfPoints[:,0],surfPoints[:,1],surfPoints[:,2])
         # sort polygon boundary vertices in clockwise order (for representation)
 
-        for i in range(len(surfPoints)):
+        for i in range(max(np.shape(surfPoints))):
             _, auxlon, auxlat = mat2py_reclat(surfPoints[i, :].T)  # rectangular to
             # latitudinal coordinates
             vertices[i, 0] = auxlon * mat2py_dpr()  # longitude in [deg]
@@ -423,14 +426,13 @@ def footprint(t, inst, sc, target, res, *args):
             # Case 1
             if not northpole and not southpole:
                 # Check a.m. split
-                ind2 = np.where(np.diff(np.sort(lblon)) >= 180)[0] # find the discontinuity
+                ind2 = (np.where(np.diff(np.sort(lblon)) >= 180)[0])[0] # find the discontinuity
                 if ind2.size > 0:
                     lblon, lblat = amsplit(lblon, lblat)
-
                 exit = False
                 while not exit:
-                    randPoint = np.random.randint([-180, -90], [180, 90])
-                    polygon = Polygon(zip(lblon, lblat))
+                    randPoint = np.random.randint([-180, -90], [181, 91])
+                    polygon = Polygon(list(zip(lblon, lblat)))
                     if polygon.contains(Point(randPoint[0], randPoint[1])):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
@@ -444,8 +446,8 @@ def footprint(t, inst, sc, target, res, *args):
                             # [Future work]
                             lonmap = np.array([-180, -180, 180, 180])
                             latmap = np.array([-90, 90, 90, -90])
-                            polymap = Polygon(zip(lonmap, latmap))
-                            poly1 = Polygon(zip(lblon,lblat))
+                            polymap = Polygon(list(zip(lonmap, latmap)))
+                            poly1 = Polygon(list(zip(lblon,lblat)))
                             poly1 = polymap.difference(poly1)
                             lons,lats = poly1.exterior.coords.xy
                             lblon = np.array(lons)
@@ -459,8 +461,8 @@ def footprint(t, inst, sc, target, res, *args):
                     # Include northpole to close polygon
                     auxlon = copy.deepcopy(lblon)
                     auxlat = copy.deepcopy(lblat)
-                    lblon = np.zeros([1,len(auxlon) + 2])
-                    lblat = np.zeros([1,len(auxlat) + 2])
+                    lblon = np.zeros([1,max(np.shape(auxlon)) + 2])
+                    lblat = np.zeros([1,max(np.shape(len(auxlat))) + 2])
 
                     if northpole:
                         lblon[0], lblat[0] = -180, 90
@@ -472,6 +474,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
+            fp['bvertices'] = np.zeros([np.shape(lblon)[1],2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 
@@ -495,8 +498,8 @@ def footprint(t, inst, sc, target, res, *args):
                     # Include northpole to close polygon
                     auxlon = copy.deepcopy(lblon)
                     auxlat = copy.deepcopy(lblat)
-                    lblon = np.zeros([1,len(auxlon) + 2])
-                    lblat = np.zeros([1,len(auxlat) + 2])
+                    lblon = np.zeros([1,max(np.shape((auxlon))) + 2])
+                    lblat = np.zeros([1,max(np.shape((auxlat))) + 2])
 
                     if northpole:
                         lblon[0], lblat[0] = -180, 90
@@ -508,6 +511,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
+            fp['bvertices'] = np.zeros([np.shape(lblon)[1], 2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 
@@ -518,8 +522,8 @@ def footprint(t, inst, sc, target, res, *args):
             # If it does, we split the footprint in two polygons, cleaved by the line
             # that the original footprint is crossing (a.m.)
 
-            fp['bvertices'][:, 0], fp['bvertices'][:, 1] = amsplit(vertices[:, 0], vertices[:, 1]) # save footprint vertices
-
+            col1, col2  = amsplit(vertices[:, 0], vertices[:, 1]) # save footprint vertices
+            fp['bvertices'] = np.hstack((col1.reshape(len(col1), 1), col2.reshape(len(col2), 1)))
         if geom:
             # Get minimum width direction and size
             angle, width, height = minimumWidthDirection(fp['bvertices'][:, 0], fp['bvertices'][:, 1])
@@ -527,8 +531,12 @@ def footprint(t, inst, sc, target, res, *args):
             fp['width'] = width
             fp['height'] = height
 
+        return surfPoints,t,target,sc,fp,inst
+
     # Conversion from rectangular to latitudinal coordinates of the polygon vertices
     # and geometry computation
-    footprint2map(surfPoints,t,target,sc,fp,inst)
+    surfPoints,t,target,sc,fp,inst = footprint2map(surfPoints,t,target,sc,fp,inst)
+
+    return fp
 
 
