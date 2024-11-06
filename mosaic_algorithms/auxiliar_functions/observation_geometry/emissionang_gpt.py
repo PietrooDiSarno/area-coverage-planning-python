@@ -60,7 +60,7 @@ def emissionang(srfpoint, t, target, obs):
     # Obtain the outward surface normal vector at the surface point
     # Initialize normal vectors array
     if np.isscalar(t):
-        nrmvec = mat2py_srfnrm(method, target, t, targetframe, srfpoint_rect).reshape(3, 1)
+        nrmvec = mat2py_srfnrm(method, target, t, targetframe, srfpoint_rect).reshape(3,)
     else:
         nrmvec = np.zeros((3, len(t)))
         for i in range(len(t)):

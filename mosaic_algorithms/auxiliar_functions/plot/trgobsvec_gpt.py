@@ -73,7 +73,7 @@ def trgobsvec(srfpoint, t, target, obs, frame=None):
         srfpoint_matrix = np.tile(srfpoint_rect.reshape(3, 1), (1, t.size))
         obsvec = obspos - srfpoint_matrix
     else:
-        obsvec = obspos - srfpoint_rect.reshape(3, 1)
+        obsvec = obspos - srfpoint_rect.reshape(3,)
 
     # If a different reference frame is requested, perform the transformation
     if frame is not None:
