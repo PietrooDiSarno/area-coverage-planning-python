@@ -44,6 +44,7 @@ def main():
         [0, 10],
         [0, 0]
     ]  # Rectangle from (0,0) to (20,10)
+    roi = np.array(roi)
 
     # Define planning parameters
     target = 'EUROPA'  # Target body
@@ -88,6 +89,8 @@ def visualize_results(roi, grid, grid_topo, tour, itour, dir1, dir2):
     - dir1 (list): First direction vector for coverage path.
     - dir2 (list): Second direction vector for coverage path.
     """
+
+    # Create figure
     fig, ax = plt.subplots(figsize=(10, 8))
 
     # Plot the ROI polygon
@@ -96,7 +99,8 @@ def visualize_results(roi, grid, grid_topo, tour, itour, dir1, dir2):
     ax.plot(x_roi, y_roi, 'k-', linewidth=2, label='ROI')
 
     # Plot the grid points
-    ax.scatter(grid_topo[:, 0], grid_topo[:, 1], c='blue', label='Grid Points')
+    if grid_topo[0][0] is not None:
+        ax.scatter(grid_topo[:, 0], grid_topo[:, 1], c='blue', label='Grid Points')
 
     # Plot the tour path
     if len(tour) > 0:
