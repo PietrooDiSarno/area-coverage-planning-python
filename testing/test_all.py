@@ -8,6 +8,7 @@ from testing.test_closestSide2 import main as test_closestSide2
 from testing.test_emissionang import main as test_emissionang
 from testing.test_floodfill import main as test_floodfill
 from testing.test_grid2D import main as test_grid2D
+from testing.test_groundtrack import main as test_groundtrack
 from testing.test_inst2topo import main as test_inst2topo
 from testing.test_instpointing import main as test_instpointing
 from testing.test_interppolygon import main as test_interppolygon
@@ -28,6 +29,7 @@ def main():
     test_emissionang()
     test_floodfill()
     test_grid2D()
+    test_groundtrack()
     test_inst2topo()
     test_instpointing()
     test_interppolygon()

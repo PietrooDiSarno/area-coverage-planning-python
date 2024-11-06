@@ -11,7 +11,7 @@ from mosaic_algorithms.auxiliar_functions.grid_functions.inst2topo_gpt import in
 from mosaic_algorithms.auxiliar_functions.grid_functions.topo2inst_gpt import topo2inst
 from mosaic_algorithms.auxiliar_functions.polygon_functions.closestSide2_gpt import closestSide2
 from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection_gpt import minimumWidthDirection
-from mosaic_algorithms.auxiliar_functions.plot.groundtrack import groundtrack
+from mosaic_algorithms.auxiliar_functions.plot.groundtrack_gpt import groundtrack
 
 
 # Import or define other required functions:
