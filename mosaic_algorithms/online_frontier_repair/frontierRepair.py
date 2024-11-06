@@ -171,10 +171,10 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
             else:
                 roi = interppolygon(vsbroi)
 
-            if len(tour) == 0:
+            if len(tour) == 1 and len(tour[0]) == 0:
                 break
             else:
-                gamma = tour[0]  # next observation point
+                gamma = tour[0][0]  # next observation point
                 seed = itour[0]  # next seed in the image plane
 
                 # Update previous grid with the new tile reference (footprint),
