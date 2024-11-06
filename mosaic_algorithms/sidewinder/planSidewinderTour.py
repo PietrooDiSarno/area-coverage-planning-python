@@ -123,12 +123,13 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # Boustrophedon decomposition to generate grid traversal
     inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
 
+
     # Convert grid and tour from instrument frame to topographical coordinates
-    topo_tour = inst2topo(np.array(inst_tour), cx, cy, target, sc, inst, inittime)
+    topo_tour = inst2topo([inst_tour], cx, cy, target, sc, inst, inittime)
 
     # Remove empty elements from the tour, which may result from unobservable regions
     # within the planned path 
-    topo_tour = [tour for tour in topo_tour if tour is not None]
+    topo_tour = [[point for point in tour if point is not None] for tour in topo_tour]
 
     return topo_tour, inst_grid, inst_tour, grid_dirx, grid_diry, sweepDir1, sweepDir2
 

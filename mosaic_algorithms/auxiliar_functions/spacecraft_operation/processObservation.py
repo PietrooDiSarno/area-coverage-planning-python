@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.matlib import empty
 from shapely.geometry import Polygon
 import copy
 
@@ -53,13 +54,14 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
     """
 
     # Previous check...
-    if not tour:
-        return A, tour, fpList, poly1, t, True
+    if len(tour) == 1 and len(tour[0]) == 0:
+        empty = True
+        return A, tour, fpList, poly1, t, empty
 
     # Compute the footprint of each point in the tour successively and
     # subtract the corresponding area from the target polygon
-    a = copy.deepcopy(tour[0]) # observation
-    tour[0] = [] #delete this observation from the planned tour
+    a = copy.deepcopy(tour[0][0]) # observation
+    tour[0].pop(0) #delete this observation from the planned tour
     empty = False
 
     # Check an.m. intercept...
@@ -71,13 +73,13 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
     fprinti = footprint(t, inst, sc, target, resolution, a[0], a[1], 0)
 
     # Body-fixed to inertial frame
-    if fprinti['bvertices']:  # assuming 'fprinti' is a dictionary with 'bvertices' key
+    if np.size(fprinti['bvertices']) != 0:  # assuming 'fprinti' is a dictionary with 'bvertices' key
         print("\n")
 
         # Check a.m. intercept
         if amIntercept:
             aux = copy.deepcopy(fprinti)
-            ind = aux['bvertices'][:,1] < 0
+            ind = aux['bvertices'][:,0] < 0
             aux['bvertices'][ind,0] += 360
             poly2 = Polygon(aux['bvertices'])
         else:
@@ -101,9 +103,9 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
             fpList.append(fprinti)
 
             # New time iteration
-            if tour:
+            if not (len(tour) == 1 and len(tour[0]) == 0):
                 p1 = [fprinti['olon'], fprinti['olat']]
-                p2 = [tour[0][0], tour[0][1]]
+                p2 = [tour[0][0][0], tour[0][0][1]]
                 t += tobs + slewDur(p1, p2, t, tobs, inst, target, sc, slewRate)
     else:
         empty = True
