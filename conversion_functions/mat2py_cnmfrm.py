@@ -49,10 +49,9 @@ def mat2py_cnmfrm(cname):
             found.append(0)
             frcode.append(0)
 
-
-    if len(frname)==1:
-        return frcode[0],frname[0], found[0]
+    if len(frname) == 1:
+        return frcode[0], frname[0], found[0]
     else:
-        frcode=np.array(frcode, dtype='int32')
-        found=np.array(found,dtype='bool')
+        frcode = np.array(frcode, dtype='int32')
+        found = np.array(found, dtype='bool')
     return frcode, frname, found
