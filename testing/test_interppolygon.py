@@ -16,6 +16,7 @@ from pyproj import Geod
 
 # Import local modules
 from mosaic_algorithms.auxiliar_functions.polygon_functions.interppolygon_gpt import interppolygon
+from mosaic_algorithms.auxiliar_functions.polygon_functions.interppolygon_gptmini import interppolygon as interppolygon2
 
 
 def interpm(lat, lon, distance):
@@ -77,11 +78,14 @@ def main():
     # Call the interppolygon function
     roi = interppolygon(roi0)
 
+    # Call the interppolygon function
+    roi2 = interppolygon2(roi0)
+
     # Visualization of original and interpolated polygons
-    visualize_polygons(roi0, roi)
+    visualize_polygons(roi0, roi, roi2)
 
 
-def visualize_polygons(roi0, roi):
+def visualize_polygons(roi0, roi, roi2):
     """
     Visualizes the original and interpolated polygons on a 2D map.
 
@@ -98,6 +102,9 @@ def visualize_polygons(roi0, roi):
 
     # Plot interpolated polygon
     ax.plot(roi[:, 0], roi[:, 1], 'x-', color="red", label="Interpolated Polygon")
+
+    # Plot interpolated polygon
+    ax.plot(roi2[:, 0], roi2[:, 1], 'v--', color="green", label="Interpolated Polygon Mini")
 
     # Labels and styling
     ax.set_xlabel("Longitude")
