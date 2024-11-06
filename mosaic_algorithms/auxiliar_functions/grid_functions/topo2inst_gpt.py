@@ -48,7 +48,6 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     # Pre-allocate variables
     # Get target frame name in SPICE
     _, targetframe, _ = mat2py_cnmfrm(target)
-    targetframe = targetframe[0][0]
 
     # Build focal plane
     # Call instpointing to get fovbounds, boresight, rotmat

@@ -55,7 +55,6 @@ def instpointing(inst, target, sc, t, *args):
 
     method = 'ELLIPSOID'  # Assumption: the target body is modeled as a tri-axial ellipsoid
     _, targetframe, _ = mat2py_cnmfrm(target)  # Retrieve the target frame ID in SPICE
-    targetframe = targetframe[0][0]
     abcorr = 'LT'  # One-way light time aberration correction parameter
 
     # Initialize output variables for optional outputs

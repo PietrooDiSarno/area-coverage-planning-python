@@ -35,7 +35,6 @@ def emissionang(srfpoint, t, target, obs):
     # Parameters
     method = 'ELLIPSOID'  # Assumption: target body modeled as a tri-axial ellipsoid
     _, targetframe, _ = mat2py_cnmfrm(target)  # Retrieve the target frame ID in SPICE
-    targetframe = targetframe[0][0]
 
     # Convert srfpoint to rectangular coordinates if provided in latitudinal coordinates
     if len(srfpoint) == 2:
