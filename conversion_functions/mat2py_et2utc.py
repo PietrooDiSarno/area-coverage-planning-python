@@ -27,7 +27,7 @@ def mat2py_et2utc(et,format,prec):
         format=format[0]
 
     utcstr=spice.et2utc(et,format,prec)
-    if len(et)>1:
+    if np.size(et) > 1:
         utcstr=np.array(utcstr).reshape(len(et),)
 
     return utcstr
