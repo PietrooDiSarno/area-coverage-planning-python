@@ -132,7 +132,11 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
 
         # Discretize ROI area (grid) and plan Sidewinder tour based on a Boustrophedon approach
         tour, grid, itour, grid_dirx, grid_diry, dir1, dir2 = planSidewinderTour(target, roi, sc, inst, t, olapx, olapy)
-        grid = [c.T for c in grid]  # transpose elements
+
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                if grid[i][j] is not None:
+                    grid[i][j] = (grid[i][j]).reshape(1,2)
 
         # Handle cases where the FOV projection is larger than the ROI area
         if len(tour) < 1:
@@ -142,14 +146,14 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
             continue
 
         seed = itour[0]
-        while len(tour) > 0 and t < endTime:
+        while (not (len(tour) == 1 and len(tour[0]) == 0)) and t < endTime:
 
             # Update origin and tour
             old_seed = seed
             itour.pop(0)
 
             # Process each point of the tour
-            A, tour, fpList, poly1, t = processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, inst,
+            A, tour, fpList, poly1, t, _  = processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, inst,
                                                            sc, target, resolution)
 
             # If polygon is completely covered, break loop

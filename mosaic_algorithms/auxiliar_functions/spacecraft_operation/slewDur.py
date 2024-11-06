@@ -40,13 +40,13 @@ def slewDur(p1, p2, t, tobs, inst, target, sc, slew_rate):
 
     # Rotation matrix corresponding to the initial pointing direction using the
     # instrument pointing information
-    _, _, R1, _, _ = instpointing(inst, target, sc, t, p1[0], p1[1])
+    _, _, R1, _ = instpointing(inst, target, sc, t, p1[0], p1[1])
 
     # Initial slew duration
-    init_slew = 10
+    init_slew = 10.
     for i in range(maxit):
         # Get final pointing matrix
-        _, _, R2, _, _ = instpointing(inst, target, sc, t + tobs + init_slew, p2[0], p2[1])
+        _, _, R2, _ = instpointing(inst, target, sc, t + tobs + init_slew, p2[0], p2[1])
 
         # Relative rotation matrix between the two positions
         Rdelta = np.transpose(R1) @ R2
