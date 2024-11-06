@@ -41,7 +41,7 @@ def minimumWidthDirection(x, y):
     hull = ConvexHull(np.array([x, y]).T)
     cx, cy = np.mean(hull.points[hull.vertices], axis=0)
 
-    vertices = np.array([])
+    vertices = np.zeros([np.size(x),2])
     # Sort the vertices in clockwise direction
     vertices[:, 0], vertices[:, 1] = sortcw(x, y)
 

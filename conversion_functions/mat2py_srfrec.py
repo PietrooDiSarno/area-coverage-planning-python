@@ -30,7 +30,7 @@ def mat2py_srfrec(body, lon, lat):
     if np.size(lon) == 1:
         lon = np.array(lon)
         lat = np.array(lat)
-        rectan = spice.srfrec(body, float(lon), float(lat)).reshape(3, 1)
+        rectan = spice.srfrec(body, float(lon), float(lat)).reshape(3, )
 
     else:
         rectan = np.zeros(shape=(3, np.size(lon)))

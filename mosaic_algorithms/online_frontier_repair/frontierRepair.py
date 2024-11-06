@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from shapely.geometry import Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi import visibleroi
 from mosaic_algorithms.auxiliar_functions.polygon_functions.interppolygon import interppolygon
@@ -84,7 +85,7 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     ind = np.where(np.diff(np.sort(inroi[:, 0])) >= 180)[0]  # find the discontinuity index
     if ind.size > 0:
         amIntercept = True
-        roi = inroi
+        roi = copy.deepcopy(inroi)
         roi[roi[:, 0] < 0, 0] += 360  # adjust longitudes
         roi[:,0],roi[:,1] = sortcw(roi[:,0],roi[:,1])  # sort coordinates clockwise
 
@@ -95,8 +96,9 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     # [Future work]: Solve this incompatibility
 
     # Define target area as a polygon
-    poly1 = Polygon(roi)
-    cx, cy = poly1.centroid.xy
+    poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+    cx = poly1.centroid.x
+    cy = poly1.centroid.y
 
     ## Frontier Repair algorithm
     # The first time iteration is the starting time in the planning horizon
@@ -130,7 +132,11 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
 
         # Discretize ROI area (grid) and plan Sidewinder tour based on a Boustrophedon approach
         tour, grid, itour, grid_dirx, grid_diry, dir1, dir2 = planSidewinderTour(target, roi, sc, inst, t, olapx, olapy)
-        grid = [c.T for c in grid]  # transpose elements
+
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                if grid[i][j] is not None:
+                    grid[i][j] = (grid[i][j]).reshape(1,2)
 
         # Handle cases where the FOV projection is larger than the ROI area
         if len(tour) < 1:
@@ -140,14 +146,14 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
             continue
 
         seed = itour[0]
-        while len(tour) > 0 and t < endTime:
+        while (not (len(tour) == 1 and len(tour[0]) == 0)) and t < endTime:
 
             # Update origin and tour
             old_seed = seed
             itour.pop(0)
 
             # Process each point of the tour
-            A, tour, fpList, poly1, t = processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, inst,
+            A, tour, fpList, poly1, t, _  = processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, inst,
                                                            sc, target, resolution)
 
             # If polygon is completely covered, break loop

@@ -59,6 +59,6 @@ roistruct = [{} for _ in range(count)]  # Pre-allocate roistruct
 roistruct[count - 1]['vertices'] = roi.tolist()
 polygon = Polygon(roi)
 cx, cy = polygon.centroid.x, polygon.centroid.y
-roistruct[count - 1]['cpoint'] = [cx, cy]
+roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "ROI"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 12:35:00.000 TDB')  # closest approach

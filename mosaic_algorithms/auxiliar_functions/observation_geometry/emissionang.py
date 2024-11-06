@@ -33,25 +33,27 @@ def emissionang(srfpoint, t, target, obs):
 
     # If srfpoint has been input with the latitudinal coordinates, change to rectangular
     if len(srfpoint) == 2:
-        srfpoint = mat2py_rpd()*srfpoint  # [deg] to [rad]
-        srfpoint = mat2py_srfrec(mat2py_bodn2c(target), srfpoint[0], srfpoint[1]) # surface point in rectangular
+        srfpoint = np.deg2rad(srfpoint)  # [deg] to [rad]
+        srfpoint = mat2py_srfrec(mat2py_bodn2c(target)[0], srfpoint[0], srfpoint[1]) # surface point in rectangular
         # coordinates (body modeled as a tri-axial ellipsoid)
-
     else:
-        # if srfpoint is input as a 1x3 instead of a 3x1, transpose array
-        if srfpoint.ndim == 1:
-            srfpoint = srfpoint.reshape(3, 1)
+        # if srfpoint is input as a (1,3) or (3,1), make it (3,)
+        srfpoint = srfpoint.reshape(3,)
 
     # Compute the observer position as seen from the srfpoint
-    obsvec = trgobsvec(srfpoint, t, target, obs)
+    obsvec,_ = trgobsvec(srfpoint, t, target, obs)
 
     # Obtain the outwards surface normal vector
-    nrmvec = np.zeros((3, len(t)))
-    for i in range(len(t)):
-        nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
+    nrmvec = np.zeros((3, np.size(t)))
+    if np.size(t)==1:
+        nrmvec[:,0] = (mat2py_srfnrm(method, target, t, targetframe, srfpoint)) # normal to surface
+        obsvec = obsvec.reshape(3,1)
+    else:
+        for i in range(len(t)):
+            nrmvec[:, i] = mat2py_srfnrm(method, target, t[i], targetframe, srfpoint)  # normal to surface
 
     # Angle between the two vectors
     angle = mat2py_vsep(obsvec, nrmvec)
-    angle = angle * mat2py_dpr  # [rad] to [deg]
+    angle = angle * mat2py_dpr()  # [rad] to [deg]
 
     return angle

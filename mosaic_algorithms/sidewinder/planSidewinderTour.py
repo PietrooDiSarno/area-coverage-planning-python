@@ -59,7 +59,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     """
 
     # Pre-allocate variables
-    origin = np.array([0, 0]) # initialize grid origin for grid generation
+    origin = np.array([0., 0.]) # initialize grid origin for grid generation
     x, y = roi[:, 0], roi[:, 1]
     polygon = Polygon(zip(x, y))
     centroid = polygon.centroid.xy
@@ -68,17 +68,18 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
 
     # Project ROI to the instrument plane
     targetArea = topo2inst(roi, cx, cy, target, sc, inst, inittime)
-    origin[0], origin[1] = (Polygon(targetArea).centroid.xy[0][0],
-    Polygon(targetArea).centroid.xy[1][0])
+    coordinates = [tuple(point) for point in targetArea]
+    origin[0], origin[1] = (Polygon(coordinates).centroid.xy[0][0],
+    Polygon(coordinates).centroid.xy[1][0])
 
     # Get minimum width direction of the footprint
-    angle = minimumWidthDirection(targetArea[:,0],targetArea[:,1])
+    angle,_,_,_ = minimumWidthDirection(targetArea[:,0],targetArea[:,1])
     # observation angle, influencing the orientation of the observation footprints and,
     # therefore, the coverage path orientation
 
     # Retrieve the field of view (FOV) bounds of the instrument and calculate
     # the dimensions of a reference observation footprint
-    _, _, _, bounds = mat2py_getfov(mat2py_bodn2c(inst), 4) # get fovbounds in the instrument's reference frame
+    _, _, _, bounds = mat2py_getfov(mat2py_bodn2c(inst)[0], 4) # get fovbounds in the instrument's reference frame
     maxx, minx = np.max(bounds[0, :]), np.min(bounds[0, :])
     maxy, miny = np.max(bounds[1, :]), np.min(bounds[1, :])
 
@@ -97,13 +98,13 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # [Check]: there is no need to compute the angle because the targetArea
     # projection already accounts for that
     if fpref['width'] <= fpref['height']:
-        angle = 0
+        angle = 0.
     else:
-        angle = 0
+        angle = 0.
     fpref['angle'] = angle
 
-    gt1 = [0,0]
-    gt2 = [0,0]
+    gt1 = np.array([0.,0.])
+    gt2 = np.array([0.,0.])
     # Closest polygon side to the spacecraft's ground track position (this
     # will determine the coverage path)
     gt1[0],gt1[1] = groundtrack(sc, inittime, target) # initial ground track position
@@ -122,12 +123,13 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # Boustrophedon decomposition to generate grid traversal
     inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
 
+
     # Convert grid and tour from instrument frame to topographical coordinates
-    topo_tour = inst2topo(inst_tour, cx, cy, target, sc, inst, inittime)
+    topo_tour = inst2topo([inst_tour], cx, cy, target, sc, inst, inittime)
 
     # Remove empty elements from the tour, which may result from unobservable regions
     # within the planned path 
-    topo_tour = [tour for tour in topo_tour if tour is not None]
+    topo_tour = [[point for point in tour if point is not None] for tour in topo_tour]
 
     return topo_tour, inst_grid, inst_tour, grid_dirx, grid_diry, sweepDir1, sweepDir2
 

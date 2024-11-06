@@ -24,9 +24,9 @@ import numpy as np
 # - tuple of (shape,frame,bsight,n,bounds). The type of the tuple is Tuple[str, str, ndarray, int, ndarray]
 
 def mat2py_getfov(instid, room):
-    shape, frame, bsight, n, bounds = spice.getfov(instid, room)
+    shape, frame, bsight, n, bounds_trans = spice.getfov(instid, room)
 
-    bsight = bsight.reshape(3, 1)
-    bounds = bounds.reshape(3, n)
+    bsight = bsight.reshape(3, )
+    bounds = np.array([[row[i] for row in bounds_trans] for i in range(len(bounds_trans[0]))])
 
     return shape, frame, bsight, bounds

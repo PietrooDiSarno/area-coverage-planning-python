@@ -44,5 +44,5 @@ def mat2py_spkcov(spkfnm, idcode, room, cover_i=None):
         cover.append(start)
         cover.append(end)
 
-    cover = np.array(cover).reshape(np.size(cover), 1)
+    cover = np.array(cover).reshape(np.size(cover), )
     return cover

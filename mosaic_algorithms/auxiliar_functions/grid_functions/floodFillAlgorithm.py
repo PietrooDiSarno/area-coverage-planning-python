@@ -53,6 +53,10 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
     flood-fill algorithm, but it is convenient to prevent sub-optimal
     fillings of the uncovered area (isolated points).
     """
+    if isinstance(gridPoints,np.ndarray):
+        gridPoints = list(gridPoints)
+    if isinstance(vPoints,np.ndarray):
+        vPoints = list(vPoints)
 
     # Variables pre-allocation
     inside= False
@@ -62,15 +66,15 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
     # Check if the cell has been previously visited
     for vp in vPoints:
         if np.linalg.norm(np.array(vp) - np.array(gamma)) < 1e-5:
-            return gridPoints, vPoints
+            return np.array(gridPoints), np.array(vPoints)
 
     # Otherwise, mark this point as visited
-    vPoints = np.append(vPoints,gamma,axis=0)
+    vPoints.append(np.array(gamma))
 
     # Rectangular element definition
     fpx = [gamma[0] - w / 2, gamma[0] - w / 2, gamma[0] + w / 2, gamma[0] + w / 2]
     fpy = [gamma[1] + h / 2, gamma[1] - h / 2, gamma[1] - h / 2, gamma[1] + h / 2]
-    footprint_polygon = Polygon(zip(fpx, fpy))
+
 
     # Subtract the allocated cell (footprint) from the perimeterArea
     peripshape = Polygon(perimeterArea)
@@ -81,8 +85,8 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
 
     # Check: the footprint is larger than the region of interest...
     if areaI == 0:
-        gridPoints = np.append(gridPoints,gamma,axis=0)
-        return gridPoints, vPoints
+        gridPoints.append(np.array(gamma))
+        return np.array(gridPoints), np.array(vPoints)
 
     # Check if the rectangle at gamma and size [w,h] is contained in
     # the perimeter area (either partially or totally)
@@ -96,14 +100,14 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         # minimum of the roi (this also avoids sub-optimality in the
         # optimization algorithms)
         areaT = target_polygon.area
-        inter = target_polygon.subtract(fpshape)
+        inter = target_polygon.difference(fpshape)
         areaI =inter.area
         areaInter = areaT - areaI
         fpArea = fpshape.area
 
 
         if areaInter / fpArea > 0.2:
-            gridPoints=np.append(gridPoints,gamma,axis=0)
+            gridPoints.append(np.array(gamma))
             # coordinates = [(gamma(0)-w/2, gamma(1)+ h/2),
             #                (gamma(0)-w/2, gamma(1)- h/2),
             #                (gamma(0)+w/2, gamma(1)- h/2),
@@ -114,30 +118,30 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
             # plt.show()
 
         else:
-            if not gridPoints.any():
-                return gridPoints, vPoints
+            if not gridPoints:
+                return np.array(gridPoints), np.array(vPoints)
                 # plot(gamma(0),gamma(1),'b^')
                 # plt.show()
         # Check the cardinal (and diagonal neighbors in case the method is set
         # to 8fill) neighbors recursively
         # West
         gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                     [gamma[0] - w + ovlapx, gamma[1]],
+                                                     np.array([gamma[0] - w + ovlapx, gamma[1]]),
                                                      targetArea, perimeterArea,
                                                      gridPoints, vPoints, method)
         # South
         gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                     [gamma[0], gamma[1] - h + ovlapy],
+                                                     np.array([gamma[0], gamma[1] - h + ovlapy]),
                                                      targetArea, perimeterArea,
                                                      gridPoints, vPoints, method)
         # North
         gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                     [gamma[0], gamma[1] + h - ovlapy],
+                                                     np.array([gamma[0], gamma[1] + h - ovlapy]),
                                                      targetArea, perimeterArea,
                                                      gridPoints, vPoints, method)
         # East
         gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                     [gamma[0] + w - ovlapx, gamma[1]],
+                                                     np.array([gamma[0] + w - ovlapx, gamma[1]]),
                                                      targetArea, perimeterArea,
                                                      gridPoints, vPoints, method)
 
@@ -145,23 +149,23 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         if method == '8fill':
             # Northwest
             gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                         [gamma[0] - w + ovlapx, gamma[1] + h - ovlapy],
+                                                         np.array([gamma[0] - w + ovlapx, gamma[1] + h - ovlapy]),
                                                          targetArea, perimeterArea,
                                                          gridPoints, vPoints, method)
             # Southwest
             gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                         [gamma[0] - w + ovlapx, gamma[1] - h + ovlapy],
+                                                         np.array([gamma[0] - w + ovlapx, gamma[1] - h + ovlapy]),
                                                          targetArea, perimeterArea,
                                                          gridPoints, vPoints, method)
             # Northeast
             gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                         [gamma[0] + w - ovlapx, gamma[1] + h - ovlapy],
+                                                         np.array([gamma[0] + w - ovlapx, gamma[1] + h - ovlapy]),
                                                          targetArea, perimeterArea,
                                                          gridPoints, vPoints, method)
             # Southeast
             gridPoints, vPoints = floodFillAlgorithm(w, h, olapx, olapy,
-                                                         [gamma[0] + w - ovlapx, gamma[1] - h + ovlapy],
+                                                         np.array([gamma[0] + w - ovlapx, gamma[1] - h + ovlapy]),
                                                          targetArea, perimeterArea,
                                                          gridPoints, vPoints, method)
 
-    return gridPoints, vPoints
+    return np.array(gridPoints), np.array(vPoints)

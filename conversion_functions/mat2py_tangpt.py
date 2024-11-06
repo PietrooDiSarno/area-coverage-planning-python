@@ -50,8 +50,8 @@ def mat2py_tangpt(method, target, et, fixref, abcorr, corloc, obsrvr, dref, dvec
 
     tanpt, alt, rrange, srfpt, trgepc, srfvec = spice.tangpt(
         method, target, et, fixref, abcorr, corloc, obsrvr, dref, dvec)
-    tanpt = np.array(tanpt).reshape(len(tanpt), 1)
-    srfpt = np.array(srfpt).reshape(len(srfpt), 1)
-    srfvec = np.array(srfvec).reshape(len(srfvec), 1)
+    tanpt = np.array(tanpt).reshape(len(tanpt), )
+    srfpt = np.array(srfpt).reshape(len(srfpt), )
+    srfvec = np.array(srfvec).reshape(len(srfvec), )
 
     return tanpt, alt, rrange, srfpt, trgepc, srfvec

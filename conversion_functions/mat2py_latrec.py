@@ -23,7 +23,7 @@ import spiceypy as spice
 def mat2py_latrec(radius, lon, lat):
     if radius is float:
         rectan = spice.latrec(radius, float(lon), float(lat))
-        rectan = rectan.reshape(3, 1)
+        rectan = rectan.reshape(3, )
 
     else:
         radius = np.array(radius).reshape(np.size(radius), )

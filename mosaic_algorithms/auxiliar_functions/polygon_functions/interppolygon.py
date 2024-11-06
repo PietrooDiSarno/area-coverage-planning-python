@@ -43,10 +43,10 @@ def interppolygon(roi0):
     newlat = []
     newlon = []
     if len(indnan) > 0:
-        indnan[-1] =  roi0.shape[0] + 1
-        from_idx = 1
+        indnan[-1] =  roi0.shape[0] + 1 #indnan[-1] =  roi0.shape[0]
+        from_idx = 0
         for i in range(len(indnan)):
-            to = indnan[i] - 1
+            to = indnan[i]
             # Perform great circles interpolation of the latitude and longitude based
             # on the minimum distance found
             latd = lat[from_idx:to]
@@ -56,7 +56,7 @@ def interppolygon(roi0):
             newlat.append(np.nan)
             newlon.extend(auxlon)
             newlon.append(np.nan)
-            from_idx = to + 2
+            from_idx = to + 1
     else:
         # Perform great circles interpolation of the latitude and longitude based
         # on the minimum distance found
@@ -110,7 +110,9 @@ def interpm(lat, lon, maxdiff, method='gc'):
             continue
 
         num_points = int(dist // maxdiff)
-        print('num_points is',num_points)
+        if round(dist % maxdiff) == 0 and dist % maxdiff <=0.05:
+            num_points = num_points - 1
+
         for j in range(1, num_points + 1):
             fraction = j / (num_points + 1)
             azimuth = calculate_azimuth(start,end)

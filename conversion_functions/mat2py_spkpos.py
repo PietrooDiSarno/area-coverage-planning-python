@@ -29,11 +29,11 @@ def mat2py_spkpos(targ, et, ref, abcorr, obs):
     if np.size(et) == 1:
         et = float(et)
         ptarg, ltime = spice.spkpos(targ, et, ref, abcorr, obs)
-        ptarg = np.array(ptarg, 'float').reshape(3, 1)
+        ptarg = np.array(ptarg, 'float').reshape(3, )
         ltime = float(ltime)
     else:
         et = np.array(et, dtype='float').reshape((len(et),))
-        ptarg, ltime = spice.spkpos(targ, et, ref, abcorr, obs)
-        ptarg = np.array(ptarg, 'float').reshape(3, len(et))
+        ptarg_trans, ltime = spice.spkpos(targ, et, ref, abcorr, obs)
+        ptarg = np.array([[row[i] for row in ptarg_trans] for i in range(len(ptarg_trans[0]))],dtype='float')
         ltime = np.array(ltime, dtype='float').reshape((len(et),))
     return ptarg, ltime

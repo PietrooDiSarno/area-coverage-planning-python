@@ -18,7 +18,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
     Usage:        outputData = topo2inst(inputdata, lon, lat, target, sc, inst, et)
 
     Inputs:
-      > inputdata:     A list of lists or ndarray of points in topographic
+      > inputdata:     A list of lists  or ndarray of points in topographic
                        coordinates to be transformed. Each point is a row with
                        [longitude, latitude] format
       > lon:           longitude of the observation point or area center, in
@@ -43,17 +43,23 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
 
     if isinstance(inputdata, list):
         aux = [[point if point else [np.nan, np.nan] for point in row] for row in inputdata]
-        topoPoints = np.vstack([point for sublist in aux for point in sublist])
-        ii, jj = np.unravel_index(range(len(inputdata)), np.shape(inputdata))
+        topoPoints = np.vstack([[point for point in sublist] for sublist in aux])
+        for i in range(len(inputdata)):
+            for j in range(len(inputdata[i])):
+                ii.append(i)
+                jj.append(j)
     else:
+        if np.shape(inputdata) == (2,):
+            inputdata = inputdata.reshape(1,2)
         topoPoints = copy.deepcopy(inputdata)
 
     # Pre-allocate variables
-    targetframe = mat2py_cnmfrm(target)  # target frame ID in SPICE
+    _, targetframe,_ = mat2py_cnmfrm(target)  # target frame ID in SPICE
 
     # Build focal plane
-    fovbounds, boresight, rotmat = instpointing(inst, target, sc, et, lon, lat)
-    vertex = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
+    fovbounds, boresight, rotmat ,_ = instpointing(inst, target, sc, et, lon, lat)
+
+    vertex,_ = mat2py_spkpos(sc, et, targetframe, 'NONE', target)
     point = vertex + fovbounds[:, 0]
 
     # Create a plane based on the boresight and a point in the focal plane
@@ -64,7 +70,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
 
     for i in range(topoPoints.shape[0]):
         if not np.isnan(topoPoints[i]).any():
-            dir = -trgobsvec(topoPoints[i], et, target, sc)
+            dir = -(trgobsvec(topoPoints[i], et, target, sc))[0]
             found, spoint[i, :] = mat2py_inrypl(vertex, dir, plane)
 
             if found:
@@ -87,7 +93,6 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
             tArea[i, :] = np.full(3, np.nan)
 
     instcoord = tArea[:, :2]  # extract 2D instrument frame coordinates
-
     # Prepare output data matching the format of the input,i.e., cell array or
     # matrix
     outputData = [[None for _ in row] for row in inputdata]
@@ -97,7 +102,11 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
                 outputData[ii[k]][jj[k]] = instcoord[k, :]
     else:
         instcoord = instcoord[~np.isnan(instcoord[:, 0])]
-        aux[:,0],aux[:,1] = sortcw(instcoord[:, 0], instcoord[:, 1])
+        if np.size(aux)==0:
+            col1, col2 = sortcw(instcoord[:, 0], instcoord[:, 1])
+            aux = np.hstack((col1.reshape(len(col1),1),col2.reshape(len(col2),1)))
+        else:
+            aux[:,0],aux[:,1] = sortcw(instcoord[:, 0], instcoord[:, 1])
         outputData = aux
 
     return outputData
