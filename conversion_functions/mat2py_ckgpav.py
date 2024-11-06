@@ -14,7 +14,7 @@ import numpy as np
 
 # The function spice.ckgpav in Python receives:
 # - inst: int
-# - sclkdp: float --> a "for" cycle is required since MATLAB can handle more values of "sclkdp", but Python can't
+# - sclkdp: float --> a "for" cycle is required since MATLAB can handle over more values of "sclkdp", while Python cannot
 # - tol: float OR int
 # - ref: str
 
@@ -42,7 +42,7 @@ def mat2py_ckgpav(inst, sclkdp, tol, ref):
         except Exception as e:
             if str(e) == 'Spice returns not found for function: ckgpav':
                 cmat = np.zeros((3, 3))
-                av = np.zeros((3, ))
+                av = np.zeros((3,))
                 clkout = 0
                 found = False
 
@@ -57,21 +57,22 @@ def mat2py_ckgpav(inst, sclkdp, tol, ref):
             try:
                 Cmat, Av, Clkout = spice.ckgpav(inst, sclkdp[i], tol, ref)
                 Av = Av.reshape(3, )
-        if i == 0:
-            av = copy.deepcopy(Av)
-            cmat = copy.deepcopy(Cmat)
-        else:
-                cmat = np.stack((cmat, Cmat), axis=2)
-                av = np.stack((av, Av), axis=1)
+                if i == 0:
+                    av = copy.deepcopy(Av)
+                    cmat = copy.deepcopy(Cmat)
+                else:
+                    cmat = np.stack((cmat, Cmat), axis=2)
+                    av = np.stack((av, Av), axis=1)
                 clkout = np.append(clkout, Clkout)
                 found = np.append(found, True)
             except Exception as e:
-                if str(e) == 'Spice returns not found for function: ckgpav':if i == 0:
-                   cmat = np.zeros((3, 3))
-                   av = np.zeros((3, ))
-               else:
-                    cmat = np.stack((cmat, np.zeros((3, 3))), axis=2)
-                    av = np.stack((av, np.zeros((3, ))), axis=1)
+                if str(e) == 'Spice returns not found for function: ckgpav':
+                    if i == 0:
+                        cmat = np.zeros((3, 3))
+                        av = np.zeros((3,))
+                    else:
+                        cmat = np.stack((cmat, np.zeros((3, 3))), axis=2)
+                        av = np.stack((av, np.zeros((3,))), axis=1)
                     clkout = np.append(clkout, 0)
                     found = np.append(found, False)
 
