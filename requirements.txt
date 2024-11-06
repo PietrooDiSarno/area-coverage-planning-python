@@ -1,10 +1,12 @@
+# External modules
+pySPICElib @ git+https://github.com/ManelSoria/pySPICElib.git
+
 # Imported python packages
 geopy
 matplotlib
 numpy
+pillow
+pyproj
 scipy
 shapely
 spiceypy
-
-# External modules
-pySPICElib @ git+https://github.com/ManelSoria/pySPICElib.git
