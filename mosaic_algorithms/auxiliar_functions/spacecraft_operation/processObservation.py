@@ -112,7 +112,6 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
 
         if not poly2.is_valid:
             poly2 = poly2.buffer(0)
-            print('buffer')
         # Check footprint-ROI intersect
         targetpshape = copy.deepcopy(poly1)
         areaT = targetpshape.area
