@@ -50,9 +50,8 @@ def mapPlot(filename):
     ax.set_ylim([min(ytick), max(ytick)])
     ax.set_xlabel('Planetocentric longitude',fontsize = 20)
     ax.set_ylabel('Planetocentric latitude',fontsize = 20)
+    ax.tick_params(axis = 'x', which = 'major', pad = 10)
+    ax.tick_params(axis = 'y', which = 'major', pad = 10)
     ax.tick_params(labelsize=20)
-    #plt.ioff()
-    #plt.show(block = False)
     plt.pause(0.1)
-    #plt.ion()
     return fig, ax
