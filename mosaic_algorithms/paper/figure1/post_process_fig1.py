@@ -35,3 +35,4 @@ def post_process_fig1():
     plt.gca().set_yticklabels(ytickstr)
     plt.gca().tick_params(which='both', direction='in', top=True, right=True)
     plt.grid(True, which='both', color='w', linestyle=':', linewidth=1, alpha=1)
+    plt.pause(3)

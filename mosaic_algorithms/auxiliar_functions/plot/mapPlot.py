@@ -30,13 +30,15 @@ def mapPlot(filename):
         elif y > 0:
             ytickstr.append(f"{y}ºN")
         else:
-            ytickstr.append(f"{abs(y)}º")
+            ytickstr.append(f"{y}º")
 
     # figure
+    plt.ion()
     W, L = scrsz
     fig, ax = plt.subplots(figsize=(W * 0.6 / 96, L * 0.5 / 96))
+    #fig.subplots_adjust(left=0.4307, bottom=0.3144)
     map = Image.open(filename)
-    map = ImageOps.flip(map)
+    #map = ImageOps.flip(map)
     ax.imshow(map, extent=(-180, 180, -90, 90), alpha=0.8, cmap='gray')
     ax.set_xticks(xtick)
     ax.set_yticks(ytick)
@@ -44,11 +46,12 @@ def mapPlot(filename):
     ax.set_yticklabels(ytickstr)
     ax.grid(True, color='w', linestyle=':', linewidth=0.5, alpha=1)
     ax.set_aspect('equal', adjustable='box')
-    ax.tick_params(labelsize=20)
     ax.set_xlim([min(xtick), max(xtick)])
     ax.set_ylim([min(ytick), max(ytick)])
-    ax.set_xlabel('Planetocentric longitude')
-    ax.set_ylabel('Planetocentric latitude')
-
-    plt.show()
-    return ax
+    ax.set_xlabel('Planetocentric longitude',fontsize = 20)
+    ax.set_ylabel('Planetocentric latitude',fontsize = 20)
+    ax.tick_params(axis = 'x', which = 'major', pad = 10)
+    ax.tick_params(axis = 'y', which = 'major', pad = 10)
+    ax.tick_params(labelsize=20)
+    plt.pause(0.1)
+    return fig, ax

@@ -34,12 +34,10 @@ def getMapNeighbours(indrow, indcol, map, search='all'):
        raise ValueError("Searching element cannot be in the map boundaries")
     # Future work: check if first and last rows and columns are NaN
 
-    # Initialize the list to hold neighboring points
-    aux_n = [None] * 8  # Preallocate for up to 8 neighbors
-
     # Search neighbors of the given element in the map
-    if map[indrow][indcol] is not None and not any(np.isnan(map[indrow][indcol])):
-        if search == 'all':
+    if search == 'all':
+        aux_n = [None] * 8
+        if map[indrow][indcol] is not None and not np.isnan(map[indrow][indcol]).any():
             aux_n[0] = map[indrow - 1][indcol + 1]  # northeast
             aux_n[1] = map[indrow][indcol + 1]      # east
             aux_n[2] = map[indrow + 1][indcol + 1]  # southeast
@@ -49,19 +47,21 @@ def getMapNeighbours(indrow, indcol, map, search='all'):
             aux_n[6] = map[indrow][indcol - 1]      # west
             aux_n[7] = map[indrow + 1][indcol - 1]  # southwest
 
-        elif search == 'cardinal':
-            aux_n[0] = map[indrow - 1][indcol]  # north
-            aux_n[1] = map[indrow][indcol + 1]  # east
-            aux_n[2] = map[indrow + 1][indcol]  # south
-            aux_n[3] = map[indrow][indcol - 1]  # west
+    elif search == 'cardinal':
+        aux_n = [None] * 4
+        aux_n[0] = map[indrow - 1][indcol]  # north
+        aux_n[1] = map[indrow][indcol + 1]  # east
+        aux_n[2] = map[indrow + 1][indcol]  # south
+        aux_n[3] = map[indrow][indcol - 1]  # west
 
-        elif search == 'diagonal':
-            aux_n[0] = map[indrow - 1][indcol - 1]  # northwest
-            aux_n[1] = map[indrow - 1][indcol + 1]  # northeast
-            aux_n[2] = map[indrow + 1][indcol + 1]  # southeast
-            aux_n[3] = map[indrow + 1][indcol - 1]  # southwest
+    elif search == 'diagonal':
+        aux_n = [None] * 4
+        aux_n[0] = map[indrow - 1][indcol - 1]  # northwest
+        aux_n[1] = map[indrow - 1][indcol + 1]  # northeast
+        aux_n[2] = map[indrow + 1][indcol + 1]  # southeast
+        aux_n[3] = map[indrow + 1][indcol - 1]  # southwest
 
     # Output neighbours (not empy nor NaN)
-    n = [neighbor for neighbor in aux_n if neighbor is not None and not any(np.isnan(neighbor))]
+    n = [neighbor for neighbor in aux_n if neighbor is not None and not np.isnan(neighbor).any()]
 
     return n

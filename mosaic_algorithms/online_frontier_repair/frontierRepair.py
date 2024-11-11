@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi import visibleroi
 from mosaic_algorithms.auxiliar_functions.polygon_functions.interppolygon import interppolygon
 from mosaic_algorithms.sidewinder.planSidewinderTour import planSidewinderTour
@@ -96,7 +96,20 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     # [Future work]: Solve this incompatibility
 
     # Define target area as a polygon
-    poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+    if (np.isnan(roi[:,0])).any():
+        nanindex = np.where(np.isnan(roi[:,0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i==0:
+                polygon_list.append(Polygon(list(zip(roi[:nanindex[0],0], roi[:nanindex[0],1]))))
+            else:
+                polygon_list.append(Polygon(list(zip(roi[nanindex[i-1]+1:nanindex[i],0], roi[nanindex[i-1]+1:nanindex[i],1]))))
+        if ~ np.isnan(roi[-1,0]):
+            polygon_list.append(Polygon(list(zip(roi[nanindex[-1] + 1:, 0], roi[nanindex[-1] + 1:, 1]))))
+        poly1 = MultiPolygon(polygon_list)
+    else:
+        poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+
     cx = poly1.centroid.x
     cy = poly1.centroid.y
 
@@ -108,11 +121,26 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     exit = False
 
     while not exit:
-
         # Initial 2D grid layout discretization: the instrument's FOV is going
         # to be projected onto the uncovered area's centroid and the resulting
         # footprint shape is used to set the grid spatial resolution
-        gamma = [Polygon(roi).centroid.x,Polygon(roi).centroid.y]
+
+        if (np.isnan(roi[:, 0])).any():
+            nanindex = np.where(np.isnan(roi[:, 0]))[0]
+            polygon_list = []
+            for i in range(len(nanindex)):
+                if i == 0:
+                    polygon_list.append(Polygon(list(zip(roi[:nanindex[0], 0], roi[:nanindex[0], 1]))))
+                else:
+                    polygon_list.append(Polygon(
+                        list(zip(roi[nanindex[i - 1] + 1:nanindex[i], 0], roi[nanindex[i - 1] + 1:nanindex[i], 1]))))
+            if ~ np.isnan(roi[-1, 0]):
+                polygon_list.append(Polygon(list(zip(roi[nanindex[-1] + 1:, 0], roi[nanindex[-1] + 1:, 1]))))
+            polyroi = MultiPolygon(polygon_list)
+        else:
+            polyroi = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+
+        gamma = [polyroi.centroid.x,polyroi.centroid.y]
         fprintc = footprint(t, inst, sc, target, resolution, gamma[0], gamma[1], 0)  # centroid footprint
 
         # Initialize a list of dictionaries to save footprints
@@ -133,10 +161,10 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
         # Discretize ROI area (grid) and plan Sidewinder tour based on a Boustrophedon approach
         tour, grid, itour, grid_dirx, grid_diry, dir1, dir2 = planSidewinderTour(target, roi, sc, inst, t, olapx, olapy)
 
-        for i in range(len(grid)):
-            for j in range(len(grid[i])):
-                if grid[i][j] is not None:
-                    grid[i][j] = (grid[i][j]).reshape(1,2)
+        #for i in range(len(grid)):
+        #    for j in range(len(grid[i])):
+        #       if grid[i][j] is not None:
+        #            grid[i][j] = (grid[i][j]).reshape(1,2)
 
         # Handle cases where the FOV projection is larger than the ROI area
         if len(tour) < 1:
@@ -146,8 +174,7 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
             continue
 
         seed = itour[0]
-        while (not (len(tour) == 1 and len(tour[0]) == 0)) and t < endTime:
-
+        while len(tour)!= 0 and t < endTime:
             # Update origin and tour
             old_seed = seed
             itour.pop(0)
@@ -155,13 +182,19 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
             # Process each point of the tour
             A, tour, fpList, poly1, t, _  = processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, inst,
                                                            sc, target, resolution)
-
-            # If polygon is completely covered, break loop
-            if not poly1.exterior.coords:
-                break
-
-            # Update roi
-            roi = np.array(poly1.exterior.coords)
+            if isinstance(poly1, Polygon):
+                # If polygon is completely covered, break loop
+                if not poly1.exterior.coords:
+                    break
+                # Update roi
+                roi = np.array(poly1.exterior.coords)
+            elif isinstance(poly1, MultiPolygon):
+                for i in range(len(poly1.geoms)):
+                    if i == 0:
+                        roi = np.vstack((np.array(poly1.geoms[i].exterior.coords), [np.nan, np.nan]))
+                    else:
+                        roi = np.vstack((roi, np.array(poly1.geoms[i].exterior.coords), [np.nan, np.nan]))
+                roi = roi[:-1,:]
 
             # Check roi visibility
             vsbroi, _, visibilityFlag = visibleroi(roi, t, target, sc)

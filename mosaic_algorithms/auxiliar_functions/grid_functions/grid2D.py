@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import ConvexHull
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 from mosaic_algorithms.auxiliar_functions.grid_functions.floodFillAlgorithm import floodFillAlgorithm
 
 
@@ -67,7 +67,21 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     dirx = rotmat[0, :]
     diry = rotmat[1, :]
 
-    polygon = Polygon(targetArea)
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        polygon = MultiPolygon(polygon_list)
+    else:
+        polygon = Polygon(targetArea)
+
     cx, cy = polygon.centroid.x, polygon.centroid.y
 
     orientedArea = np.zeros([max(np.shape(targetArea)),2])

@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 
 
 def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gridPoints, vPoints, method):
@@ -77,7 +77,21 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
 
 
     # Subtract the allocated cell (footprint) from the perimeterArea
-    peripshape = Polygon(perimeterArea)
+    if (np.isnan(perimeterArea[:, 0])).any():
+        nanindex = np.where(np.isnan(perimeterArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(perimeterArea[:nanindex[0], 0], perimeterArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(perimeterArea[nanindex[i - 1] + 1:nanindex[i], 0], perimeterArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(perimeterArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(perimeterArea[nanindex[-1] + 1:, 0], perimeterArea[nanindex[-1] + 1:, 1]))))
+        peripshape = MultiPolygon(polygon_list)
+    else:
+        peripshape = Polygon(perimeterArea)
+
     fpshape = Polygon(zip(fpx, fpy))
     inter = peripshape.difference(fpshape)
     areaI = inter.area
@@ -90,7 +104,22 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
 
     # Check if the rectangle at gamma and size [w,h] is contained in
     # the perimeter area (either partially or totally)
-    target_polygon = Polygon(targetArea)
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0],
+                             targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        target_polygon = MultiPolygon(polygon_list)
+    else:
+        target_polygon = Polygon(targetArea)
+
     if target_polygon.contains(Point(gamma)) or abs(areaI - areaP) / fpshape.area > 0.1:
         inside = True
 

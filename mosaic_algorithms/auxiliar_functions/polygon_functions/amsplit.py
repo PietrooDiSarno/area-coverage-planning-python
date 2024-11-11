@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import  sortcw
 
 
@@ -43,15 +43,41 @@ def amsplit(x, y):
     # polygons: the input polygon and another one which corresponds to the
     # anti-meridian line (actually, it's a small polygon because the 'intersect'
     # function does not operate well with lines)
-    x[x < 0] = x[x < 0] + 360  # continuous polygon
-    poly1 = Polygon(zip(x, y))
+
+    if (np.isnan(x)).any():
+        nanindex = np.where(np.isnan(x))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(x[:nanindex[0]], y[:nanindex[0]]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(x[nanindex[i - 1] + 1:nanindex[i]], y[nanindex[i - 1] + 1:nanindex[i]]))))
+        if ~ np.isnan(x[-1]):
+            polygon_list.append(Polygon(list(zip(x[nanindex[-1] + 1:], y[nanindex[-1] + 1:]))))
+        poly1 = MultiPolygon(polygon_list)
+    else:
+        poly1 = Polygon(zip(x, y))
+
     vpoly2 = np.vstack((np.column_stack((180 * np.ones(20), np.linspace(-90, 90, 20))),
                         np.column_stack((181 * np.ones(20), np.linspace(90, -90, 20)))))
     poly2 = Polygon(vpoly2)
 
     # Compute the intersection points
     polyinter = poly1.intersection(poly2)
-    xinter, yinter = polyinter.exterior.xy
+    if isinstance(polyinter, Polygon):
+        xinter, yinter = np.array(polyinter.exterior.coords.xy)
+    elif isinstance(polyinter, MultiPolygon):
+        for i in range(len(polyinter.geoms)):
+            xinteraux, yinteraux = np.array(polyinter.geoms[i].exterior.coords.xy)
+            if i == 0:
+                xinter = np.vstack(( xinteraux, np.nan))
+                yinter = np.vstack(( yinteraux, np.nan))
+            else:
+                xinter = np.vstack((xinter, xinteraux, np.nan))
+                yinter = np.vstack((yinter, yinteraux, np.nan))
+        xinter = xinter[:-1]
+        yinter = yinter[:-1]
 
     # Only keep the anti-meridian intercepts
     yi = yinter[np.abs(xinter - 180) < 1e-2]
