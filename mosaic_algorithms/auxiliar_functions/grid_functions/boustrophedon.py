@@ -67,7 +67,7 @@ def boustrophedon(grid, dir1, dir2):
                     icol = j
 
                 if grid[irow][icol] is not None:
-                    x, y = grid[irow][icol]
+                    x, y = grid[irow][icol][0], grid[irow][icol][1]
                     tour[ii] = np.array([x, y])#Save it in the coverage tour
                     ii += 1
 
@@ -95,7 +95,7 @@ def boustrophedon(grid, dir1, dir2):
                     irow = len(grid) - j - 1
 
                 if grid[irow][icol] is not None:
-                    x, y = grid[irow][icol]
+                    x, y = grid[irow][icol][0], grid[irow][icol][1]
                     tour[ii] = np.array([x, y])
                     ii += 1
 

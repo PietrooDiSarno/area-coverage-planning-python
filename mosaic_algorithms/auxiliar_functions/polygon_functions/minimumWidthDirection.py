@@ -38,8 +38,8 @@ def minimumWidthDirection(x, y):
         y = np.delete(y, ind)
 
     # Find centroid
-    hull = ConvexHull(np.array([x, y]).T)
-    cx, cy = np.mean(hull.points[hull.vertices], axis=0)
+    cx = Polygon(list(zip(x,y))).centroid.x
+    cy = Polygon(list(zip(x,y))).centroid.y
 
     vertices=np.zeros([np.size(x),2])
     # Sort the vertices in clockwise direction

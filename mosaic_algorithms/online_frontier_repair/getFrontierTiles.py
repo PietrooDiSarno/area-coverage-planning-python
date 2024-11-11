@@ -25,12 +25,11 @@ def getFrontierTiles(map):
     frontier = []
     indel = []
 
-
-    for i in range(len(map)):
-        for j in range(len(map[i])):
+    for j in range(len(map[0])):
+        for i in range(len(map)):
             tile = map[i][j]
 
-            if not any(np.isnan(tile)):
+            if not np.isnan(tile).any():
                 # Get the observation neighbors of the current observation points
                 n = getMapNeighbours(i, j, map)
 

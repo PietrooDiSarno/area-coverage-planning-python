@@ -3,7 +3,7 @@ import numpy as np
 from conversion_functions import *
 
 
-def insertTiles(map, newp, indp):
+def insertTiles(*args):
     """
     This function includes new observation points in a planned tour
     observations
@@ -26,6 +26,11 @@ def insertTiles(map, newp, indp):
       > map:       updated list of lists of grid points
 
     """
+
+    map = args[0]
+    newp = args[1]
+    indp = args[2]
+
     # Insert elements in map
     offcol = 0
     offrow = 0
@@ -44,34 +49,34 @@ def insertTiles(map, newp, indp):
         offrow0 = copy.deepcopy(offrow)
         offcol0 = copy.deepcopy(offcol)
 
-        if indel[0] >= len(map):  # last row or more
-            nrows = 1 + indel[0] - len(map)  # number of additional rows in the grid (last rows)
+        if indel[0] >= (len(map) - 1):  # last row or more
+            nrows = 2 + indel[0] - len(map)  # number of additional rows in the grid (last rows)
 
             # Map relocation
-            map += [[np.nan for _ in range(len(map[0]))] for _ in range(nrows)]
+            map =  aux_map + [[np.array([np.nan,np.nan]) for _ in range(len(map[0]))] for _ in range(nrows)]
 
         elif indel[0] <= 0:  # First row or less
             nrows = 1 - indel[0]  # Number of additional rows in the grid (first rows)
             offrow += nrows # rows offset
 
             # Map relocation
-            map = [[np.nan, np.nan] for _ in range(nrows)] + aux_map
+            map = [[np.array([np.nan,np.nan]) for _ in range(len(map[0]))] for _ in range(nrows)] + aux_map
 
         aux_map = copy.deepcopy(map)
 
-        if indel[1] >= len(map[0]):  # last column or more
-            ncols = 1 + indel[1] - len(map[0])  # number of additional columns
+        if indel[1] >= (len(map[0]) -1) :  # last column or more
+            ncols = 2 + indel[1] - len(map[0])  # number of additional columns
             # in the grid (last columns)
 
             # Map relocation
-            map = [row + [[np.nan, np.nan]] * ncols for row in aux_map]
+            map = [row + [np.array([np.nan, np.nan])] * ncols for row in aux_map]
 
         elif indel[1] <= 0:  # First column or less
             ncols = 1 - indel[1]  # number of additional columns in the grid (first columns)
             offcol += ncols # columns offset
 
             # Map relocation
-            map = [[np.nan, np.nan] * ncols + row for row in map]  # Precede con nuove colonne NaN
+            map = [[np.array([np.nan, np.nan])] * ncols + row for row in aux_map]
 
         # Update the current element index
         indel[0] += (offrow - offrow0)
