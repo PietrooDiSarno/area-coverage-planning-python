@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
 from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amsplit
 from conversion_functions import *
@@ -88,11 +88,18 @@ def visibleroi(roi, et, target, obs):
 
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            if Polygon(list(zip(lblon, lblat))).contains(Point(randPoint[0],randPoint[1])):
+            if (np.isnan(lblon)).any():
+                nanindex = np.where(np.isnan(lblon))[0][0]
+                poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
+                                         Polygon(list(zip(lblon[nanindex+1:], lblat[nanindex+1:])))])
+            else:
+                poly_aux = Polygon(list(zip(lblon, lblat)))
+
+            if poly_aux.contains(Point(randPoint[0],randPoint[1])):
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
                     exit = 1
-                    poly1 = Polygon((list(zip(lblon, lblat))))
+                    poly1 = copy.deepcopy(poly_aux)
             else:
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
@@ -102,7 +109,7 @@ def visibleroi(roi, et, target, obs):
                     lonmap = np.array([-180, -180, 180, 180])
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
-                    poly1 = Polygon(list(zip(lblon, lblat)))
+                    poly1 = poly_aux
                     poly1 = polymap.difference(poly1)
     else:
         # Case 2.
@@ -129,14 +136,36 @@ def visibleroi(roi, et, target, obs):
         poly1 = Polygon((list(zip(lblon, lblat))))
 
     # roi and limb intersection
-    poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+    if (np.isnan(roi[:,0])).any():
+        nanindex = np.where(np.isnan(roi[:,0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i==0:
+                polygon_list.append(Polygon(list(zip(roi[:nanindex[0],0], roi[:nanindex[0],1]))))
+            else:
+                polygon_list.append(Polygon(list(zip(roi[nanindex[i-1]+1:nanindex[i],0], roi[nanindex[i-1]+1:nanindex[i],1]))))
+        if ~ np.isnan(roi[-1,0]):
+            polygon_list.append(Polygon(list(zip(roi[nanindex[-1] + 1:, 0], roi[nanindex[-1] + 1:, 1]))))
+        poly2 = MultiPolygon(polygon_list)
+    else:
+        poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+
+
     inter = poly1.intersection(poly2)
 
     # output visible roi
-    vroi = np.array(inter.exterior.coords)
+    if isinstance(inter, Polygon):
+        vroi = np.array(inter.exterior.coords)
+    elif isinstance(inter, MultiPolygon):
+        for i in range(len(inter.geoms)):
+            if i == 0:
+                vroi = np.vstack((np.array(inter.geoms[i].exterior.coords), [np.nan, np.nan]))
+            else:
+                vroi = np.vstack((vroi, np.array(inter.geoms[i].exterior.coords), [np.nan, np.nan]))
+        vroi = vroi[:-1,:]
 
     # visibility flag
-    if len(vroi) == 0:
+    if vroi.size == 0:
         flag = True
 
     return vroi, inter, flag

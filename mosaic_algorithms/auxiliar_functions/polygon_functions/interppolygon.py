@@ -43,7 +43,8 @@ def interppolygon(roi0):
     newlat = []
     newlon = []
     if len(indnan) > 0:
-        indnan[-1] =  roi0.shape[0] + 1 #indnan[-1] =  roi0.shape[0]
+        #indnan[-1] =  roi0.shape[0]
+        indnan = np.append(indnan,roi0.shape[0])
         from_idx = 0
         for i in range(len(indnan)):
             to = indnan[i]
@@ -61,7 +62,6 @@ def interppolygon(roi0):
         # Perform great circles interpolation of the latitude and longitude based
         # on the minimum distance found
         newlat, newlon = interpm(lat, lon, math.ceil(epsilon / 2), 'gc')
-
     # Update the roi array with the interpolated latitude and longitude values
     roi = np.column_stack((newlon, newlat))
 
@@ -124,4 +124,5 @@ def interpm(lat, lon, maxdiff, method='gc'):
         lonout.append(lon[i])
 
     return latout, lonout
+
 

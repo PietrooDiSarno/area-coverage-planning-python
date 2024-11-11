@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import MultiPolygon, Polygon, LineString
 from math import cos, sin, radians
 import math
 from conversion_functions import *
@@ -33,7 +33,22 @@ def closestSide(gt1, gt2, targetArea, angle):
     angle = -angle*mat2py_rpd()
     rotmat = np.array([[cos(angle), -sin(angle)],
                        [sin(angle), cos(angle)]])
-    cx, cy = Polygon(targetArea).centroid.coords[0]
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        poly_aux = MultiPolygon(polygon_list)
+    else:
+        poly_aux = Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
+    cx,cy = poly_aux.centroid.x, poly_aux.centroid.y
+
     roi = np.zeros((max(np.shape(targetArea)), 2))
     for j in range(max(np.shape(targetArea))):
         roi[j, :] = np.dot(rotmat, (targetArea[j] - np.array([cx, cy]))) + np.array([cx, cy])

@@ -27,13 +27,14 @@ def grid2map(grid):
     # Initialize map with additional rows and columns to place the NaN boundaries
     map_height = len(grid) + 2
     map_width = len(grid[0]) + 2
-    map = [[] * map_width for _ in range(map_height)]
+    map = [[[] for _ in range(map_width)] for _ in range(map_height)]
+
 
     # Populate the map with data from the grid and NaN borders
     for i in range(map_height):
         for j in range(map_width):
             if i == 0 or j == 0 or i == map_height - 1 or j == map_width - 1 or grid[i - 1][j - 1] is None:
-                map[i][j] = [np.nan,np.nan]
+                map[i][j] = np.array([np.nan,np.nan])
             else:
                 map[i][j] = grid[i - 1][j - 1]
 

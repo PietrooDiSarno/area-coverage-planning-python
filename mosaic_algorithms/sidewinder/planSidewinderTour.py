@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 from conversion_functions import *
 from conversion_functions import mat2py_getfov
 from mosaic_algorithms.auxiliar_functions.grid_functions.boustrophedon import boustrophedon
@@ -61,16 +61,46 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     # Pre-allocate variables
     origin = np.array([0., 0.]) # initialize grid origin for grid generation
     x, y = roi[:, 0], roi[:, 1]
-    polygon = Polygon(zip(x, y))
-    centroid = polygon.centroid.xy
-    cx, cy = centroid[0][0], centroid[1][0] # point camera at ROI's centroid
+
+    if (np.isnan(x)).any():
+        nanindex = np.where(np.isnan(x))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(x[:nanindex[0]], y[:nanindex[0]]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(x[nanindex[i - 1] + 1:nanindex[i]], y[nanindex[i - 1] + 1:nanindex[i]]))))
+        if ~ np.isnan(x[-1]):
+            polygon_list.append(Polygon(list(zip(x[nanindex[-1] + 1:], y[nanindex[-1] + 1:]))))
+        polygon = MultiPolygon(polygon_list)
+    else:
+        polygon = Polygon((list(zip(x, y))))
+
+    # point camera at ROI's centroid
+    cx = polygon.centroid.x
+    cy = polygon.centroid.y
+
 
 
     # Project ROI to the instrument plane
     targetArea = topo2inst(roi, cx, cy, target, sc, inst, inittime)
-    coordinates = [tuple(point) for point in targetArea]
-    origin[0], origin[1] = (Polygon(coordinates).centroid.xy[0][0],
-    Polygon(coordinates).centroid.xy[1][0])
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        poly_aux = MultiPolygon(polygon_list)
+    else:
+        poly_aux =Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
+
+    origin[0], origin[1] = poly_aux.centroid.x, poly_aux.centroid.y
 
     # Get minimum width direction of the footprint
     angle,_,_,_ = minimumWidthDirection(targetArea[:,0],targetArea[:,1])
@@ -125,11 +155,11 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
 
 
     # Convert grid and tour from instrument frame to topographical coordinates
-    topo_tour = inst2topo([inst_tour], cx, cy, target, sc, inst, inittime)
+    topo_tour = inst2topo([inst_tour], cx, cy, target, sc, inst, inittime)[0]
 
     # Remove empty elements from the tour, which may result from unobservable regions
     # within the planned path 
-    topo_tour = [[point for point in tour if point is not None] for tour in topo_tour]
+    topo_tour = [point for point in topo_tour if point is not None]
 
     return topo_tour, inst_grid, inst_tour, grid_dirx, grid_diry, sweepDir1, sweepDir2
 

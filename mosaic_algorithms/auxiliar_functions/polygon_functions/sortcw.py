@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 
 
 def sortcw(*args):
@@ -35,10 +35,24 @@ def sortcw(*args):
         x, y = args[0], args[1]
         if np.size(x) == 1:
             return x,y
-        points = list(zip(x, y))
-        polygon = Polygon(points)
-        centroid = polygon.centroid
-        cx, cy = centroid.x, centroid.y # polygon centroid
+
+        if (np.isnan(x)).any():
+            nanindex = np.where(np.isnan(x))[0]
+            polygon_list = []
+            for i in range(len(nanindex)):
+                if i == 0:
+                    polygon_list.append(Polygon(list(zip(x[:nanindex[0]], y[:nanindex[0]]))))
+                else:
+                    polygon_list.append(Polygon(
+                        list(zip(x[nanindex[i - 1] + 1:nanindex[i]], y[nanindex[i - 1] + 1:nanindex[i]]))))
+            if ~ np.isnan(x[-1]):
+                polygon_list.append(Polygon(list(zip(x[nanindex[-1] + 1:], y[nanindex[-1] + 1:]))))
+            polygon = MultiPolygon(polygon_list)
+        else:
+            polygon = Polygon((list(zip(x,y))))
+
+        cx = polygon.centroid.x
+        cy = polygon.centroid.y # polygon centroid
 
         angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices

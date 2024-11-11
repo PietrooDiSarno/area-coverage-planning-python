@@ -9,7 +9,7 @@ from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amspl
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 from science_opportunity_main.queries.geometric.fovray import fovray
 import warnings
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 
 def footprint(t, inst, sc, target, res, *args):
     """
@@ -426,13 +426,28 @@ def footprint(t, inst, sc, target, res, *args):
             # Case 1
             if not northpole and not southpole:
                 # Check a.m. split
-                ind2 = (np.where(np.diff(np.sort(lblon)) >= 180)[0])[0] # find the discontinuity
-                if ind2.size > 0:
+                ind2 = np.where(np.diff(np.sort(lblon)) >= 180)[0] # find the discontinuity
+                if len(ind2) > 0:
                     lblon, lblat = amsplit(lblon, lblat)
                 exit = False
                 while not exit:
                     randPoint = np.random.randint([-180, -90], [181, 91])
-                    polygon = Polygon(list(zip(lblon, lblat)))
+                    if (np.isnan(lblon)).any():
+                        nanindex = np.where(np.isnan(lblon))[0]
+                        polygon_list = []
+                        for i in range(len(nanindex)):
+                            if i == 0:
+                                polygon_list.append(Polygon(list(zip(lblon[:nanindex[0]], lblat[:nanindex[0]]))))
+                            else:
+                                polygon_list.append(Polygon(list(zip(lblon[nanindex[i - 1] + 1:nanindex[i]],
+                                                                     lblat[nanindex[i - 1] + 1:nanindex[i]]))))
+                        if ~ np.isnan(lblon[-1]):
+                            polygon_list.append(
+                                Polygon(list(zip(lblon[nanindex[-1] + 1:], lblat[nanindex[-1] + 1:]))))
+                        polygon = MultiPolygon(polygon_list)
+                    else:
+                        polygon = Polygon((list(zip(lblon, lblat))))
+
                     if polygon.contains(Point(randPoint[0], randPoint[1])):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
@@ -447,11 +462,37 @@ def footprint(t, inst, sc, target, res, *args):
                             lonmap = np.array([-180, -180, 180, 180])
                             latmap = np.array([-90, 90, 90, -90])
                             polymap = Polygon(list(zip(lonmap, latmap)))
-                            poly1 = Polygon(list(zip(lblon,lblat)))
+                            if (np.isnan(lblon)).any():
+                                nanindex = np.where(np.isnan(lblon))[0]
+                                polygon_list = []
+                                for i in range(len(nanindex)):
+                                    if i == 0:
+                                        polygon_list.append(Polygon(list(zip(lblon[:nanindex[0]], lblat[:nanindex[0]]))))
+                                    else:
+                                        polygon_list.append(Polygon(list(zip(lblon[nanindex[i - 1] + 1:nanindex[i]],
+                                                                             lblat[nanindex[i - 1] + 1:nanindex[i]]))))
+                                if ~ np.isnan(lblon[-1]):
+                                    polygon_list.append(
+                                        Polygon(list(zip(lblon[nanindex[-1] + 1:], lblat[nanindex[-1] + 1:]))))
+                                poly1 = MultiPolygon(polygon_list)
+                            else:
+                                poly1 = Polygon((list(zip(lblon, lblat))))
+
                             poly1 = polymap.difference(poly1)
-                            lons,lats = poly1.exterior.coords.xy
-                            lblon = np.array(lons)
-                            lblat = np.array(lats)
+
+                            if isinstance(poly1, Polygon):
+                                lblon,lblat = np.array(poly1.exterior.coords.xy)
+                            elif isinstance(poly1, MultiPolygon):
+                                for i in range(len(poly1.geoms)):
+                                    lblonaux,lblataux = np.array(poly1.geoms[i].exterior.coords.xy)
+                                    if i == 0:
+                                        lblon = np.vstack((lblonaux, np.nan))
+                                        lblat = np.vstack((lblataux, np.nan))
+                                    else:
+                                        lblon = np.vstack((lblon, lblonaux, np.nan))
+                                        lblat = np.vstack((lblat, lblataux, np.nan))
+                                lblon = lblon[:-1]
+                                lblat = lblat[:-1]
 
             else:  # Case 2
                 lblon, indsort = np.sort(lblon), np.argsort(lblon)
