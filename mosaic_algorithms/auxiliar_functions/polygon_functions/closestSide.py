@@ -81,15 +81,15 @@ def closestSide(gt1, gt2, targetArea, angle):
             xi, yi = intersection.x, intersection.y
         elif intersection.geom_type == 'MultiPoint':
             xi, yi = zip(*[(pt.x, pt.y) for pt in intersection])
-            if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
         elif intersection.geom_type == 'LineString':
             xi, yi = zip(*intersection.coords)
-            if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
     # Determine closest side based on the intersection points
     if intersection.is_empty:  # The ground track is inside the ROI's boundary box (no intersection)

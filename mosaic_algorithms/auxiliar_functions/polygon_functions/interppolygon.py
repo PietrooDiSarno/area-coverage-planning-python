@@ -62,6 +62,7 @@ def interppolygon(roi0):
         # Perform great circles interpolation of the latitude and longitude based
         # on the minimum distance found
         newlat, newlon = interpm(lat, lon, math.ceil(epsilon / 2), 'gc')
+
     # Update the roi array with the interpolated latitude and longitude values
     roi = np.column_stack((newlon, newlat))
 

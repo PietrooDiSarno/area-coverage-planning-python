@@ -34,7 +34,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
 
     # Check
     if not tour:
-        return
+        return ax
 
     # Plot footprint list
     for i in range(len(fplist)):
@@ -158,3 +158,4 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
     if video is not None:
         video.finish()
 
+    return ax

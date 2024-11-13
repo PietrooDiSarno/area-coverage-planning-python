@@ -61,7 +61,6 @@ def visibleroi(roi, et, target, obs):
     _, lblon, lblat = mat2py_reclat(limb)  # conversion from rectangular to latitudinal coordinates
     lblon = lblon * mat2py_dpr()
     lblat = lblat * mat2py_dpr()
-
     # Check for north/south pole
     northpole = False
     southpole = False

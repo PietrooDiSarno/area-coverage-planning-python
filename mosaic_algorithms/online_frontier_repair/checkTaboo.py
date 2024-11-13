@@ -18,7 +18,7 @@ def checkTaboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
 
     Inputs:
         > N:            list containing the values of potential
-                        observation points
+                        observation pointsF
         > Nind:         list containing the indices of potential
                         observation points within the map
         > map:          list of list representing grid points, where first and last rows

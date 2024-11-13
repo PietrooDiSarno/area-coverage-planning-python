@@ -33,6 +33,7 @@ def sortcw(*args):
         #  and sort the vertices according to their respective angle value.
         #  This algorithm does not work with non-convex polygons
         x, y = args[0], args[1]
+
         if np.size(x) == 1:
             return x,y
 
@@ -51,8 +52,11 @@ def sortcw(*args):
         else:
             polygon = Polygon((list(zip(x,y))))
 
-        cx = polygon.centroid.x
-        cy = polygon.centroid.y # polygon centroid
+        try:
+            cx = polygon.centroid.x
+            cy = polygon.centroid.y # polygon centroid
+        except:
+            None
 
         angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices
