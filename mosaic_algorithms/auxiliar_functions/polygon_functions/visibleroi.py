@@ -39,8 +39,8 @@ def visibleroi(roi, et, target, obs):
     # Previous anti-meridian intersection check...
     ind1 = np.where(np.diff(np.sort(roi[:, 0])) >= 180)[0]  # find the discontinuity index
     if ind1.size > 0:
-        aux = amsplit(roi[:, 0], roi[:, 1])
-        roi = copy.deepcopy(aux)
+        col1, col2 = amsplit(roi[:, 0], roi[:, 1])
+        roi = np.hstack((col1.reshape(len(col1),1),col2.reshape(len(col2),1)))
 
     # Parameters for mat2py_limbpt function
     flag = False  # assume the target area is visible from the instrument
@@ -110,10 +110,11 @@ def visibleroi(roi, et, target, obs):
                     lonmap = np.array([-180, -180, 180, 180])
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
-                    poly1 = poly_aux
+                    poly1 = copy.deepcopy(poly_aux)
                     if not poly1.is_valid:
                         poly1 = poly1.buffer(0)
                     poly1 = polymap.difference(poly1)
+
     else:
         # Case 2.
         lblon, indsort = np.sort(lblon), np.argsort(lblon)
@@ -175,6 +176,6 @@ def visibleroi(roi, et, target, obs):
 
     # visibility flag
     if vroi.size == 0:
-        flag = True
+         flag = True
 
     return vroi, inter, flag
