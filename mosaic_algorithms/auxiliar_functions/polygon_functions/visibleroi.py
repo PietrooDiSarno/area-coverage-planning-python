@@ -99,6 +99,8 @@ def visibleroi(roi, et, target, obs):
                 if angle < 85:
                     exit = 1
                     poly1 = copy.deepcopy(poly_aux)
+                    if not poly1.is_valid:
+                        poly1 = poly1.buffer(0)
             else:
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
@@ -109,6 +111,8 @@ def visibleroi(roi, et, target, obs):
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
                     poly1 = poly_aux
+                    if not poly1.is_valid:
+                        poly1 = poly1.buffer(0)
                     poly1 = polymap.difference(poly1)
     else:
         # Case 2.
@@ -133,6 +137,10 @@ def visibleroi(roi, et, target, obs):
             lblon[1:-1] = auxlon
             lblat[1:-1] = auxlat
         poly1 = Polygon((list(zip(lblon, lblat))))
+        if not poly1.is_valid:
+            poly1 = poly1.buffer(0)
+
+
 
     # roi and limb intersection
     if (np.isnan(roi[:,0])).any():
@@ -149,6 +157,8 @@ def visibleroi(roi, et, target, obs):
     else:
         poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
 
+    if not poly2.is_valid:
+        poly2 = poly2.buffer(0)
 
     inter = poly1.intersection(poly2)
 

@@ -34,7 +34,7 @@ def sortcw(*args):
         #  This algorithm does not work with non-convex polygons
         x, y = args[0], args[1]
 
-        if np.size(x) == 1:
+        if np.size(x) == 1 or np.size(x) == 0:
             return x,y
 
         if (np.isnan(x)).any():
@@ -52,13 +52,12 @@ def sortcw(*args):
         else:
             polygon = Polygon((list(zip(x,y))))
 
-        try:
-            cx = polygon.centroid.x
-            cy = polygon.centroid.y # polygon centroid
-        except:
-            None
+        cx = polygon.centroid.x
+        cy = polygon.centroid.y # polygon centroid
+
 
         angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
+
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices
         x_sorted = np.array(x)[ind] # sort the longitude values according to the angle order
         y_sorted = np.array(y)[ind] # sort the latitude values according to the angle order
