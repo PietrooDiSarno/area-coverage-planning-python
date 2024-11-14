@@ -515,7 +515,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1],2])
+            fp['bvertices'] = np.zeros([np.size(lblon),2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 
@@ -552,7 +552,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1], 2])
+            fp['bvertices'] = np.zeros([np.size(lblon), 2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 

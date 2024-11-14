@@ -43,7 +43,7 @@ def amsplit(x, y):
     # polygons: the input polygon and another one which corresponds to the
     # anti-meridian line (actually, it's a small polygon because the 'intersect'
     # function does not operate well with lines)
-
+    x[ x < 0 ] += 360
     if (np.isnan(x)).any():
         nanindex = np.where(np.isnan(x))[0]
         polygon_list = []
@@ -59,8 +59,8 @@ def amsplit(x, y):
     else:
         poly1 = Polygon(zip(x, y))
 
-    vpoly2 = np.vstack((np.column_stack((180 * np.ones(20), np.linspace(-90, 90, 20))),
-                        np.column_stack((181 * np.ones(20), np.linspace(90, -90, 20)))))
+    vpoly2 = np.vstack((np.column_stack((180. * np.ones(20), np.linspace(-90., 90., 20))),
+                        np.column_stack((181. * np.ones(20), np.linspace(90., -90., 20)))))
     poly2 = Polygon(vpoly2)
 
     # Compute the intersection points

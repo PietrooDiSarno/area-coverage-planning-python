@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
-def post_process_fig1():
+def post_process_fig3(roistruct,mosaic):
     # Zoom in
-    plt.xlim([-30, 60])
-    plt.ylim([-15, 35])
-    xtick = range(-30, 61, 15)
-    ytick = range(-15, 36, 10)
+    plt.xlim([120, 180])
+    plt.ylim([0, 40])
+    xtick = range(120, 181, 15)
+    ytick = range(0, 41, 10)
 
     degree_symbol = '$^\\circ$'
 
@@ -37,3 +37,12 @@ def post_process_fig1():
     plt.gca().tick_params(which='both', direction='in', top=True, right=True)
     plt.grid(True, which='both', color='w', linestyle=':', linewidth=1, alpha=1)
     plt.pause(3)
+
+    # Save figure [PDF]
+    figpath = '.'
+    plt.gcf().set_size_inches(7.3,4.9)
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    roiname = roistruct[0]['name'].lower().replace(' ', '')
+    name = f'post_process_{roiname}'
+    filename = f"{figpath}/{roiname}_{mosaic}.pdf"
+    plt.savefig(filename, dpi=1200, format='pdf', bbox_inches='tight')
