@@ -59,12 +59,15 @@ def amsplit(x, y):
     else:
         poly1 = Polygon(zip(x, y))
 
+    poly1 = poly1.buffer(0)
+
     vpoly2 = np.vstack((np.column_stack((180. * np.ones(20), np.linspace(-90., 90., 20))),
                         np.column_stack((181. * np.ones(20), np.linspace(90., -90., 20)))))
     poly2 = Polygon(vpoly2)
 
     # Compute the intersection points
-    polyinter = poly1.intersection(poly2)
+    polyinter = (poly1.intersection(poly2)).buffer(0)
+
     if isinstance(polyinter, Polygon):
         xinter, yinter = np.array(polyinter.exterior.coords.xy)
     elif isinstance(polyinter, MultiPolygon):

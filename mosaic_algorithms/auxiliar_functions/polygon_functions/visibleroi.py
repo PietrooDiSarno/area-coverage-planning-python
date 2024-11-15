@@ -85,22 +85,21 @@ def visibleroi(roi, et, target, obs):
         # misleading, we can only guarantee through emission angle check)
         exit = 0
 
+        if (np.isnan(lblon)).any():
+            nanindex = np.where(np.isnan(lblon))[0][0]
+            poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
+                                     Polygon(list(zip(lblon[nanindex + 1:], lblat[nanindex + 1:])))])
+        else:
+            poly_aux = Polygon(list(zip(lblon, lblat)))
+        poly_aux = poly_aux.buffer(0)
+
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            if (np.isnan(lblon)).any():
-                nanindex = np.where(np.isnan(lblon))[0][0]
-                poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
-                                         Polygon(list(zip(lblon[nanindex+1:], lblat[nanindex+1:])))])
-            else:
-                poly_aux = Polygon(list(zip(lblon, lblat)))
-
             if poly_aux.contains(Point(randPoint[0],randPoint[1])):
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
                     exit = 1
                     poly1 = copy.deepcopy(poly_aux)
-                    if not poly1.is_valid:
-                        poly1 = poly1.buffer(0)
             else:
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
@@ -111,9 +110,7 @@ def visibleroi(roi, et, target, obs):
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
                     poly1 = copy.deepcopy(poly_aux)
-                    if not poly1.is_valid:
-                        poly1 = poly1.buffer(0)
-                    poly1 = polymap.difference(poly1)
+                    poly1 = polymap.difference(poly1).buffer(0)
 
     else:
         # Case 2.
@@ -138,10 +135,7 @@ def visibleroi(roi, et, target, obs):
             lblon[1:-1] = auxlon
             lblat[1:-1] = auxlat
         poly1 = Polygon((list(zip(lblon, lblat))))
-        if not poly1.is_valid:
-            poly1 = poly1.buffer(0)
-
-
+        poly1 = poly1.buffer(0)
 
     # roi and limb intersection
     if (np.isnan(roi[:,0])).any():
@@ -157,11 +151,9 @@ def visibleroi(roi, et, target, obs):
         poly2 = MultiPolygon(polygon_list)
     else:
         poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+    poly2 = poly2.buffer(0)
 
-    if not poly2.is_valid:
-        poly2 = poly2.buffer(0)
-
-    inter = poly1.intersection(poly2)
+    inter = (poly1.intersection(poly2)).buffer(0)
 
     # output visible roi
     if isinstance(inter, Polygon):
