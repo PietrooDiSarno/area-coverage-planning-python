@@ -448,7 +448,7 @@ def footprint(t, inst, sc, target, res, *args):
                     else:
                         polygon = Polygon((list(zip(lblon, lblat))))
                     polygon = polygon.buffer(0)
-                    if polygon.contains(Point(randPoint[0], randPoint[1])):
+                    if polygon.intersects(Point(randPoint[0], randPoint[1])):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
                             exit = True

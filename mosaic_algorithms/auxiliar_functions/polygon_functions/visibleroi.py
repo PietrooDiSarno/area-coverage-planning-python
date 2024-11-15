@@ -95,7 +95,8 @@ def visibleroi(roi, et, target, obs):
 
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            if poly_aux.contains(Point(randPoint[0],randPoint[1])):
+
+            if  poly_aux.intersects(Point(randPoint[0],randPoint[1])) :
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
                     exit = 1
@@ -171,3 +172,4 @@ def visibleroi(roi, et, target, obs):
          flag = True
 
     return vroi, inter, flag
+

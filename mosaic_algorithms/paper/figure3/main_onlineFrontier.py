@@ -17,7 +17,7 @@ mosaic = 'onlinefrontier'
 roiname = roistruct[0]['name'].lower().replace(" ", "")
 name = f'post_process_{roiname}'
 module_name = f"mosaic_algorithms.paper.figure3.{name}"
-#module = importlib.import_module(module_name)
+module = importlib.import_module(module_name)
 
 
 # Online Frontier
