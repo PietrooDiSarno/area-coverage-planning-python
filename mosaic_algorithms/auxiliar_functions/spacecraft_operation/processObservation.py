@@ -70,7 +70,6 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
     # Compute the observation's footprint
     print(f"Computing {inst} FOV projection on {target} at {mat2py_et2utc(t, 'C', 0)}...")
     fprinti = footprint(t, inst, sc, target, resolution, a[0], a[1], 0)
-
     # Body-fixed to inertial frame
     if np.size(fprinti['bvertices']) != 0:  # assuming 'fprinti' is a dictionary with 'bvertices' key
         print("\n")
