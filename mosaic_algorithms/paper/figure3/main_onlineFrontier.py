@@ -17,7 +17,7 @@ mosaic = 'onlinefrontier'
 roiname = roistruct[0]['name'].lower().replace(" ", "")
 name = f'post_process_{roiname}'
 module_name = f"mosaic_algorithms.paper.figure3.{name}"
-module = importlib.import_module(module_name)
+
 
 
 # Online Frontier
@@ -41,7 +41,17 @@ labels = labels[:-1]
 legend = ax.legend(handles=handles, labels=labels, loc='upper center', ncol=2)
 legend.get_frame().set_alpha(1)
 
-# FOM post-process
-exec(open(f"{name}.py").read())
+try:
+    module = importlib.import_module(module_name)
+    # FOM post-process
+    exec(open(f"{name}.py").read())
 
-post_process_fig3(roistruct,mosaic)
+    post_process_fig3(roistruct,mosaic)
+except:
+    figpath = '.'
+    plt.gcf().set_size_inches(9.7,6)
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+    roiname = roistruct[0]['name'].lower().replace(' ', '')
+    name = f'post_process_{roiname}'
+    filename = f"{figpath}/{roiname}_{mosaic}.pdf"
+    plt.savefig(filename, dpi=1200, format='pdf', bbox_inches='tight')
