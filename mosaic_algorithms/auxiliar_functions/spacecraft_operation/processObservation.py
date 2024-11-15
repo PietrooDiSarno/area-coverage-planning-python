@@ -110,12 +110,12 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
             else:
                 poly2 = Polygon(fprinti['bvertices'])
 
-        if not poly2.is_valid:
-            poly2 = poly2.buffer(0)
+        poly2 = poly2.buffer(0)
+
         # Check footprint-ROI intersect
         targetpshape = copy.deepcopy(poly1)
         areaT = targetpshape.area
-        inter = targetpshape.difference(poly2)
+        inter = (targetpshape.difference(poly2)).buffer(0)
         areaI = inter.area
         areaInter = areaT - areaI
         fpArea = poly2.area
@@ -124,7 +124,7 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
             empty = True
         else:
             A.append(a)  # add it in the list of planned observations
-            poly1 = poly1.difference(poly2)  # update uncovered area
+            poly1 = (poly1.difference(poly2)).buffer(0)  # update uncovered area
 
             # Save footprint struct
             fpList.append(fprinti)
