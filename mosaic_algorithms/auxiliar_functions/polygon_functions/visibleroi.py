@@ -173,3 +173,5 @@ def visibleroi(roi, et, target, obs):
 
     return vroi, inter, flag
 
+
+
