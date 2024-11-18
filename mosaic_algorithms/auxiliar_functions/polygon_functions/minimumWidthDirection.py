@@ -38,8 +38,9 @@ def minimumWidthDirection(x, y):
         y = np.delete(y, ind)
 
     # Find centroid
-    cx = Polygon(list(zip(x,y))).centroid.x
-    cy = Polygon(list(zip(x,y))).centroid.y
+    poly_aux = Polygon(list(zip(x,y))).buffer(0)
+    cx = poly_aux.centroid.x
+    cy = poly_aux.centroid.y
 
     vertices=np.zeros([np.size(x),2])
     # Sort the vertices in clockwise direction
@@ -72,7 +73,7 @@ def minimumWidthDirection(x, y):
 
     # Return minimum width direction
     thetamin = angle[mini]
-    polygon = Polygon(np.column_stack((x, y)))
+    polygon = Polygon(np.column_stack((x, y))).buffer(0)
     area = polygon.area
     height = area / minwidth
 

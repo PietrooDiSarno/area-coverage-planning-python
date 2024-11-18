@@ -34,7 +34,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
 
     # Check
     if not tour:
-        return
+        return ax
 
     # Plot footprint list
     for i in range(len(fplist)):
@@ -44,7 +44,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
             for i in range(len(nanindex)):
                 if i == 0:
                     h1 = ax.fill(fplist[i]['bvertices'][:nanindex[0], 0], fplist[i]['bvertices'][:nanindex[0],1],
-                                 color=c1, alpha=0.2, edgecolor=c2, linewidth=1.5, label='Footprint')
+                                 color=c1, alpha=0.8, edgecolor=c2, linewidth=1, label='Footprint')
                     #plt.pause(0.5)
                     if 'Footprint' not in labels:
                         handles.append(h1[0])
@@ -53,7 +53,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
                 else:
                     h1 = ax.fill(fplist[i]['bvertices'][nanindex[i - 1] + 1:nanindex[i], 0],
                                  fplist[i]['bvertices'][nanindex[i - 1] + 1:nanindex[i], 1],
-                                 color=c1, alpha=0.2, edgecolor=c2, linewidth=1.5, label='Footprint')
+                                 color=c1, alpha=0.8, edgecolor=c2, linewidth=1, label='Footprint')
                     #plt.pause(0.5)
                     if 'Footprint' not in labels:
                         handles.append(h1[0])
@@ -61,14 +61,14 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
             if ~ np.isnan(fplist[i]['bvertices'][-1, 0]):
                 h1 = ax.fill(fplist[i]['bvertices'][nanindex[-1] + 1:, 0],
                              fplist[i]['bvertices'][nanindex[-1] + 1:, 1],
-                             color=c1, alpha=0.2, edgecolor=c2, linewidth=1.5, label='Footprint')
+                             color=c1, alpha=0.8, edgecolor=c2, linewidth=1, label='Footprint')
                 #plt.pause(0.5)
                 if 'Footprint' not in labels:
                     handles.append(h1[0])
                     labels.append('Footprint')
         else:
-            h1 = ax.fill(fplist[i]['bvertices'][:, 0], fplist[i]['bvertices'][:, 1], color=c1, alpha=0.2, edgecolor=c2,
-                         linewidth=1.5, label='Footprint')
+            h1 = ax.fill(fplist[i]['bvertices'][:, 0], fplist[i]['bvertices'][:, 1], color=c1, alpha=0.8, edgecolor=c2,
+                         linewidth=1, label='Footprint')
             #plt.pause(0.5)
             if 'Footprint' not in labels:
                 handles.append(h1[0])
@@ -120,7 +120,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
             for i in range(len(nanindex)):
                 if i == 0:
                     h5 = ax.plot(np.append(x[:nanindex[0]],x[0]), np.append(y[:nanindex[0]],y[0]),
-                            color='k', linewidth=1.5, linestyle='-',label=roistruct[i]['name'])
+                            color='k', linewidth=1, linestyle='-',label=roistruct[i]['name'])
                     #plt.pause(0.5)
                     if roistruct[i]['name'] not in labels:
                         handles.append(h5[0])
@@ -128,7 +128,7 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
                 else:
                     h5 = ax.plot(np.append(x[nanindex[i - 1] + 1:nanindex[i]],x[nanindex[i - 1] + 1]),
                             np.append(y[nanindex[i - 1] + 1:nanindex[i]],y[nanindex[i - 1] + 1]),
-                            color='k', linewidth=1.5, linestyle='-', label=roistruct[i]['name'])
+                            color='k', linewidth=1, linestyle='-', label=roistruct[i]['name'])
                     #plt.pause(0.5)
                     if roistruct[i]['name'] not in labels:
                         handles.append(h5[0])
@@ -136,13 +136,13 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
             if ~ np.isnan(x[-1]):
                 h5 = ax.plot(np.append(x[nanindex[-1] + 1:],x[nanindex[-1] + 1]),
                         np.append(y[nanindex[-1] + 1:],y[nanindex[-1] + 1]),
-                        color='k', linewidth=1.5, linestyle='-', label=roistruct[i]['name'])
+                        color='k', linewidth=1, linestyle='-', label=roistruct[i]['name'])
                 #plt.pause(0.5)
                 if roistruct[i]['name'] not in labels:
                     handles.append(h5[0])
                     labels.append(roistruct[i]['name'])
         else:
-            h5 = ax.plot(np.append(x,x[0]), np.append(y,y[0]), color='k', linewidth=1.5, linestyle='-', label=roistruct[i]['name'])
+            h5 = ax.plot(np.append(x,x[0]), np.append(y,y[0]), color='k', linewidth=1, linestyle='-', label=roistruct[i]['name'])
             #plt.pause(0.5)
             if roistruct[i]['name'] not in labels:
                 handles.append(h5[0])
@@ -158,3 +158,4 @@ def plotTour(tour, fplist, roistruct, sc, target, *args):
     if video is not None:
         video.finish()
 
+    return ax

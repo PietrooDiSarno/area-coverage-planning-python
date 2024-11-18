@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
-import sys
-sys.path.append('C:\\Users\kekka\Documents\pythonProjects\pySPICElib')
+from matplotlib.ticker import MultipleLocator
 
 def post_process_fig1():
     # Zoom in
@@ -9,25 +8,27 @@ def post_process_fig1():
     xtick = range(-30, 61, 15)
     ytick = range(-15, 36, 10)
 
+    degree_symbol = '$^\\circ$'
+
     # x tick label
     xtickstr = []
     for i in xtick:
         if i < 0 and i > -180:
-            xtickstr.append(f"{-i}ºW")
+            xtickstr.append(f"{-i}{degree_symbol}W")
         elif i > 0 and i < 180:
-            xtickstr.append(f"{i}ºE")
+            xtickstr.append(f"{i}{degree_symbol}E")
         else:
-            xtickstr.append(f"{abs(i)}º")
+            xtickstr.append(f"{abs(i)}{degree_symbol}")
 
     # y tick label
     ytickstr = []
     for i in ytick:
         if i < 0:
-            ytickstr.append(f"{-i}ºS")
+            ytickstr.append(f"{-i}{degree_symbol}S")
         elif i > 0:
-            ytickstr.append(f"{i}ºN")
+            ytickstr.append(f"{i}{degree_symbol}N")
         else:
-            ytickstr.append(f"{i}º")
+            ytickstr.append(f"{i}{degree_symbol}")
 
     plt.gca().set_xticks(xtick)
     plt.gca().set_yticks(ytick)

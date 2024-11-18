@@ -447,8 +447,8 @@ def footprint(t, inst, sc, target, res, *args):
                         polygon = MultiPolygon(polygon_list)
                     else:
                         polygon = Polygon((list(zip(lblon, lblat))))
-
-                    if polygon.contains(Point(randPoint[0], randPoint[1])):
+                    polygon = polygon.buffer(0)
+                    if polygon.intersects(Point(randPoint[0], randPoint[1])):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
                             exit = True
@@ -477,8 +477,8 @@ def footprint(t, inst, sc, target, res, *args):
                                 poly1 = MultiPolygon(polygon_list)
                             else:
                                 poly1 = Polygon((list(zip(lblon, lblat))))
-
-                            poly1 = polymap.difference(poly1)
+                            poly1 = poly1.buffer(0)
+                            poly1 = (polymap.difference(poly1)).buffer(0)
 
                             if isinstance(poly1, Polygon):
                                 lblon,lblat = np.array(poly1.exterior.coords.xy)
@@ -515,7 +515,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1],2])
+            fp['bvertices'] = np.zeros([np.size(lblon),2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 
@@ -552,7 +552,7 @@ def footprint(t, inst, sc, target, res, *args):
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
 
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1], 2])
+            fp['bvertices'] = np.zeros([np.size(lblon), 2])
             fp['bvertices'][:, 0] = lblon
             fp['bvertices'][:, 1] = lblat
 

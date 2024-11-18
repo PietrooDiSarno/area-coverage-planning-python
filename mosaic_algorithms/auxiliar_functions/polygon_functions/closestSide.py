@@ -47,6 +47,7 @@ def closestSide(gt1, gt2, targetArea, angle):
         poly_aux = MultiPolygon(polygon_list)
     else:
         poly_aux = Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
+    poly_aux = poly_aux.buffer(0)
     cx,cy = poly_aux.centroid.x, poly_aux.centroid.y
 
     roi = np.zeros((max(np.shape(targetArea)), 2))
@@ -69,7 +70,7 @@ def closestSide(gt1, gt2, targetArea, angle):
     ylimit = [minlat, maxlat]
     xbox = np.array([xlimit[0], xlimit[0], xlimit[1], xlimit[1], xlimit[0]])
     ybox = np.array([ylimit[0], ylimit[1], ylimit[1], ylimit[0], ylimit[0]])
-    boundary_box = Polygon(zip(xbox, ybox))
+    boundary_box = Polygon(zip(xbox, ybox)).buffer(0)
 
     # Define line between the centroid and the ground track
     line = LineString([(sclon, sclat), (cx, cy)])
@@ -81,15 +82,15 @@ def closestSide(gt1, gt2, targetArea, angle):
             xi, yi = intersection.x, intersection.y
         elif intersection.geom_type == 'MultiPoint':
             xi, yi = zip(*[(pt.x, pt.y) for pt in intersection])
-            if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
         elif intersection.geom_type == 'LineString':
             xi, yi = zip(*intersection.coords)
-            if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
     # Determine closest side based on the intersection points
     if intersection.is_empty:  # The ground track is inside the ROI's boundary box (no intersection)

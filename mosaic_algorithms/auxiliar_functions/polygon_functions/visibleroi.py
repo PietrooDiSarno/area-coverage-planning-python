@@ -39,8 +39,8 @@ def visibleroi(roi, et, target, obs):
     # Previous anti-meridian intersection check...
     ind1 = np.where(np.diff(np.sort(roi[:, 0])) >= 180)[0]  # find the discontinuity index
     if ind1.size > 0:
-        aux = amsplit(roi[:, 0], roi[:, 1])
-        roi = copy.deepcopy(aux)
+        col1, col2 = amsplit(roi[:, 0], roi[:, 1])
+        roi = np.hstack((col1.reshape(len(col1),1),col2.reshape(len(col2),1)))
 
     # Parameters for mat2py_limbpt function
     flag = False  # assume the target area is visible from the instrument
@@ -61,7 +61,6 @@ def visibleroi(roi, et, target, obs):
     _, lblon, lblat = mat2py_reclat(limb)  # conversion from rectangular to latitudinal coordinates
     lblon = lblon * mat2py_dpr()
     lblat = lblat * mat2py_dpr()
-
     # Check for north/south pole
     northpole = False
     southpole = False
@@ -86,16 +85,18 @@ def visibleroi(roi, et, target, obs):
         # misleading, we can only guarantee through emission angle check)
         exit = 0
 
+        if (np.isnan(lblon)).any():
+            nanindex = np.where(np.isnan(lblon))[0][0]
+            poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
+                                     Polygon(list(zip(lblon[nanindex + 1:], lblat[nanindex + 1:])))])
+        else:
+            poly_aux = Polygon(list(zip(lblon, lblat)))
+        poly_aux = poly_aux.buffer(0)
+
         while exit == 0:
             randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            if (np.isnan(lblon)).any():
-                nanindex = np.where(np.isnan(lblon))[0][0]
-                poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
-                                         Polygon(list(zip(lblon[nanindex+1:], lblat[nanindex+1:])))])
-            else:
-                poly_aux = Polygon(list(zip(lblon, lblat)))
 
-            if poly_aux.contains(Point(randPoint[0],randPoint[1])):
+            if  poly_aux.intersects(Point(randPoint[0],randPoint[1])) :
                 angle = emissionang(randPoint, et, target, obs)
                 if angle < 85:
                     exit = 1
@@ -109,8 +110,9 @@ def visibleroi(roi, et, target, obs):
                     lonmap = np.array([-180, -180, 180, 180])
                     latmap = np.array([-90, 90, 90, -90])
                     polymap = Polygon(list(zip(lonmap, latmap)))
-                    poly1 = poly_aux
-                    poly1 = polymap.difference(poly1)
+                    poly1 = copy.deepcopy(poly_aux)
+                    poly1 = polymap.difference(poly1).buffer(0)
+
     else:
         # Case 2.
         lblon, indsort = np.sort(lblon), np.argsort(lblon)
@@ -134,6 +136,7 @@ def visibleroi(roi, et, target, obs):
             lblon[1:-1] = auxlon
             lblat[1:-1] = auxlat
         poly1 = Polygon((list(zip(lblon, lblat))))
+        poly1 = poly1.buffer(0)
 
     # roi and limb intersection
     if (np.isnan(roi[:,0])).any():
@@ -149,9 +152,9 @@ def visibleroi(roi, et, target, obs):
         poly2 = MultiPolygon(polygon_list)
     else:
         poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
+    poly2 = poly2.buffer(0)
 
-
-    inter = poly1.intersection(poly2)
+    inter = (poly1.intersection(poly2)).buffer(0)
 
     # output visible roi
     if isinstance(inter, Polygon):
@@ -166,6 +169,7 @@ def visibleroi(roi, et, target, obs):
 
     # visibility flag
     if vroi.size == 0:
-        flag = True
+         flag = True
 
     return vroi, inter, flag
+
