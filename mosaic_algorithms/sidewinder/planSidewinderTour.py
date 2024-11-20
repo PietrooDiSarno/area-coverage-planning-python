@@ -98,10 +98,8 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
             polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
         poly_aux = MultiPolygon(polygon_list)
     else:
-        try:
-            poly_aux =Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
-        except:
-            print('Pollo')
+        poly_aux =Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
+
     poly_aux = poly_aux.buffer(0)
 
     origin[0], origin[1] = poly_aux.centroid.x, poly_aux.centroid.y

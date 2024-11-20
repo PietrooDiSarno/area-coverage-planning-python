@@ -1,5 +1,5 @@
 from mosaic_algorithms.paper.figure3.input_data_fig3 import roistruct
-from spawnProcess import *
+from mosaic_algorithms.auxiliar_functions.multiprocess.spawnProcess import *
 
 
 nroi = len(roistruct) # total number of ROIs to be observed
