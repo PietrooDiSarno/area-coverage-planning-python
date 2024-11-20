@@ -34,7 +34,7 @@ def sortcw(*args):
         #  This algorithm does not work with non-convex polygons
         x, y = args[0], args[1]
 
-        if np.size(x) == 1 or np.size(x) == 0:
+        if np.size(x) < 3:
             return x,y
 
         if (np.isnan(x)).any():

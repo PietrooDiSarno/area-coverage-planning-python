@@ -181,7 +181,7 @@ def footprint(t, inst, sc, target, res, *args):
             x = (maxx - minx) * ii + minx
             for jj in range(Nl + 1):
                 y = (maxy - miny) * jj/Nl + miny
-                vec = np.array([x, y, z]).shape([3,1])
+                vec = np.array([x, y, z]).reshape([3,1])
                 vec = np.dot(pointingRotation,vec)  # transform vector coordinates to target frame
                 _, _, _, found = mat2py_sincpt(method, target, t, targetframe, abcorr, sc, targetframe,
                                                vec)
@@ -198,7 +198,7 @@ def footprint(t, inst, sc, target, res, *args):
                 x = (maxx - minx) * ii / Nl + minx
                 for jj in range(2):
                     y = (maxy - miny) * jj / Nl + miny
-                    vec = np.array([x, y, z]).shape([3,1])
+                    vec = np.array([x, y, z]).reshape([3,1])
                     vec = np.dot(pointingRotation,vec)  # transform vector coordinates to target frame
                     _, _, _, found =mat2py_sincpt(method, target, t, targetframe, abcorr, sc,
                                                    targetframe, vec)
@@ -347,7 +347,7 @@ def footprint(t, inst, sc, target, res, *args):
         abcorr = 'XLT+S'
         corloc = 'CENTER'
         refvec = np.array([0,0,1]).reshape(3,1) # first of the sequence of cutting half-planes
-        ncuts=2e3 # number of cutting half-planes
+        ncuts=int(2e3) # number of cutting half-planes
         delrol = mat2py_twopi() / ncuts # angular step by which to roll the
         # cutting half-planes about the observer-target vector
         schstp = 1.0e-6 # search angular step size
@@ -486,11 +486,11 @@ def footprint(t, inst, sc, target, res, *args):
                                 for i in range(len(poly1.geoms)):
                                     lblonaux,lblataux = np.array(poly1.geoms[i].exterior.coords.xy)
                                     if i == 0:
-                                        lblon = np.vstack((lblonaux, np.nan))
-                                        lblat = np.vstack((lblataux, np.nan))
+                                        lblon = np.append(lblonaux, np.nan)
+                                        lblat = np.append(lblataux, np.nan)
                                     else:
-                                        lblon = np.vstack((lblon, lblonaux, np.nan))
-                                        lblat = np.vstack((lblat, lblataux, np.nan))
+                                        lblon = np.append(lblon,np.append(lblonaux, np.nan))
+                                        lblat = np.append(lblat,np.append(lblataux, np.nan))
                                 lblon = lblon[:-1]
                                 lblat = lblat[:-1]
 
@@ -503,7 +503,7 @@ def footprint(t, inst, sc, target, res, *args):
                     auxlon = copy.deepcopy(lblon)
                     auxlat = copy.deepcopy(lblat)
                     lblon = np.zeros([1,max(np.shape(auxlon)) + 2])
-                    lblat = np.zeros([1,max(np.shape(len(auxlat))) + 2])
+                    lblat = np.zeros([1,max(np.shape(auxlat)) + 2])
 
                     if northpole:
                         lblon[0], lblat[0] = -180, 90
@@ -512,8 +512,8 @@ def footprint(t, inst, sc, target, res, *args):
                         lblon[0], lblat[0] = -180, -90
                         lblon[-1], lblat[-1] = 180, -90
 
-                    lblon[1:-1] = auxlon
-                    lblat[1:-1] = auxlat
+                    lblon[0,1:-1] = auxlon.reshape(1,np.size(auxlon))
+                    lblat[0,1:-1] = auxlat.reshape(1,np.size(auxlat))
 
             fp['bvertices'] = np.zeros([np.size(lblon),2])
             fp['bvertices'][:, 0] = lblon

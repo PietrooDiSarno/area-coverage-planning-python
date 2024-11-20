@@ -82,25 +82,26 @@ def boustrophedon(grid, dir1, dir2):
 
         tour = [[] for _ in range(np.count_nonzero([item is not None for row in grid for item in row]))] #list of planned observations
         ii = 0
-        for i in range(len(grid[0])):
-            if dir1 == 'west':
-                icol = len(grid[0]) - i - 1
-            else:
-                icol = i
-
-            for j in range(len(grid)):
-                if bearing:
-                    irow = j
+        if grid != []:
+            for i in range(len(grid[0])):
+                if dir1 == 'west':
+                    icol = len(grid[0]) - i - 1
                 else:
-                    irow = len(grid) - j - 1
+                    icol = i
 
-                if grid[irow][icol] is not None:
-                    x, y = grid[irow][icol][0], grid[irow][icol][1]
-                    tour[ii] = np.array([x, y])
-                    ii += 1
+                for j in range(len(grid)):
+                    if bearing:
+                        irow = j
+                    else:
+                        irow = len(grid) - j - 1
 
-            bearing = not bearing  # Switch coverage direction after each column sweeping, i.e. up (highest lat) to down
-            # (lowest lat) or vice versa
+                    if grid[irow][icol] is not None:
+                        x, y = grid[irow][icol][0], grid[irow][icol][1]
+                        tour[ii] = np.array([x, y])
+                        ii += 1
+
+                bearing = not bearing  # Switch coverage direction after each column sweeping, i.e. up (highest lat) to down
+                # (lowest lat) or vice versa
 
     return tour
 
