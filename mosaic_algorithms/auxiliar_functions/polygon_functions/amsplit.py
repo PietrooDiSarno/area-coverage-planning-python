@@ -74,11 +74,11 @@ def amsplit(x, y):
         for i in range(len(polyinter.geoms)):
             xinteraux, yinteraux = np.array(polyinter.geoms[i].exterior.coords.xy)
             if i == 0:
-                xinter = np.vstack(( xinteraux, np.nan))
-                yinter = np.vstack(( yinteraux, np.nan))
+                xinter = np.append(xinteraux, np.nan)
+                yinter = np.append( yinteraux, np.nan)
             else:
-                xinter = np.vstack((xinter, xinteraux, np.nan))
-                yinter = np.vstack((yinter, yinteraux, np.nan))
+                xinter = np.append(xinter,np.append(xinteraux, np.nan))
+                yinter = np.append(yinter,np.append(yinteraux, np.nan))
         xinter = xinter[:-1]
         yinter = yinter[:-1]
 
