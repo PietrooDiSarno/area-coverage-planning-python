@@ -486,11 +486,11 @@ def footprint(t, inst, sc, target, res, *args):
                                 for i in range(len(poly1.geoms)):
                                     lblonaux,lblataux = np.array(poly1.geoms[i].exterior.coords.xy)
                                     if i == 0:
-                                        lblon = np.vstack((lblonaux, np.nan))
-                                        lblat = np.vstack((lblataux, np.nan))
+                                        lblon = np.append(lblonaux, np.nan)
+                                        lblat = np.append(lblataux, np.nan)
                                     else:
-                                        lblon = np.vstack((lblon, lblonaux, np.nan))
-                                        lblat = np.vstack((lblat, lblataux, np.nan))
+                                        lblon = np.append(lblon,np.append(lblonaux, np.nan))
+                                        lblat = np.append(lblat,np.append(lblataux, np.nan))
                                 lblon = lblon[:-1]
                                 lblat = lblat[:-1]
 

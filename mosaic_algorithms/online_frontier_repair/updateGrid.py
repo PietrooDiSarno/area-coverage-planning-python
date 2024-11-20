@@ -157,9 +157,10 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     # target_polygon = Polygon(orientedArea) # Create a polygon shape
 
     # Get grid shifting due to observation geometry update
-    updated_seed = (topo2inst(np.array([np.array(gamma)]), cx, cy, target, sc, inst, et))[0]
+    updated_seed = (topo2inst(np.array([np.array(gamma)]), cx, cy, target, sc, inst, et))
 
-    if not np.isnan(updated_seed).all():
+    if not np.isnan(updated_seed).all() and np.size(updated_seed)!=0:
+        updated_seed = updated_seed[0]
         shift = updated_seed - np.array(seed)
     else:
         shift = 0
