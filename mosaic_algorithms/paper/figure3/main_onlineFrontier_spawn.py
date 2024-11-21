@@ -26,7 +26,7 @@ else:
     lastroi = len(roistruct)
 
 dh = dataHandling()
-npoints = 6
+npoints = 30
 for i in range(firstroi,lastroi):
     roiname = roistruct[i]['name'].lower().replace(" ", "")
     roi = np.array(roistruct[i]['vertices'])
@@ -45,7 +45,7 @@ for i in range(firstroi,lastroi):
     if saveplot:
            dh.savePlots(mosaic, roiname, times, makespan)
 
-    a,b,c = dh.getValues(mosaic, roiname)
+    #a,b,c = dh.getValues(mosaic, roiname)
 
 
 

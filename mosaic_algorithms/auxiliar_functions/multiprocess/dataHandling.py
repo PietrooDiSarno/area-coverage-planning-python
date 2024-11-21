@@ -55,7 +55,7 @@ class dataHandling:
         plt.xlabel('Initial observation instant')
         plt.ylabel('Observation make-span [s]')
         plt.title(f"Function for the {ROIname} ROI")
-        plt.subplots_adjust(left=0.1, right=0.9, bottom=0.15, top=0.9)
+        plt.subplots_adjust(left=0.1, right=0.9, bottom=0.20, top=0.92)
         plt.savefig(fname, format="tiff")
         print(f"Plot saved as {self.getName(mosaic, ROIname, len(start_times)) + '.tif'}")
 
