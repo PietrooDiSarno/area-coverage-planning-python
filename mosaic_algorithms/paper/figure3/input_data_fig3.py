@@ -35,6 +35,7 @@ print(f"Kernel pool: {mat2py_ktotal('ALL')}")
 # Definition of ROIs
 # Pre-allocation of variables...
 stoptime = mat2py_str2et('1998 MAY 30 00:00:00.000 TDB')  # mosaic end (max)
+#stoptime = mat2py_str2et('1998 MAR 29 15:30:00.000 TDB')  # mosaic end (max)
 tcadence = 8.5  # [s] between observations
 olapx = 20  # [%] of overlap in x direction
 olapy = 20  # [%] of overlap in y direction
@@ -46,7 +47,7 @@ roistruct = []  # Pre-allocate roistruct
 
 # Regions of interest
 
-#"""
+"""
 # Pwyll Crater
 count += 1
 roi = np.array([
@@ -65,8 +66,9 @@ cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Pwyll Crater"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 12:38:00.000 TDB')  # closest approach
-#"""
-#"""
+
+"""
+"""
 # Annwn Regio [lon, lat] = [40, 20]º
 count += 1
 roi = np.array([
@@ -81,9 +83,9 @@ cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Annwn Regio"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 12:51:00.000 TDB')  # closest approach
-#"""
+"""
 
-#"""
+"""
 # Niamh
 count += 1
 roi = np.array([
@@ -97,8 +99,9 @@ polygon = Polygon(roi)
 cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Niamh"
-roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 13:29:00.000 TDB')
-#"""
+roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 13:00:00.000 TDB')
+#roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 13:29:00.000 TDB')
+"""
 #"""
 # Cilix crater [lon, lat] = [180, 0]º
 count += 1
@@ -115,7 +118,7 @@ roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Cilix Crater"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 13:40:00.000 TDB')  # closest approach
 #"""
-#"""
+"""
 # Tara Regio
 count += 1
 roi = np.array([
@@ -130,8 +133,8 @@ cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Tara Regio"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 14:00:00.000 TDB')
-#"""
-#"""
+"""
+"""
 # Taliesin
 count += 1
 roi = np.array([
@@ -146,4 +149,4 @@ cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Taliesin"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 14:21:00.000 TDB')
-#"""
+"""

@@ -90,7 +90,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     N = []  # set of new tiles (outside from 'tour')
     Nind = []  # map indices of the new tiles
     X = []  # set of disposable tiles (inside of 'tour')
-    epsilon = 0.05
+    epsilon = 0.02
 
     # Build reference tile (it's always going to be the same in subsequent calls)
     if fpref is None:

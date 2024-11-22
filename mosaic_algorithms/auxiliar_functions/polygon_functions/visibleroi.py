@@ -5,7 +5,7 @@ from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang impor
 from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amsplit
 from conversion_functions import *
 
-def visibleroi(roi, et, target, obs):
+def visibleroi(roi_, et, target, obs):
     """
         Given a target area (region-of-interest) on a planetary body surface and
         an observer, this function calculates the portion of the former that is
@@ -35,7 +35,7 @@ def visibleroi(roi, et, target, obs):
                      visible portion of the ROI on the body surface as seen from
                      the observer
         """
-
+    roi = copy.deepcopy(roi_)
     # Previous anti-meridian intersection check...
     ind1 = np.where(np.diff(np.sort(roi[:, 0])) >= 180)[0]  # find the discontinuity index
     if ind1.size > 0:
@@ -46,7 +46,7 @@ def visibleroi(roi, et, target, obs):
     flag = False  # assume the target area is visible from the instrument
     method = 'TANGENT/ELLIPSOID'
     _, targetframe, _ = mat2py_cnmfrm(target)  # body-fixed frame
-    abcorr = 'LT+S'
+    abcorr = 'XLT+S'
     corloc = 'CENTER'
     refvec = np.array([0, 0, 1])  # first of the sequence of cutting half-planes
     ncuts = int(1e3)  # number of cutting half-planes
@@ -61,84 +61,20 @@ def visibleroi(roi, et, target, obs):
     _, lblon, lblat = mat2py_reclat(limb)  # conversion from rectangular to latitudinal coordinates
     lblon = lblon * mat2py_dpr()
     lblat = lblat * mat2py_dpr()
-    # Check for north/south pole
-    northpole = False
-    southpole = False
-    # Check north-pole:
-    srfpoint = np.array([0, 90])
-    angle = emissionang(srfpoint, et, target, obs)
-    if angle < 90:
-        northpole = True
-    # Check south-pole:
-    srfpoint = np.array([0, -90])
-    angle = emissionang(srfpoint, et, target, obs)
-    if angle < 90:
-        southpole = True
 
-    # Case 1.
-    if not northpole and not southpole:
-        # Check a.m. split
-        ind2 = np.where(np.diff(np.sort(lblon)) >= 180)[0]  # find the discontinuity
-        if ind2.size > 0:
-            lblon, lblat = amsplit(lblon, lblat)
-        # Check if we are keeping the correct polygon (full disk polygons may be
-        # misleading, we can only guarantee through emission angle check)
-        exit = 0
-
-        if (np.isnan(lblon)).any():
-            nanindex = np.where(np.isnan(lblon))[0][0]
-            poly_aux = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
-                                     Polygon(list(zip(lblon[nanindex + 1:], lblat[nanindex + 1:])))])
-        else:
-            poly_aux = Polygon(list(zip(lblon, lblat)))
-        poly_aux = poly_aux.buffer(0)
-
-        while exit == 0:
-            randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-
-            if  poly_aux.intersects(Point(randPoint[0],randPoint[1])) :
-                angle = emissionang(randPoint, et, target, obs)
-                if angle < 85:
-                    exit = 1
-                    poly1 = copy.deepcopy(poly_aux)
-            else:
-                angle = emissionang(randPoint, et, target, obs)
-                if angle < 85:
-                    exit = 1
-                    # This calculation is approximated, we should find a better way to find the complementary
-                    # [Future work]
-                    lonmap = np.array([-180, -180, 180, 180])
-                    latmap = np.array([-90, 90, 90, -90])
-                    polymap = Polygon(list(zip(lonmap, latmap)))
-                    poly1 = copy.deepcopy(poly_aux)
-                    poly1 = polymap.difference(poly1).buffer(0)
-
-    else:
-        # Case 2.
-        lblon, indsort = np.sort(lblon), np.argsort(lblon)
-        lblat = np.array([lblat[i] for i in indsort])
-        if northpole or southpole:
-            # Include northpole to close polygon
-            auxlon = lblon
-            auxlat = lblat
-            lblon = np.zeros(len(auxlon) + 2)
-            lblat = np.zeros(len(auxlat) + 2)
-            if northpole:
-                lblon[0] = -180
-                lblat[0] = 90
-                lblon[-1] = 180
-                lblat[-1] = 90
-            else:
-                lblon[0] = -180
-                lblat[0] = -90
-                lblon[-1] = 180
-                lblat[-1] = -90
-            lblon[1:-1] = auxlon
-            lblat[1:-1] = auxlat
-        poly1 = Polygon((list(zip(lblon, lblat))))
-        poly1 = poly1.buffer(0)
+    ind2 = np.where(np.diff(np.sort(lblon)) >= 180)[0]
+    if ind2.size > 0:
+        lblon, lblat = amsplit(lblon, lblat)
 
     # roi and limb intersection
+    if (np.isnan(lblon)).any():
+        nanindex = np.where(np.isnan(lblon))[0][0]
+        poly1 = MultiPolygon([Polygon(list(zip(lblon[:nanindex], lblat[:nanindex]))),
+                                Polygon(list(zip(lblon[nanindex + 1:], lblat[nanindex + 1:])))])
+    else:
+       poly1 = Polygon(list(zip(lblon, lblat)))
+    poly1 = poly1.buffer(0)
+
     if (np.isnan(roi[:,0])).any():
         nanindex = np.where(np.isnan(roi[:,0]))[0]
         polygon_list = []

@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 from scipy.spatial import ConvexHull
 from shapely.geometry import Polygon
@@ -5,7 +7,7 @@ from shapely.geometry import Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 
 
-def minimumWidthDirection(x, y):
+def minimumWidthDirection(x_, y_):
     """
     This function computes the orientation (angle) at which the width of the
     polygon is minimized. It also calculates the minimum width, the height
@@ -29,6 +31,8 @@ def minimumWidthDirection(x, y):
       > axes:         unit vector representing the direction of the polygon
                       axes (width, height)
    """
+    x = copy.deepcopy(x_)
+    y = copy.deepcopy(y_)
 
     # Check if the polygon is divided in two (a.m. intersection)...
     ind = np.where(np.isnan(x))[0]
