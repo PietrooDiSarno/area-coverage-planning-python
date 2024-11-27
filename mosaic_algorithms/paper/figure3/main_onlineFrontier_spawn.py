@@ -1,5 +1,6 @@
-import sys
 
+import importlib
+import sys
 from mosaic_algorithms.auxiliar_functions.multiprocess.dataHandling import dataHandling
 from mosaic_algorithms.online_frontier_repair.frontierRepair import frontierRepair
 from mosaic_algorithms.paper.figure3.input_data_fig3 import *  # Load mission info (kernels, SPICE ids, etc.)
@@ -26,7 +27,7 @@ else:
     lastroi = len(roistruct)
 
 dh = dataHandling()
-npoints = 6
+npoints = 30
 for i in range(firstroi,lastroi):
     roiname = roistruct[i]['name'].lower().replace(" ", "")
     roi = np.array(roistruct[i]['vertices'])
@@ -45,7 +46,8 @@ for i in range(firstroi,lastroi):
     if saveplot:
            dh.savePlots(mosaic, roiname, times, makespan)
 
-    a,b,c = dh.getValues(mosaic, roiname)
+    #a,b,c = dh.getValues(mosaic, roiname)
+
 
 
 

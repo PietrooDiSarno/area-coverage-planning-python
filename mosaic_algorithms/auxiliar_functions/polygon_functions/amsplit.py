@@ -1,9 +1,11 @@
+import copy
+
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import  sortcw
 
 
-def amsplit(x, y):
+def amsplit(x_, y_):
     """
     Provided the vertices of a polygon in latitudinal coordinates, this
     function analyzes if the polygon intercepts the anti-meridian line and,
@@ -28,6 +30,8 @@ def amsplit(x, y):
     """
     # [To be resolved]: If polygon longitude size is 180º, the function does
     # nothing.
+    x = copy.deepcopy(x_)
+    y = copy.deepcopy(y_)
     if (np.max(x) - np.min(x)) == 180:
         print("Full longitude. This function does nothing, in this case." +
               "The user must check if the polygon is well defined!")

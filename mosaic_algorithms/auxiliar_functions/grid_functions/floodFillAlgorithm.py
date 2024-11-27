@@ -1,10 +1,12 @@
+import copy
+
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon, Point
 
 from mosaic_algorithms.paper.figure3.input_data_fig3 import target
 
 
-def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gridPoints, vPoints, method):
+def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gridPoints_, vPoints_, method):
     """
     Flood-fill recursive algorithm that discretizes the target area by
     "flooding" the region with 2D rectangular elements. The grid is determined
@@ -29,12 +31,12 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
                         area. At the beginning: perimeterArea = targetArea, but as the observations
                         advance, this is going to change. Recommended: use the convex hull function of the uncovered
                         area.
-        - gridPoints:   matrix containing the discretized grid points of the region-of-interest. The recursive calls of the
+        - gridPoints_:   matrix containing the discretized grid points of the region-of-interest. The recursive calls of the
                         algorithm will fill this matrix. These grid points represent the center of the rectangular elements
                         used to fill the region.
             # When calling this function: gridPoints = np.array([])
-        - vPoints:      matrix containing the visited points (to prevent gridlock)
-            # When calling this function: vPoints = np.array([])
+        - vPoints_:      matrix containing the visited points (to prevent gridlock)
+            # When calling this function: vPoints_ = np.array([])
         - method:       string name of the method. '4fill' fills the roi by
                         searching the cardinal directions.'8fill' considers
                         also the diagonal neighbors.
@@ -55,6 +57,9 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
     flood-fill algorithm, but it is convenient to prevent sub-optimal
     fillings of the uncovered area (isolated points).
     """
+    gridPoints = copy.deepcopy(gridPoints_)
+    vPoints = copy.deepcopy(vPoints_)
+
     if isinstance(gridPoints,np.ndarray):
         gridPoints = list(gridPoints)
     if isinstance(vPoints,np.ndarray):
@@ -64,6 +69,7 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
     inside= False
     ovlapx = olapx*w/100; ovlapy = olapy*h/100 # convert overlaps from
     # percentage to degrees of latitude and longitude, respectively
+    epsilon = 0.05
 
     # Check if the cell has been previously visited
     for vp in vPoints:
@@ -122,7 +128,7 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
     else:
         target_polygon = Polygon(targetArea)
     target_polygon = target_polygon.buffer(0)
-    if target_polygon.intersects(Point(gamma)) or abs(areaI - areaP) / fpshape.area > 0.1:
+    if target_polygon.intersects(Point(gamma)) or abs(areaI - areaP) / fpshape.area > epsilon:
         inside = True
 
 
@@ -137,7 +143,7 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         fpArea = fpshape.area
 
 
-        if areaInter / fpArea > 0.2:
+        if areaInter / fpArea > epsilon:
             gridPoints.append(np.array(gamma))
             # coordinates = [(gamma(0)-w/2, gamma(1)+ h/2),
             #                (gamma(0)-w/2, gamma(1)- h/2),
