@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pySPICElib import kernelFetch
 from shapely.geometry import Polygon
+from spiceypy import str2et
 
 # Helper functions (amsplit, grid2D, boustrophedon, etc.)
 # Assuming these functions are defined in the same module or are imported
@@ -43,12 +44,13 @@ def main():
         [0, 10],
         [0, 0]
     ]  # Rectangle from (0,0) to (20,10)
+    roi = np.array(roi)
 
     # Define planning parameters
     target = 'EUROPA'  # Target body
     sc = 'GALILEO ORBITER'  # Spacecraft identifier
     inst = 'GLL_SSI'  # Instrument identifier
-    inittime = 0.0  # Initial time of observation (arbitrary units)
+    inittime = str2et('1998 MAY 30 00:00:00.000 TDB')  # Initial time of observation
     ovlapx = 0.2  # 20% overlap in x-direction
     ovlapy = 0.2  # 20% overlap in y-direction
     angle = 45.0  # Coverage path angle in degrees
@@ -87,6 +89,8 @@ def visualize_results(roi, grid, grid_topo, tour, itour, dir1, dir2):
     - dir1 (list): First direction vector for coverage path.
     - dir2 (list): Second direction vector for coverage path.
     """
+
+    # Create figure
     fig, ax = plt.subplots(figsize=(10, 8))
 
     # Plot the ROI polygon
@@ -95,7 +99,8 @@ def visualize_results(roi, grid, grid_topo, tour, itour, dir1, dir2):
     ax.plot(x_roi, y_roi, 'k-', linewidth=2, label='ROI')
 
     # Plot the grid points
-    ax.scatter(grid_topo[:, 0], grid_topo[:, 1], c='blue', label='Grid Points')
+    if grid_topo[0][0] is not None:
+        ax.scatter(grid_topo[:, 0], grid_topo[:, 1], c='blue', label='Grid Points')
 
     # Plot the tour path
     if len(tour) > 0:

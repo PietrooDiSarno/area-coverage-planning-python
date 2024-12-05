@@ -2,6 +2,7 @@
 # for our code.
 import spiceypy as spice
 
+
 # The function cspice_dpr in MATLAB does not receive an input.
 
 # The function spice.dpr in Python does not receive an input.
@@ -13,6 +14,5 @@ import spiceypy as spice
 # - dpr: float --> the number of degrees per radian
 
 def mat2py_dpr():
-    dpr=spice.dpr()
+    dpr = spice.dpr()
     return dpr
-

@@ -36,9 +36,9 @@ def main():
     # Define the target area (ROI) as a polygon in lat/lon
     roi = np.array([
         [0, -10],
-        [30, -10],
-        [30, 10],
-        [0, 10],
+        [50, -10],
+        [50, 30],
+        [0, 30],
         [0, -10]
     ])  # Simple rectangle from 0° to 30° longitude and -10° to 10° latitude
 

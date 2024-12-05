@@ -2,6 +2,7 @@
 # for our code.
 import spiceypy as spice
 
+
 # The function cspice_twopi in MATLAB does not receive an input.
 
 # The function spice.twopi in Python does not receive an input.
@@ -13,6 +14,5 @@ import spiceypy as spice
 # - twopi: float --> the value of pi
 
 def mat2py_twopi():
-
-    twopi=spice.twopi()
+    twopi = spice.twopi()
     return twopi

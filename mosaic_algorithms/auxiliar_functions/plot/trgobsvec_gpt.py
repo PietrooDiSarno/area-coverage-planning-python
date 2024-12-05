@@ -42,7 +42,6 @@ def trgobsvec(srfpoint, t, target, obs, frame=None):
 
     # Retrieve the target frame ID in SPICE
     _, frame_id, _ = mat2py_cnmfrm(target)
-    frame_id = frame_id[0][0]
     abcorr = 'NONE'  # Geometric position, no light aberration
 
     # Convert srfpoint from latitudinal to rectangular coordinates if necessary
@@ -74,7 +73,7 @@ def trgobsvec(srfpoint, t, target, obs, frame=None):
         srfpoint_matrix = np.tile(srfpoint_rect.reshape(3, 1), (1, t.size))
         obsvec = obspos - srfpoint_matrix
     else:
-        obsvec = obspos - srfpoint_rect.reshape(3, 1)
+        obsvec = obspos - srfpoint_rect.reshape(3,)
 
     # If a different reference frame is requested, perform the transformation
     if frame is not None:

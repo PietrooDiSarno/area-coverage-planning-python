@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_et2utc in MATLAB can receive:
 # - et : [1,n] = size(et); double = class(et)
 # - format: [1,c1] = size(format); char = class(format) OR  [1,1] = size(format); cell = class(format)
@@ -21,13 +22,12 @@ import numpy as np
 # The function spice.et2utc in Python gives as output:
 # - utcstr:ndarray or str
 
-def mat2py_et2utc(et,format,prec):
+def mat2py_et2utc(et, frmt, prec):
+    if isinstance(frmt, list):
+        frmt = frmt[0]
 
-    if isinstance(format,list):
-        format=format[0]
-
-    utcstr=spice.et2utc(et,format,prec)
+    utcstr = spice.et2utc(et, frmt, prec)
     if np.size(et) > 1:
-        utcstr=np.array(utcstr).reshape(len(et),)
+        utcstr = np.array(utcstr).reshape(len(et), )
 
     return utcstr

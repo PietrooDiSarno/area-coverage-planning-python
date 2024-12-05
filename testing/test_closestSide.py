@@ -10,7 +10,7 @@ import numpy as np
 from pySPICElib import kernelFetch
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
-from spiceypy import utc2et
+from spiceypy import utc2et, str2et
 
 # Load local modules
 from mosaic_algorithms.auxiliar_functions.polygon_functions.closestSide_gpt import closestSide
@@ -48,7 +48,7 @@ def main():
     ])  # Rectangle from 10° to 20° longitude and -5° to 5° latitude
 
     # Observation parameters
-    t = utc2et('2023-01-01T12:00:00')  # Observation time
+    t = str2et('1998 MAY 30 00:00:00.000 TDB')  # Observation time
     target = 'EUROPA'  # Target body
     sc = 'GALILEO ORBITER'  # Spacecraft identifier
     angle = 45  # Rotation angle in degrees

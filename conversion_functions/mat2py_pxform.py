@@ -19,18 +19,15 @@ import numpy as np
 # The function spice.pxform in Python gives as output:
 # - rotate: ndarray
 
-def mat2py_pxform(frm,to,et):
-
-    if np.size(et)==1:
-        rotate=spice.pxform(frm,to,et)
+def mat2py_pxform(frm, to, et):
+    if np.size(et) == 1:
+        rotate = spice.pxform(frm, to, et)
 
     else:
         et = np.array(et).reshape(len(et), )
-        rotate = np.ndarray([3,3,len(et)],dtype=float)
+        rotate = np.ndarray([3, 3, len(et)], dtype=float)
 
         for i in range(et.size):
-            rotate[:,:, i]= spice.pxform(frm,to,float(et[i]))
+            rotate[:, :, i] = spice.pxform(frm, to, float(et[i]))
 
     return rotate
-
-

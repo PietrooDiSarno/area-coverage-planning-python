@@ -1,4 +1,5 @@
 # Import necessary modules
+import numpy as np
 from shapely.geometry import Polygon
 
 # Import SPICE wrapper functions with MATLAB-equivalent interfaces
@@ -11,7 +12,7 @@ from mosaic_algorithms.auxiliar_functions.grid_functions.inst2topo_gpt import in
 from mosaic_algorithms.auxiliar_functions.grid_functions.topo2inst_gpt import topo2inst
 from mosaic_algorithms.auxiliar_functions.polygon_functions.closestSide2_gpt import closestSide2
 from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection_gpt import minimumWidthDirection
-from mosaic_algorithms.auxiliar_functions.plot.groundtrack import groundtrack
+from mosaic_algorithms.auxiliar_functions.plot.groundtrack_gpt import groundtrack
 
 
 # Import or define other required functions:
@@ -71,6 +72,10 @@ def planSidewinderTour2(target, roi, sc, inst, inittime, ovlapx, ovlapy, angle):
     gt1 = groundtrack(sc, inittime, target)
     gt2 = groundtrack(sc, inittime + 500, target)
 
+    # Convert to ndarray
+    gt1 = np.array(gt1).reshape(1, 2)
+    gt2 = np.array(gt2).reshape(1, 2)
+
     # Transform ground track positions to instrument coordinates
     # MATLAB equivalent:
     # gt1 = topo2inst(gt1, cx, cy, target, sc, inst, inittime);
@@ -80,7 +85,7 @@ def planSidewinderTour2(target, roi, sc, inst, inittime, ovlapx, ovlapy, angle):
 
     # Determine the closest side of the polygon to the ground track positions
     # MATLAB equivalent: [dir1, dir2] = closestSide2(gt1, gt2, targetArea, angle);
-    dir1, dir2 = closestSide2(gt1=gt1_inst, gt2=gt2_inst, targetArea=targetArea, angle=angle)
+    dir1, dir2 = closestSide2(gt1=gt1_inst[0], gt2=gt2_inst[0], targetArea=targetArea, angle=angle)
 
     # Build reference tile
     # MATLAB equivalent:
@@ -89,7 +94,7 @@ def planSidewinderTour2(target, roi, sc, inst, inittime, ovlapx, ovlapy, angle):
     # - 'cspice_bodn2c' converts an instrument name to its NAIF ID code.
     # - 'cspice_getfov' retrieves the field-of-view parameters.
     # - Using mat2py wrapper functions for SPICE routines.
-    instrument_id = mat2py_bodn2c(inst)
+    instrument_id, _ = mat2py_bodn2c(inst)
     # Retrieve FOV parameters; we only need 'bounds'
     _, _, _, bounds = mat2py_getfov(instrument_id, 4)
 
