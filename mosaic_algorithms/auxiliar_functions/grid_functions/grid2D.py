@@ -84,8 +84,6 @@ def grid2D(fpref, olapx, olapy, gamma_, targetArea):
     else:
         polygon = Polygon(targetArea)
 
-    polygon = polygon.buffer(0)
-
     cx, cy = polygon.centroid.x, polygon.centroid.y
 
     orientedArea = np.zeros([max(np.shape(targetArea)),2])

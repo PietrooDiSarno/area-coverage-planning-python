@@ -100,9 +100,6 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     else:
         poly_aux =Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
 
-
-    poly_aux = poly_aux.buffer(0)
-
     origin[0], origin[1] = poly_aux.centroid.x, poly_aux.centroid.y
 
     # Get minimum width direction of the footprint
