@@ -64,7 +64,7 @@ class dataHandling:
         ax2.set_ylabel('Number of images', color='tab:orange')
         ax2.plot(visible, nImg_, 'o', color='tab:orange', linestyle = 'none', markersize = 0.75)
         ax2.tick_params(axis='y', labelcolor='tab:orange')
-        fig.suptitle(f"Makespan and number of images for the {ROIname} ROI.\nCompliant interval number {int}")
+        fig.suptitle(f"Makespan and number of images for the {ROIname} ROI. Compliant interval number {int}")
         ax1.set_xticks(np.linspace(start_times[0],start_times[-1],num=6),
                    mat2py_et2utc(np.linspace(start_times[0],start_times[-1],num=6),'C',0), rotation=15)
         fig.tight_layout()
