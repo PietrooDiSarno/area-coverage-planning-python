@@ -18,7 +18,7 @@ def checkTaboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
 
     Inputs:
         > N:            list containing the values of potential
-                        observation points
+                        observation pointsF
         > Nind:         list containing the indices of potential
                         observation points within the map
         > map:          list of list representing grid points, where first and last rows
@@ -57,27 +57,33 @@ def checkTaboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
 
     # Define the grid boundaries (ending rows and columns in the map)
     for i in range(len(map) - 1, -1, -1):
-        el = next((j for j, val in enumerate(map[i]) if not np.isnan(val)), None) #get non-NaN elements in the map
+        el = next((j for j, val in enumerate(map[i]) if not (np.isnan(val)).any()), None) #get non-NaN elements in the map
         if el is not None:
             Nrow = i
             break
 
     for i in range(len(map[0]) - 1, -1, -1):
-        el = next((j for j, val in enumerate(map[:, i]) if not np.isnan(val)), None)
+        aux = []
+        for k in range(len(map)):
+            aux.append(map[k][i])
+        el = next((j for j, val in enumerate (aux) if not (np.isnan(val)).any()), None)
         if el is not None:
             Ncol = i
             break
 
     # Define the grid boundaries (starting rows and columns in the map)
     for i in range(len(map)):
-        el = next((j for j, val in enumerate(map[i]) if not np.isnan(val)), None)
+        el = next((j for j, val in enumerate(map[i]) if not (np.isnan(val)).any()), None)
         if el is not None:
             Orow = i
             break
 
 
     for i in range(len(map[0])):
-        el = next((j for j, val in enumerate(map[:, i]) if not np.isnan(val)), None)
+        aux = []
+        for k in range(len(map)):
+            aux.append(map[k][i])
+        el = next((j for j, val in enumerate(aux) if not (np.isnan(val)).any()), None)
         if el is not None:
             Ocol = i
             break
@@ -138,6 +144,9 @@ def checkTaboo(N, Nind, map, ind_row, ind_col, indir1, indir2):
     N = [N[j] for j in range(len(N)) if j not in nindel]
     Nind = [Nind[j] for j in range(len(Nind)) if j not in nindel]
 
+    checkTaboo.pdir1 = pdir1
+    checkTaboo.pdir2 = pdir2
+
     return N, Nind
 
 
@@ -179,7 +188,8 @@ def boustrophedonMod(grid, dir1, dir2):
                 if grid[irow][icol] is not None:
                     start = True
                     break
-            if start: break
+            if start:
+                break
             bearing = not bearing  # Switch coverage direction after each row sweeping, i.e. left (highest lon) to right
             # (lowest lon) or vice versa
 
@@ -205,7 +215,8 @@ def boustrophedonMod(grid, dir1, dir2):
                 if grid[irow][icol] is not None:
                     start = True
                     break
-            if start: break
+            if start:
+                break
             bearing = not bearing  # Switch coverage direction after each row sweeping, i.e. left (highest lon) to right
             # (lowest lon) or vice versa
 

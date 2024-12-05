@@ -1,10 +1,12 @@
+import copy
+
 import numpy as np
 from scipy.spatial import ConvexHull
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 from mosaic_algorithms.auxiliar_functions.grid_functions.floodFillAlgorithm import floodFillAlgorithm
 
 
-def grid2D(fpref, olapx, olapy, gamma, targetArea):
+def grid2D(fpref, olapx, olapy, gamma_, targetArea):
     """
     Grid discretization (using flood-fill algorithm) of a region of interest
     given a reference footprint (unit measure to create the allocatable cells)
@@ -23,7 +25,7 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
                     See function 'footprint' for further information.
     > olapx:        grid footprint overlap in the x direction, in percentage
     > olapy:        grid footprint overlap in the y direction, in percentage
-    > gamma:        seed ([lon, lat]) that initiates the grid flood-fill, in deg
+    > gamma_:        seed ([lon, lat]) that initiates the grid flood-fill, in deg
     > targetArea:   matrix containing the vertices of the ROI polygon.
                     The vertex points are expressed in 2D.
         # targetArea[:,0] correspond to the x values of the vertices
@@ -48,7 +50,7 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     > dirx:         unit vector representing the direction of the x-axis in the grid
     > diry:         unit vector representing the direction of the y-axis in the grid
     """
-
+    gamma = copy.deepcopy(gamma_)
     # Pre-allocate variables
     matrixGrid = []
 
@@ -67,7 +69,21 @@ def grid2D(fpref, olapx, olapy, gamma, targetArea):
     dirx = rotmat[0, :]
     diry = rotmat[1, :]
 
-    polygon = Polygon(targetArea)
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        polygon = MultiPolygon(polygon_list)
+    else:
+        polygon = Polygon(targetArea)
+
     cx, cy = polygon.centroid.x, polygon.centroid.y
 
     orientedArea = np.zeros([max(np.shape(targetArea)),2])

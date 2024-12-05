@@ -1,5 +1,7 @@
+import copy
+
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 import matplotlib.pyplot as plt
 from conversion_functions import *
 from mosaic_algorithms.online_frontier_repair.checkTaboo import checkTaboo
@@ -88,7 +90,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     N = []  # set of new tiles (outside from 'tour')
     Nind = []  # map indices of the new tiles
     X = []  # set of disposable tiles (inside of 'tour')
-    epsilon = 0.05
+    epsilon = 0.02
 
     # Build reference tile (it's always going to be the same in subsequent calls)
     if fpref is None:
@@ -96,7 +98,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
         # repetitions, we initialize fpref to None and calculate it only on the first call of the function, ensuring
         # that it is set only once.
 
-        _,_,_,bounds = mat2py_getfov(mat2py_bodn2c(inst), 4)  # get fovbounds in the instrument's reference frame
+        _,_,_,bounds = mat2py_getfov(mat2py_bodn2c(inst)[0], 4)  # get fovbounds in the instrument's reference frame
         maxx, minx = max(bounds[0]), min(bounds[0])
         maxy, miny = max(bounds[1]), min(bounds[1])
         width = maxx - minx
@@ -115,8 +117,21 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
 
     # Project ROI topographical coordinates to instrument's focal plane
     targetArea = topo2inst(roi, cx, cy, target, sc, inst, et)
-    targetpshape = Polygon(targetArea[:, 0], targetArea[:, 1])
-
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        targetpshape = MultiPolygon(polygon_list)
+    else:
+        targetpshape = Polygon(zip(targetArea[:, 0], targetArea[:, 1]))
+    targetpshape = targetpshape.buffer(0)
     # [Future work]: orientation angle may change over the course of the mosaic
     # targetArea = topo2inst(roi, gamma_topo[0], gamma_topo[1], target, sc, inst, et) #current roi coordinates in the
     # instrument reference frame, when the instrument is pointing at the current grid origin point (next observation)
@@ -142,8 +157,10 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     # target_polygon = Polygon(orientedArea) # Create a polygon shape
 
     # Get grid shifting due to observation geometry update
-    updated_seed = (topo2inst(np.array([np.array(gamma)]), cx, cy, target, sc, inst, et))[0]
-    if not np.isnan(updated_seed):
+    updated_seed = (topo2inst(np.array([np.array(gamma)]), cx, cy, target, sc, inst, et))
+
+    if not np.isnan(updated_seed).all() and np.size(updated_seed)!=0:
+        updated_seed = updated_seed[0]
         shift = updated_seed - np.array(seed)
     else:
         shift = 0
@@ -165,8 +182,8 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     # Update map by removing the previous element in the tour (next observation)
     # Find which position does gamma occupy in this grid
     ind_row, ind_col = None, None
-    for i in range(len(inst_grid)):
-        for j in range(len(inst_grid[i])):
+    for j in range(len(inst_grid[0])):
+        for i in range(len(inst_grid)):
             if inst_grid[i][j] is not None and np.linalg.norm(inst_grid[i][j] - old_seed) < 1e-3:
                 ind_row, ind_col = i, j
                 break
@@ -182,8 +199,8 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
     frontier, indel = getFrontierTiles(map)
 
     # Update grid
-    openList = frontier  # open list starts as frontier set F
-    s = openList  # seeds: initial open list (frontier tiles)
+    openList = copy.deepcopy(frontier) # open list starts as frontier set F
+    s = copy.deepcopy(openList)  # seeds: initial open list (frontier tiles)
 
     while openList:
 
@@ -210,8 +227,25 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
 
         # Analyze the current element's membership in tour
         # Compute the current footprint's covered area
-        fpshape = Polygon(np.array(o) + np.array(fpref['bvertices']))
-        inter = targetpshape.difference(fpshape)
+        aux = np.array(o) + np.array(fpref['bvertices'])
+        if (np.isnan(aux[:, 0])).any():
+            nanindex = np.where(np.isnan(aux[:, 0]))[0]
+            polygon_list = []
+            for i in range(len(nanindex)):
+                if i == 0:
+                    polygon_list.append(Polygon(list(zip(aux[:nanindex[0], 0], aux[:nanindex[0], 1]))))
+                else:
+                    polygon_list.append(Polygon(
+                        list(zip(aux[nanindex[i - 1] + 1:nanindex[i], 0], aux[nanindex[i - 1] + 1:nanindex[i], 1]))))
+            if ~ np.isnan(aux[-1, 0]):
+                polygon_list.append(Polygon(list(zip(aux[nanindex[-1] + 1:, 0], aux[nanindex[-1] + 1:, 1]))))
+            fpshape = MultiPolygon(polygon_list)
+        else:
+            fpshape = Polygon((list(zip(aux[:, 0], aux[:, 1]))))
+
+        fpshape = fpshape.buffer(0)
+
+        inter = (targetpshape.difference(fpshape)).buffer(0)
         areaI = inter.area
         areaT = targetpshape.area
         fpArea = fpshape.area
@@ -222,7 +256,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
 
             # Identify if the observation was already included in the planned tour
             for i in range(len(inst_tour)):
-                if np.array_equal(o, inst_tour[i]):
+                if np.array_equal(o, inst_tour[i].reshape(1,2)):
                     insideTour = True
                     break
             if not insideTour:
@@ -233,132 +267,136 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
 
             # Identify if the observation was already included in the planned tour
             for i in range(len(inst_tour)):
-                if np.array_equal(o, inst_tour[i]):
+                if np.array_equal(o, inst_tour[i].reshape(1,2)):
                     insideTour = True
                     break
             if insideTour:
                 # If it was included, then its membership changed
                 membershipChanged = True
 
-            if inSeed or membershipChanged:
-                # Get the observation neighbor elements (diagonal and cardinal)
-                n, nind = getNeighbours(o, currind, fpref['width'], fpref['height'], olapx, olapy, grid_dirx,
-                                         grid_diry)
+        if inSeed or membershipChanged:
+            # Get the observation neighbor elements (diagonal and cardinal)
+            n, nind = getNeighbours(o, currind, fpref['width'], fpref['height'], olapx, olapy, grid_dirx,
+                                        grid_diry)
 
-                # Check if the neighbors are already inside tour (in that case it is not necessary to include them in
-                # the openlist for re-evaluation)
-                nindel = []
-                for i in range(len(n)):
-                    inTour=False
-                    for j in range(len(inst_tour)):
-                        if np.linalg.norm(n[i]-inst_tour[j]) < 1e-5:
-                            inTour=True
-                            break
-                    if inTour:
-                        nindel.append(i)
+            # Check if the neighbors are already inside tour (in that case it is not necessary to include them in
+            # the openlist for re-evaluation)
+            nindel = []
+            for i in range(len(n)):
+                inTour=False
+                for j in range(len(inst_tour)):
+                    if np.linalg.norm(n[i]-inst_tour[j]) < 1e-5:
+                        inTour=True
+                        break
+                if inTour:
+                    nindel.append(i)
 
-                n = [n[i] for i in range(len(n)) if i not in nindel]
-                nind = [nind[i] for i in range(len(nind)) if i not in nindel]
+            n = [n[i] for i in range(len(n)) if i not in nindel]
+            nind = [nind[i] for i in range(len(nind)) if i not in nindel]
 
-                for i in range(len(n)):
+            for i in range(len(n)):
 
-                    # Check if the neighbors are included in the cin or cout sets
-                    in1=False
-                    in2=False
-                    in1 = any(np.linalg.norm(cin_point - n[i]) < 1e-5 for cin_point in cin)
-                    in2 = any(np.linalg.norm(cout_point - n[i]) < 1e-5 for cout_point in cout)
+                # Check if the neighbors are included in the cin or cout sets
+                in1=False
+                in2=False
+                in1 = any(np.linalg.norm(cin_point - n[i]) < 1e-5 for cin_point in cin)
+                in2 = any(np.linalg.norm(cout_point - n[i]) < 1e-5 for cout_point in cout)
 
-                    # If the neighbour node is not in the cin list nor in the cout list... then add it to the openList
-                    # for evaluation (if not already included)
-                    if not in1 and not in2:
-                        if not any(np.linalg.norm(open_point - n[i]) < 1e-5 for open_point in openList): # if it's not
-                        # in openList, then add it
-                            openList.append(n[i])
-                            indel.append(nind[i])
+                # If the neighbour node is not in the cin list nor in the cout list... then add it to the openList
+                # for evaluation (if not already included)
+                if not in1 and not in2:
+                    if not any(np.linalg.norm(open_point - n[i]) < 1e-5 for open_point in openList): # if it's not
+                    # in openList, then add it
+                        openList.append(n[i])
+                        indel.append(nind[i])
 
-            # Identify new tiles N = Cin - Tour
-            for i, c in enumerate(cin):
-                if not any(np.linalg.norm(c - tour_point) < 1e-5 for tour_point in inst_tour): # if c is checked to be outside, include it in the new tiles set
-                    N.append(c)
-                    Nind.append(cind[i])
+    # Identify new tiles N = Cin - Tour
+    for i, c in enumerate(cin):
+        if not any(np.linalg.norm(c - tour_point) < 1e-5 for tour_point in inst_tour): # if c is checked to be outside, include it in the new tiles set
+            N.append(c)
+            Nind.append(cind[i])
 
-            # Check that new identified tiles are not taboo  (moving backwards in the coverage path)
-            ind_row, ind_col = None, None
-            for i in range(1, len(map) - 1):
-                if not np.isnan(map[i]).all() and np.linalg.norm(map[i] - seed) < 1e-3:
-                    ind_row, ind_col = np.unravel_index(i, map.shape)
+    # Check that new identified tiles are not taboo  (moving backwards in the coverage path)
+    ind_row, ind_col = None, None
+
+    for j in range(len(map[0])):
+        for i in range(len(map)):
+            if not ((j == 0 and i == 0) or (j == len(map[0]) -1 and i == len(map) -1)):
+                if not np.isnan(map[i][j]).all() and np.linalg.norm(map[i][j] - seed) < 1e-3:
+                    ind_row, ind_col = i , j
                     break
 
-            # Check that N is not coincident with old_seed...
-            for i in range(len(N)):
-                if np.linalg.norm(N[i] - old_seed) < 1e-5:
-                    N.pop(i)
-                    Nind.pop(i)
-                    break
-            N, Nind = checkTaboo(N, Nind, map, ind_row, ind_col, sweepDir1, sweepDir2)
+    # Check that N is not coincident with old_seed...
+    for i in range(len(N)):
+        if np.linalg.norm(N[i] - old_seed) < 1e-5:
+            N.pop(i)
+            Nind.pop(i)
+            break
+    N, Nind = checkTaboo(N, Nind, map, ind_row, ind_col, sweepDir1, sweepDir2)
 
-            # Identify tiles to remove: X = Cout - Tour
-            X = []
-            for c in cout:
-                if any(np.linalg.norm(c - tour_point) < 1e-5 for tour_point in inst_tour): #i f c is checked to be
-                    # in 'tour', include it in the  disposable tiles set
-                    X.append(c)
+    # Identify tiles to remove: X = Cout - Tour
+    X = []
+    for c in cout:
+        if any(np.linalg.norm(c - tour_point) < 1e-5 for tour_point in inst_tour): #if c is checked to be
+            # in 'tour', include it in the  disposable tiles set
+            X.append(c)
 
-            # Remove disposable tiles
-            map = removeTiles(map, X)
+    # Remove disposable tiles
+    map = removeTiles(map, X)
 
-            # Insert new tiles
-            map = insertTiles(map, N, Nind)
+    # Insert new tiles
+    map = insertTiles(map, N, Nind)
 
-            # # Plot grid
-            # plt.figure()
-            # x, y = targetpshape.exterior.xy
-            # plt.plot(x, y)
-            # plt.axis('equal')
-            # # Loop through each grid point and plot if it exists
-            # for i in range(len(grid)):
-            #     for j in range(len(grid[0])):
-            #         point = grid[i][j]
-            #         if point is not None:
-            #             plt.plot(point[0], point[1], 'b^')
-            # plt.show()
+    # # Plot grid
+    # plt.figure()
+    # x, y = targetpshape.exterior.xy
+    # plt.plot(x, y)
+    # plt.axis('equal')
+    # # Loop through each grid point and plot if it exists
+    # for i in range(len(grid)):
+    #     for j in range(len(grid[0])):
+    #         point = grid[i][j]
+    #         if point is not None:
+    #             plt.plot(point[0], point[1], 'b^')
+    # plt.show()
 
-            # Boustrophedon decomposition
-            inst_grid = map2grid(map)
-            inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
+    # Boustrophedon decomposition
+    inst_grid = map2grid(map)
+    inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
 
-            if inst_tour:
-                topo_tour = inst2topo(inst_tour, cx, cy, target, sc, inst, et)
-                # Remove empty elements from the tour, which may result from unobservable
-                # regions within the planned path
-                emptyCells = [x is None for x in topo_tour]
-                indEmpty = [i for i, x in enumerate(emptyCells) if x]  # find indices of empty cells
-                for k in range(len(indEmpty)):
-                    emptyEl = inst_tour[indEmpty[k]]
-                    for i in range(len(map)):
-                        for j in range(len(map[i])):
-                            if map[i][j] is not None:
-                                if np.linalg.norm(map[i][j] - emptyEl) < 1e-5:
-                                    map[i][j] = None
-                topo_tour = [x for i, x in enumerate(topo_tour) if i not in indEmpty]  # remove empty cells
-                # Boustrophedon decomposition
-                inst_grid = map2grid(map)
-                inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
-                if inst_tour:
-                    seed = inst_tour[0]
-                else:
-                    seed = None
+    if inst_tour:
+        topo_tour = inst2topo([inst_tour], cx, cy, target, sc, inst, et)[0]
+        # Remove empty elements from the tour, which may result from unobservable
+        # regions within the planned path
+        emptyCells = [x is None for x in topo_tour]
+        indEmpty = [i for i, x in enumerate(emptyCells) if x]  # find indices of empty cells
+        for k in range(len(indEmpty)):
+            emptyEl = inst_tour[indEmpty[k]]
+            for i in range(len(map)):
+                for j in range(len(map[0])):
+                    if map[i][j] is not None:
+                        if np.linalg.norm(map[i][j] - emptyEl) < 1e-5:
+                            map[i][j] = None
+        topo_tour = [x for i, x in enumerate(topo_tour) if i not in indEmpty]  # remove empty cells
+        # Boustrophedon decomposition
+        inst_grid = map2grid(map)
+        inst_tour = boustrophedon(inst_grid, sweepDir1, sweepDir2)
+        if inst_tour:
+            seed = inst_tour[0]
+        else:
+            seed = None
 
-                # inst_tour = [x for i, x in enumerate(inst_tour) if i not in indEmpty]  # remove empty cells
-                # seed = inst_tour[0]
-                # for i in range(len(emptyCells)):
-                #     if not emptyCells[i]:
-                #         seed = inst_tour[i]
-                #         break
+        # inst_tour = [x for i, x in enumerate(inst_tour) if i not in indEmpty]  # remove empty cells
+        # seed = inst_tour[0]
+        # for i in range(len(emptyCells)):
+        #     if not emptyCells[i]:
+        #         seed = inst_tour[i]
+        #         break
 
-            else:
-                seed = None
-                topo_tour = None
+    else:
+        seed = None
+        topo_tour = []
+
     return seed, inst_grid, inst_tour, topo_tour
 
 

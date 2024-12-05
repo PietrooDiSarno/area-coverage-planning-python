@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 A, fpList = frontierRepair(roistruct[0]['inittime'], stoptime, tcadence, inst, sc, target, roi, olapx, olapy, 3 * 1e-3)
 
 # Plot tour
-plotTour(A, fpList, roistruct, sc, target)
+_ = plotTour(A, fpList, roistruct, sc, target)
 
 # FOM post-process
 post_process_fig1()

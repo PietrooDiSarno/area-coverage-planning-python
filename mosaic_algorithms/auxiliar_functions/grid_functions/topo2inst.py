@@ -6,7 +6,7 @@ from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
 from mosaic_algorithms.auxiliar_functions.observation_geometry.emissionang import emissionang
 from mosaic_algorithms.auxiliar_functions.polygon_functions.sortcw import sortcw
 
-def topo2inst(inputdata, lon, lat, target, sc, inst, et):
+def topo2inst(inputdata_, lon, lat, target, sc, inst, et):
     """
     This function transforms a set of points from the topographic coordinate
     system(latitude and longitude on the target body) to the instrument frame
@@ -36,7 +36,7 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
                        output matches the input (cell array or matrix)
 
     """
-
+    inputdata = copy.deepcopy(inputdata_)
     # Handle input data in list format, ensuring all empty entries are replaced
     # with [NaN, NaN]
     ii, jj,aux = [], [], []
@@ -72,13 +72,8 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
         if not np.isnan(topoPoints[i]).any():
             dir = -(trgobsvec(topoPoints[i], et, target, sc))[0]
             found, spoint[i, :] = mat2py_inrypl(vertex, dir, plane)
-
-            if found:
-                emnang = emissionang(topoPoints[i], et, target, sc)
-                if emnang >= 90:
-                    found = False
             if not found:
-                spoint[i, :] = np.full(3, np.nan)
+                print('No intersection')
         else:
             spoint[i, :] = np.full(3, np.nan)
 
@@ -101,12 +96,5 @@ def topo2inst(inputdata, lon, lat, target, sc, inst, et):
             if not np.isnan(instcoord[k]).any():
                 outputData[ii[k]][jj[k]] = instcoord[k, :]
     else:
-        instcoord = instcoord[~np.isnan(instcoord[:, 0])]
-        if np.size(aux)==0:
-            col1, col2 = sortcw(instcoord[:, 0], instcoord[:, 1])
-            aux = np.hstack((col1.reshape(len(col1),1),col2.reshape(len(col2),1)))
-        else:
-            aux[:,0],aux[:,1] = sortcw(instcoord[:, 0], instcoord[:, 1])
-        outputData = aux
-
+        outputData = copy.deepcopy(instcoord)
     return outputData

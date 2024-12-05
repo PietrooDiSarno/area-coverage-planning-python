@@ -1,6 +1,5 @@
 import numpy as np
-from numpy.matlib import empty
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 import copy
 
 from conversion_functions import mat2py_et2utc
@@ -52,16 +51,16 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
       > A, tour, fpList, poly1, t: updated variables
 
     """
+    ## Previous check...
+    #if len(tour) == 0:
+    #    empty = True
+    #   return A, tour, fpList, poly1, t, empty
 
-    # Previous check...
-    if len(tour) == 1 and len(tour[0]) == 0:
-        empty = True
-        return A, tour, fpList, poly1, t, empty
 
     # Compute the footprint of each point in the tour successively and
     # subtract the corresponding area from the target polygon
-    a = copy.deepcopy(tour[0][0]) # observation
-    tour[0].pop(0) #delete this observation from the planned tour
+    a = copy.deepcopy(tour[0]) # observation
+    tour.pop(0) #delete this observation from the planned tour
     empty = False
 
     # Check an.m. intercept...
@@ -71,7 +70,6 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
     # Compute the observation's footprint
     print(f"Computing {inst} FOV projection on {target} at {mat2py_et2utc(t, 'C', 0)}...")
     fprinti = footprint(t, inst, sc, target, resolution, a[0], a[1], 0)
-
     # Body-fixed to inertial frame
     if np.size(fprinti['bvertices']) != 0:  # assuming 'fprinti' is a dictionary with 'bvertices' key
         print("\n")
@@ -81,36 +79,52 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
             aux = copy.deepcopy(fprinti)
             ind = aux['bvertices'][:,0] < 0
             aux['bvertices'][ind,0] += 360
-            poly2 = Polygon(aux['bvertices'])
+            if (np.isnan(aux['bvertices'][:, 0])).any():
+                nanindex = np.where(np.isnan(aux['bvertices'][:, 0]))[0]
+                polygon_list = []
+                for i in range(len(nanindex)):
+                    if i == 0:
+                        polygon_list.append(Polygon(list(zip(aux['bvertices'][:nanindex[0], 0], aux['bvertices'][:nanindex[0], 1]))))
+                    else:
+                        polygon_list.append(Polygon(list(
+                            zip(aux['bvertices'][nanindex[i - 1] + 1:nanindex[i], 0], aux['bvertices'][nanindex[i - 1] + 1:nanindex[i], 1]))))
+                if ~ np.isnan(aux['bvertices'][-1, 0]):
+                    polygon_list.append(Polygon(list(zip(aux['bvertices'][nanindex[-1] + 1:, 0], aux['bvertices'][nanindex[-1] + 1:, 1]))))
+                poly2 = MultiPolygon(polygon_list)
+            else:
+                poly2 = Polygon(aux['bvertices'])
         else:
-            poly2 = Polygon(fprinti['bvertices']) #create footprint polygon
+            if (np.isnan(fprinti['bvertices'][:, 0])).any(): #create footprint polygon
+                nanindex = np.where(np.isnan(fprinti['bvertices'][:, 0]))[0]
+                polygon_list = []
+                for i in range(len(nanindex)):
+                    if i == 0:
+                        polygon_list.append(Polygon(list(zip(fprinti['bvertices'][:nanindex[0], 0], fprinti['bvertices'][:nanindex[0], 1]))))
+                    else:
+                        polygon_list.append(Polygon(list(
+                            zip(fprinti['bvertices'][nanindex[i - 1] + 1:nanindex[i], 0], fprinti['bvertices'][nanindex[i - 1] + 1:nanindex[i], 1]))))
+                if ~ np.isnan(fprinti['bvertices'][-1, 0]):
+                    polygon_list.append(Polygon(list(zip(fprinti['bvertices'][nanindex[-1] + 1:, 0], fprinti['bvertices'][nanindex[-1] + 1:, 1]))))
+                poly2 = MultiPolygon(polygon_list)
+            else:
+                poly2 = Polygon(fprinti['bvertices'])
 
-        # Check footprint-ROI intersect
-        targetpshape = copy.deepcopy(poly1)
-        areaT = targetpshape.area
-        inter = targetpshape.difference(poly2)
-        areaI = inter.area
-        areaInter = areaT - areaI
-        fpArea = poly2.area
+        poly2 = poly2.buffer(0)
 
-        if areaInter / fpArea == 0:
-            empty = True
-        else:
-            A.append(a)  # add it in the list of planned observations
-            poly1 = poly1.difference(poly2)  # update uncovered area
 
-            # Save footprint struct
-            fpList.append(fprinti)
+        A.append(a)  # add it in the list of planned observations
+        poly1 = (poly1.difference(poly2)).buffer(0)  # update uncovered area
 
-            # New time iteration
-            if not (len(tour) == 1 and len(tour[0]) == 0):
-                p1 = [fprinti['olon'], fprinti['olat']]
-                p2 = [tour[0][0][0], tour[0][0][1]]
-                t += tobs + slewDur(p1, p2, t, tobs, inst, target, sc, slewRate)
+        # Save footprint struct
+        fpList.append(fprinti)
+
+        # New time iteration
+        if len(tour)!= 0:
+            p1 = [fprinti['olon'], fprinti['olat']]
+            p2 = [tour[0][0], tour[0][1]]
+            t += tobs + slewDur(p1, p2, t, tobs, inst, target, sc, slewRate)
     else:
         empty = True
-
-    if empty:
         print(" Surface not reachable\n")
 
     return A, tour, fpList, poly1, t, empty

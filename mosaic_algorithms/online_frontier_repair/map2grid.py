@@ -28,7 +28,10 @@ def map2grid(map):
     grid = [row[1:-1] for row in map[1:-1]]
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-            if any(np.isnan(grid[i][j])):
-                grid[i][j] = []
+            if np.size(grid[i][j]) == 1 and grid[i][j] == None:
+                grid[i][j] = grid[i][j]
+            elif (np.isnan(grid[i][j])).all():
+                    grid[i][j] = None
+
 
     return grid

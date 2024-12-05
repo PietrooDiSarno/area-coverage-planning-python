@@ -1,5 +1,7 @@
+import copy
+
 import numpy as np
-from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon, Polygon
 
 
 def sortcw(*args):
@@ -32,13 +34,31 @@ def sortcw(*args):
         #  valid). We calculate iteratively the angle with respect to that point
         #  and sort the vertices according to their respective angle value.
         #  This algorithm does not work with non-convex polygons
-        x, y = args[0], args[1]
-        if np.size(x) == 1:
+        x = copy.deepcopy(args[0])
+        y = copy.deepcopy(args[1])
+
+        if np.size(x) < 3:
             return x,y
-        points = list(zip(x, y))
-        polygon = Polygon(points)
-        centroid = polygon.centroid
-        cx, cy = centroid.x, centroid.y # polygon centroid
+
+        if (np.isnan(x)).any():
+            nanindex = np.where(np.isnan(x))[0]
+            polygon_list = []
+            for i in range(len(nanindex)):
+                if i == 0:
+                    polygon_list.append(Polygon(list(zip(x[:nanindex[0]], y[:nanindex[0]]))))
+                else:
+                    polygon_list.append(Polygon(
+                        list(zip(x[nanindex[i - 1] + 1:nanindex[i]], y[nanindex[i - 1] + 1:nanindex[i]]))))
+            if ~ np.isnan(x[-1]):
+                polygon_list.append(Polygon(list(zip(x[nanindex[-1] + 1:], y[nanindex[-1] + 1:]))))
+            polygon = MultiPolygon(polygon_list)
+        else:
+            polygon = Polygon((list(zip(x,y))))
+
+
+        cx = polygon.centroid.x
+        cy = polygon.centroid.y # polygon centroid
+
 
         angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices
@@ -50,7 +70,10 @@ def sortcw(*args):
         # Algorithm extracted from
         # https://stackoverflow.com/questions/47949485/
         # sorting-a-list-of-3d-points-in-clockwise-order
-        x, y, z = args[0], args[1], args[2]
+        x = copy.deepcopy(args[0])
+        y = copy.deepcopy(args[1])
+        z = copy.deepcopy(args[2])
+
         innerpoint = np.array([np.mean(np.array(x)), np.mean(np.array(y)), np.mean(np.array(z))])  # find an inner point (this
         # is not the centroid but still works)
 

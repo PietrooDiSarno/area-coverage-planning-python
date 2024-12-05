@@ -9,7 +9,7 @@ from mosaic_algorithms.auxiliar_functions.polygon_functions.amsplit import amspl
 from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 from science_opportunity_main.queries.geometric.fovray import fovray
 import warnings
-from shapely.geometry import Polygon, Point
+from shapely.geometry import MultiPolygon, Polygon, Point
 
 def footprint(t, inst, sc, target, res, *args):
     """
@@ -181,7 +181,7 @@ def footprint(t, inst, sc, target, res, *args):
             x = (maxx - minx) * ii + minx
             for jj in range(Nl + 1):
                 y = (maxy - miny) * jj/Nl + miny
-                vec = np.array([x, y, z]).shape([3,1])
+                vec = np.array([x, y, z]).reshape([3,1])
                 vec = np.dot(pointingRotation,vec)  # transform vector coordinates to target frame
                 _, _, _, found = mat2py_sincpt(method, target, t, targetframe, abcorr, sc, targetframe,
                                                vec)
@@ -198,7 +198,7 @@ def footprint(t, inst, sc, target, res, *args):
                 x = (maxx - minx) * ii / Nl + minx
                 for jj in range(2):
                     y = (maxy - miny) * jj / Nl + miny
-                    vec = np.array([x, y, z]).shape([3,1])
+                    vec = np.array([x, y, z]).reshape([3,1])
                     vec = np.dot(pointingRotation,vec)  # transform vector coordinates to target frame
                     _, _, _, found =mat2py_sincpt(method, target, t, targetframe, abcorr, sc,
                                                    targetframe, vec)
@@ -347,7 +347,7 @@ def footprint(t, inst, sc, target, res, *args):
         abcorr = 'XLT+S'
         corloc = 'CENTER'
         refvec = np.array([0,0,1]).reshape(3,1) # first of the sequence of cutting half-planes
-        ncuts=2e3 # number of cutting half-planes
+        ncuts=int(2e3) # number of cutting half-planes
         delrol = mat2py_twopi() / ncuts # angular step by which to roll the
         # cutting half-planes about the observer-target vector
         schstp = 1.0e-6 # search angular step size
@@ -400,121 +400,154 @@ def footprint(t, inst, sc, target, res, *args):
         # not work with non-convex polygons...
 
         if fp['limb'] == 'total':
-            lblon = vertices[:, 0]
-            lblat = vertices[:, 1]
+            lblon = copy.deepcopy(vertices[:,0])
+            lblat = copy.deepcopy(vertices[:,1])
+
             # We need to discern between two different limbs:
-            # 1.- Sub-spacecraft point is located at Equator (observer-to-pole line is
-            # perpendicular to normal vector at the poles). In this case, limb's
-            # longitude cannot be > 180°
-            # 2.- Sub-spacecraft point is not located at equator. In this case, limb's
-            # longitude may be > 180° (and includes the north/south poles).
+            # 1.- Sub-spacecraft point is located at the equator (observer-to-pole line is
+            # perpendicular to the normal vector at the poles). In this case, the limb's
+            # longitude cannot be > 180º.
+            # 2.- Sub-spacecraft point is not located at the equator. In this case, the limb's
+            # longitude may be > 180º (and includes the north/south poles).
+
             northpole = False
             southpole = False
-
             # Check north-pole
             srfpoint = np.array([0, 90])
             angle = emissionang(srfpoint, t, target, sc)
             if angle < 90:
                 northpole = True
-
             # Check south-pole
             srfpoint = np.array([0, -90])
             angle = emissionang(srfpoint, t, target, sc)
             if angle < 90:
                 southpole = True
 
-            # Case 1
+            # Case 1.
             if not northpole and not southpole:
                 # Check a.m. split
-                ind2 = (np.where(np.diff(np.sort(lblon)) >= 180)[0])[0] # find the discontinuity
+                ind2 = np.where(np.diff(np.sort(lblon)) >= 180)[0]  # find the discontinuity
                 if ind2.size > 0:
                     lblon, lblat = amsplit(lblon, lblat)
+                # Check if we are keeping the correct polygon (full disk polygons may be
+                # misleading, we can only guarantee through emission angle check)
                 exit = False
+
                 while not exit:
-                    randPoint = np.random.randint([-180, -90], [181, 91])
-                    polygon = Polygon(list(zip(lblon, lblat)))
-                    if polygon.contains(Point(randPoint[0], randPoint[1])):
+                    randPoint = np.arrya([np.random.randint(-180, 181), np.random.randint(-90, 91)])
+                    point = Point(randPoint)
+                    if (np.isnan(lblon)).any():
+                        nanindex = np.where(np.isnan(lblon))[0]
+                        polygon_list = []
+                        for i in range(len(nanindex)):
+                            if i == 0:
+                                polygon_list.append(Polygon(list(zip(lblon[:nanindex[0]], lblat[:nanindex[0]]))))
+                            else:
+                                polygon_list.append(Polygon(
+                                    list(zip(lblon[nanindex[i - 1] + 1:nanindex[i]],
+                                             lblat[nanindex[i - 1] + 1:nanindex[i]]))))
+                        if ~ np.isnan(lblon[-1]):
+                            polygon_list.append(Polygon(list(zip(lblon[nanindex[-1] + 1:], lblat[nanindex[-1] + 1:]))))
+                        polyaux = MultiPolygon(polygon_list)
+                    else:
+                        polyaux = Polygon((list(zip(lblon, lblat))))
+                    polyaux = polyaux.buffer(0)
+
+                    if polyaux.intersects(point):
                         angle = emissionang(randPoint, t, target, sc)
                         if angle < 85:
                             exit = True
                     else:
-                        angle = emissionang(randPoint, t, target, sc)
+                        angle =  emissionang(randPoint, t, target, sc)
                         if angle < 85:
                             exit = True
                             # This calculation is approximated, we should find a better way
                             # to find the complementary
                             # [Future work]
-                            lonmap = np.array([-180, -180, 180, 180])
-                            latmap = np.array([-90, 90, 90, -90])
+                            lonmap = [-180, -180, 180, 180]
+                            latmap = [-90, 90, 90, -90]
                             polymap = Polygon(list(zip(lonmap, latmap)))
-                            poly1 = Polygon(list(zip(lblon,lblat)))
+                            if (np.isnan(lblon)).any():
+                                nanindex = np.where(np.isnan(lblon))[0]
+                                polygon_list = []
+                                for i in range(len(nanindex)):
+                                    if i == 0:
+                                        polygon_list.append(Polygon(list(zip(lblon[:nanindex[0]], lblat[:nanindex[0]]))))
+                                    else:
+                                        polygon_list.append(Polygon(
+                                            list(zip(lblon[nanindex[i - 1] + 1:nanindex[i]],
+                                                     lblat[nanindex[i - 1] + 1:nanindex[i]]))))
+                                if ~ np.isnan(lblon[-1]):
+                                    polygon_list.append(
+                                        Polygon(list(zip(lblon[nanindex[-1] + 1:], lblat[nanindex[-1] + 1:]))))
+                                poly1 = MultiPolygon(polygon_list)
+                            else:
+                                poly1 = Polygon((list(zip(lblon, lblat))))
+                            poly1 = poly1.buffer(0)
                             poly1 = polymap.difference(poly1)
-                            lons,lats = poly1.exterior.coords.xy
-                            lblon = np.array(lons)
-                            lblat = np.array(lats)
+                            poly1 = poly1.buffer(0)
 
-            else:  # Case 2
+                            if isinstance(poly1, Polygon):
+                                lblon, lblat = np.array(poly1.exterior.coords.xy)
+                            elif isinstance(poly1, MultiPolygon):
+                                for i in range(len(poly1.geoms)):
+                                    lblonaux, lblataux = np.array(poly1.geoms[i].exterior.coords.xy)
+                                    if i == 0:
+                                        lblon = np.append(lblonaux, np.nan)
+                                        lblat = np.append(lblataux, np.nan)
+                                    else:
+                                        lblon = np.append(lblon, np.append(lblonaux, np.nan))
+                                        lblat = np.append(lblat, np.append(lblataux, np.nan))
+                                lblon = lblon[:-1]
+                                lblat = lblat[:-1]
+            else:
+                # Case 2.
                 lblon, indsort = np.sort(lblon), np.argsort(lblon)
                 lblat = lblat[indsort]
 
                 if northpole or southpole:
                     # Include northpole to close polygon
-                    auxlon = copy.deepcopy(lblon)
-                    auxlat = copy.deepcopy(lblat)
-                    lblon = np.zeros([1,max(np.shape(auxlon)) + 2])
-                    lblat = np.zeros([1,max(np.shape(len(auxlat))) + 2])
-
+                    auxlon, auxlat = copy.deepcopy(lblon), copy.deepcopy(lblat)
+                    lblon = np.zeros(len(auxlon) + 2)
+                    lblat = np.zeros(len(auxlat) + 2)
                     if northpole:
                         lblon[0], lblat[0] = -180, 90
                         lblon[-1], lblat[-1] = 180, 90
                     else:
                         lblon[0], lblat[0] = -180, -90
                         lblon[-1], lblat[-1] = 180, -90
-
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
-
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1],2])
-            fp['bvertices'][:, 0] = lblon
-            fp['bvertices'][:, 1] = lblat
-
+            fp['bvertices'] = np.hstack((lblon.reshape(len(lblon),1),lblat.reshape(len(lblat),1)))
         elif fp['limb'] == 'partial':
-            lblon = vertices[:, 0]
-            lblat = vertices[:, 1]
-
-            # Check north-pole visibility
+            lblon = copy.deepcopy(vertices[:,0])
+            lblat = copy.deepcopy(vertices[:,1])
+            # Check north-pole visibility:
             northpole = fovray(inst, target, sc, t, 0, 90, fp['olon'], fp['olat'])
-            # Check south-pole visibility
+            # Check south-pole visibility:
             southpole = fovray(inst, target, sc, t, 0, -90, fp['olon'], fp['olat'])
-
-            # Case 1
+            # Case 1.
             if not northpole and not southpole:
                 lblon, lblat = amsplit(lblon, lblat)
-            else:  # Case 2
+            else:
+                # Case 2.
                 lblon, indsort = np.sort(lblon), np.argsort(lblon)
                 lblat = lblat[indsort]
 
                 if northpole or southpole:
                     # Include northpole to close polygon
-                    auxlon = copy.deepcopy(lblon)
-                    auxlat = copy.deepcopy(lblat)
-                    lblon = np.zeros([1,max(np.shape((auxlon))) + 2])
-                    lblat = np.zeros([1,max(np.shape((auxlat))) + 2])
-
+                    auxlon, auxlat = copy.deepcopy(lblon), copy.deepcopy(lblat)
+                    lblon = np.zeros(len(auxlon) + 2)
+                    lblat = np.zeros(len(auxlat) + 2)
                     if northpole:
                         lblon[0], lblat[0] = -180, 90
                         lblon[-1], lblat[-1] = 180, 90
                     else:
                         lblon[0], lblat[0] = -180, -90
                         lblon[-1], lblat[-1] = 180, -90
-
                     lblon[1:-1] = auxlon
                     lblat[1:-1] = auxlat
-
-            fp['bvertices'] = np.zeros([np.shape(lblon)[1], 2])
-            fp['bvertices'][:, 0] = lblon
-            fp['bvertices'][:, 1] = lblat
-
+            fp['bvertices'] = np.hstack((lblon.reshape(len(lblon), 1), lblat.reshape(len(lblat), 1)))
         else:
             # Check if the footprint intersects the anti-meridian
             # To ease the footprint representation on the topography map, we must
@@ -522,14 +555,15 @@ def footprint(t, inst, sc, target, res, *args):
             # If it does, we split the footprint in two polygons, cleaved by the line
             # that the original footprint is crossing (a.m.)
 
-            col1, col2  = amsplit(vertices[:, 0], vertices[:, 1]) # save footprint vertices
+            col1, col2 = amsplit(vertices[:, 0], vertices[:, 1])  # save footprint vertices
             fp['bvertices'] = np.hstack((col1.reshape(len(col1), 1), col2.reshape(len(col2), 1)))
-        if geom:
-            # Get minimum width direction and size
-            angle, width, height = minimumWidthDirection(fp['bvertices'][:, 0], fp['bvertices'][:, 1])
-            fp['angle'] = angle
-            fp['width'] = width
-            fp['height'] = height
+
+            if geom:
+                # Get minimum width direction and size
+                angle, width, height = minimumWidthDirection(fp['bvertices'][:, 0], fp['bvertices'][:, 1])
+                fp['angle'] = angle
+                fp['width'] = width
+                fp['height'] = height
 
         return surfPoints,t,target,sc,fp,inst
 

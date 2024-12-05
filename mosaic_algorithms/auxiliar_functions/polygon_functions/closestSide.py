@@ -1,5 +1,5 @@
 import numpy as np
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import MultiPolygon, Polygon, LineString
 from math import cos, sin, radians
 import math
 from conversion_functions import *
@@ -33,7 +33,23 @@ def closestSide(gt1, gt2, targetArea, angle):
     angle = -angle*mat2py_rpd()
     rotmat = np.array([[cos(angle), -sin(angle)],
                        [sin(angle), cos(angle)]])
-    cx, cy = Polygon(targetArea).centroid.coords[0]
+    if (np.isnan(targetArea[:, 0])).any():
+        nanindex = np.where(np.isnan(targetArea[:, 0]))[0]
+        polygon_list = []
+        for i in range(len(nanindex)):
+            if i == 0:
+                polygon_list.append(Polygon(list(zip(targetArea[:nanindex[0], 0], targetArea[:nanindex[0], 1]))))
+            else:
+                polygon_list.append(Polygon(
+                    list(zip(targetArea[nanindex[i - 1] + 1:nanindex[i], 0], targetArea[nanindex[i - 1] + 1:nanindex[i], 1]))))
+        if ~ np.isnan(targetArea[-1, 0]):
+            polygon_list.append(Polygon(list(zip(targetArea[nanindex[-1] + 1:, 0], targetArea[nanindex[-1] + 1:, 1]))))
+        poly_aux = MultiPolygon(polygon_list)
+    else:
+        poly_aux = Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
+
+    cx,cy = poly_aux.centroid.x, poly_aux.centroid.y
+
     roi = np.zeros((max(np.shape(targetArea)), 2))
     for j in range(max(np.shape(targetArea))):
         roi[j, :] = np.dot(rotmat, (targetArea[j] - np.array([cx, cy]))) + np.array([cx, cy])
@@ -45,16 +61,18 @@ def closestSide(gt1, gt2, targetArea, angle):
     # Subsequent position
     sclon_, sclat_ = np.dot(rotmat, ((np.array(gt2)).reshape(2,) - np.array([cx, cy]))) + np.array([cx, cy])
 
+    roiaux = roi[~np.isnan(roi).all(axis=1)]
+
     # Find the 4 boundary vertices of the rotated target area
-    maxlon, minlon = np.max(roi[:, 0]), np.min(roi[:, 0])
-    maxlat, minlat = np.max(roi[:, 1]), np.min(roi[:, 1])
+    maxlon, minlon = np.max(roiaux[:, 0]), np.min(roiaux[:, 0])
+    maxlat, minlat = np.max(roiaux[:, 1]), np.min(roiaux[:, 1])
 
     # ROI's boundary box
     xlimit = [minlon, maxlon]
     ylimit = [minlat, maxlat]
     xbox = np.array([xlimit[0], xlimit[0], xlimit[1], xlimit[1], xlimit[0]])
     ybox = np.array([ylimit[0], ylimit[1], ylimit[1], ylimit[0], ylimit[0]])
-    boundary_box = Polygon(zip(xbox, ybox))
+    boundary_box = Polygon(zip(xbox, ybox)).buffer(0)
 
     # Define line between the centroid and the ground track
     line = LineString([(sclon, sclat), (cx, cy)])
@@ -66,15 +84,15 @@ def closestSide(gt1, gt2, targetArea, angle):
             xi, yi = intersection.x, intersection.y
         elif intersection.geom_type == 'MultiPoint':
             xi, yi = zip(*[(pt.x, pt.y) for pt in intersection])
-            if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[-1] - xi[0]) ** 2 + (yi[-1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
         elif intersection.geom_type == 'LineString':
             xi, yi = zip(*intersection.coords)
-            if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.02:
-                xi = xi[0]
-                yi = yi[0]
+            #if math.sqrt((xi[1] - xi[0]) ** 2 + (yi[1] - yi[0]) ** 2) < 0.026:
+            xi = xi[0]
+            yi = yi[0]
 
     # Determine closest side based on the intersection points
     if intersection.is_empty:  # The ground track is inside the ROI's boundary box (no intersection)
