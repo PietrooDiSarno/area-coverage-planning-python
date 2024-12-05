@@ -99,7 +99,7 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         peripshape = MultiPolygon(polygon_list)
     else:
         peripshape = Polygon(perimeterArea)
-    peripshape = peripshape.buffer(0)
+
     fpshape = Polygon(zip(fpx, fpy)).buffer(0)
     inter = (peripshape.difference(fpshape)).buffer(0)
     areaI = inter.area
