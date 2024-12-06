@@ -14,7 +14,7 @@ from pySPICElib.kernelFetch import kernelFetch
 
 # Assume trgobsvec is defined in the same script or imported from another module
 # from your_module import trgobsvec
-from mosaic_algorithms.auxiliar_functions.plot.trgobsvec_gpt import trgobsvec
+from mosaic_algorithms.auxiliar_functions.plot.trgobsvec import trgobsvec
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define a sample surface point on the target body

@@ -113,7 +113,7 @@ def visibleroi(roi_, et, target, obs):
                 polyaux = MultiPolygon(polygon_list)
             else:
                 polyaux = Polygon((list(zip(lblon, lblat))))
-            polyaux = polyaux.buffer(0)
+
 
             if polyaux.intersects(point):
                 angle = emissionang(randPoint, et, target, obs)
@@ -144,7 +144,7 @@ def visibleroi(roi_, et, target, obs):
                         poly1 = MultiPolygon(polygon_list)
                     else:
                         poly1 = Polygon((list(zip(lblon, lblat))))
-                    poly1 = poly1.buffer(0)
+
                     poly1 = polymap.difference(poly1)
                     poly1 = poly1.buffer(0)
 
@@ -195,7 +195,6 @@ def visibleroi(roi_, et, target, obs):
         poly1 = MultiPolygon(polygon_list)
     else:
         poly1 = Polygon((list(zip(lblon, lblat))))
-    poly1 = poly1.buffer(0)
 
     if (np.isnan(roi[:, 0])).any():
         nanindex = np.where(np.isnan(roi[:, 0]))[0]
@@ -211,7 +210,7 @@ def visibleroi(roi_, et, target, obs):
         poly2 = MultiPolygon(polygon_list)
     else:
         poly2 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
-    poly2 = poly2.buffer(0)
+
 
     inter = poly1.intersection(poly2)
     inter = inter.buffer(0)

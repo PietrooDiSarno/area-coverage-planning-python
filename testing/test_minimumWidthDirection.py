@@ -15,7 +15,7 @@ from matplotlib.lines import Line2D
 
 # Assume minimumWidthDirection is defined in the same script or imported from another module
 # from your_module import minimumWidthDirection
-from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection_gpt import minimumWidthDirection
+from mosaic_algorithms.auxiliar_functions.polygon_functions.minimumWidthDirection import minimumWidthDirection
 
 
 def main():

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon as MplPolygon
 
 # Import local packages
-from mosaic_algorithms.auxiliar_functions.grid_functions.flood_fill_algorithm_gpt import flood_fill_algorithm
+from mosaic_algorithms.auxiliar_functions.grid_functions.floodFillAlgorithm import floodFillAlgorithm
 
 
 # Define the main function
@@ -54,9 +54,9 @@ def main():
     v_points = []
 
     # Call the flood fill algorithm
-    grid_points, v_points = flood_fill_algorithm(
+    grid_points, v_points = floodFillAlgorithm(
         w, h, olapx, olapy, gamma,
-        target_area, perimeter_area, grid_points, v_points, method, fpThreshold
+        target_area, perimeter_area, grid_points, v_points, method
     )
 
     # Convert grid points to NumPy array for plotting

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 # Assume boustrophedon is defined in the same script or imported from another module
 # from your_module import boustrophedon
-from mosaic_algorithms.auxiliar_functions.grid_functions.boustrophedon_gpt import boustrophedon
+from mosaic_algorithms.auxiliar_functions.grid_functions.boustrophedon import boustrophedon
 
 
 def main():

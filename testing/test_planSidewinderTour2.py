@@ -17,7 +17,7 @@ from shapely.geometry import Polygon
 
 # Helper functions (amsplit, grid2D, boustrophedon, etc.)
 # Assuming these functions are defined in the same module or are imported
-from mosaic_algorithms.sidewinder.planSidewinderTour2_gpt import planSidewinderTour2
+from mosaic_algorithms.sidewinder.planSidewinderTour import planSidewinderTour
 
 
 # Define the main function to execute the test
@@ -32,17 +32,17 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define the target area as a simple rectangular ROI
-    roi = [
+    roi =np.array([
         [0, 0],
         [20, 0],
         [20, 10],
         [0, 10],
         [0, 0]
-    ]  # Rectangle from (0,0) to (20,10)
+    ])  # Rectangle from (0,0) to (20,10)
 
     # Define planning parameters
     target = 'EUROPA'  # Target body
@@ -54,16 +54,17 @@ def main():
     angle = 45.0  # Coverage path angle in degrees
 
     # Call the planSidewinderTour2 function
-    grid, origin, itour, grid_topo, tour, dirx, diry, dir1, dir2 = planSidewinderTour2(
+    grid, origin, itour, grid_topo, tour, dirx, diry, dir1, dir2 = planSidewinderTour(
         target=target,
         roi=roi,
         sc=sc,
         inst=inst,
         inittime=inittime,
-        ovlapx=ovlapx,
-        ovlapy=ovlapy,
-        angle=angle
+        olapx=ovlapx,
+        olapy=ovlapy
+        #angle=angle
     )
+
 
     # Convert lists to NumPy arrays for easier manipulation
     grid = np.array(grid)

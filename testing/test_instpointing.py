@@ -13,7 +13,7 @@ from pySPICElib import kernelFetch
 
 # Assume instpointing is defined in the same script or imported from another module
 # from your_module import instpointing
-from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing_gpt import instpointing
+from mosaic_algorithms.auxiliar_functions.spacecraft_operation.instpointing import instpointing
 
 
 def main():
@@ -26,7 +26,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Instrument, target, spacecraft parameters
@@ -39,8 +39,10 @@ def main():
     lon, lat = 45, -30  # Mock values for testing
 
     # Call the instpointing function
-    fovbounds, boresight, rotmat, visible, lon_out, lat_out = instpointing(inst, target, sc, t, lon, lat)
-
+    #fovbounds, boresight, rotmat, visible, lon_out, lat_out = instpointing(inst, target, sc, t, lon, lat)
+    fovbounds, boresight, rotmat, visible = instpointing(inst, target, sc, t, lon, lat)
+    lon_out = lon
+    lat_out = lat
     # Display the results
     print("FOV Bounds:", fovbounds)
     print("Boresight:", boresight)

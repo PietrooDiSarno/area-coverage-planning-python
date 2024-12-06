@@ -127,7 +127,6 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         target_polygon = MultiPolygon(polygon_list)
     else:
         target_polygon = Polygon(targetArea)
-    target_polygon = target_polygon.buffer(0)
     if target_polygon.intersects(Point(gamma)) or abs(areaI - areaP) / fpshape.area > epsilon:
         inside = True
 
