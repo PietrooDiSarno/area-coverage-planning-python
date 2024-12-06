@@ -97,8 +97,7 @@ def visibleroi(roi_, et, target, obs):
         exit = False
 
         while not exit:
-            #randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
-            randPoint = np.array([180,20])
+            randPoint = np.array([np.random.randint(-180, 181), np.random.randint(-90, 91)])
             point = Point(randPoint)
             if (np.isnan(lblon)).any():
                 nanindex = np.where(np.isnan(lblon))[0]
