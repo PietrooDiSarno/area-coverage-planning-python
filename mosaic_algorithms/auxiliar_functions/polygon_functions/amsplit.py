@@ -63,7 +63,7 @@ def amsplit(x_, y_):
     else:
         poly1 = Polygon(zip(x, y))
 
-
+    poly1 = poly1.buffer(0)
 
     vpoly2 = np.vstack((np.column_stack((180. * np.ones(20), np.linspace(-90., 90., 20))),
                         np.column_stack((181. * np.ones(20), np.linspace(90., -90., 20)))))

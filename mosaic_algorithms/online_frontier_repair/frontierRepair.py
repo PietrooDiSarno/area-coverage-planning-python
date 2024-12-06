@@ -111,11 +111,9 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     else:
         poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
 
-
-
     cx = poly1.centroid.x
     cy = poly1.centroid.y
-
+    poly1 = poly1.buffer(0)
     ## Frontier Repair algorithm
     # The first time iteration is the starting time in the planning horizon
     t = startTime

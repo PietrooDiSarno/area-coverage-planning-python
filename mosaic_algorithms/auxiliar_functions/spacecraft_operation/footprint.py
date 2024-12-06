@@ -451,7 +451,7 @@ def footprint(t, inst, sc, target, res, *args):
                         polyaux = MultiPolygon(polygon_list)
                     else:
                         polyaux = Polygon((list(zip(lblon, lblat))))
-
+                    polyaux = polyaux.buffer(0)
 
                     if polyaux.intersects(point):
                         angle = emissionang(randPoint, t, target, sc)
@@ -483,7 +483,7 @@ def footprint(t, inst, sc, target, res, *args):
                                 poly1 = MultiPolygon(polygon_list)
                             else:
                                 poly1 = Polygon((list(zip(lblon, lblat))))
-
+                            poly1 = poly1.buffer(0)
                             poly1 = polymap.difference(poly1)
                             poly1 = poly1.buffer(0)
 

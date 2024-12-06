@@ -131,6 +131,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
         targetpshape = MultiPolygon(polygon_list)
     else:
         targetpshape = Polygon(zip(targetArea[:, 0], targetArea[:, 1]))
+    targetpshape = targetpshape.buffer(0)
     # [Future work]: orientation angle may change over the course of the mosaic
     # targetArea = topo2inst(roi, gamma_topo[0], gamma_topo[1], target, sc, inst, et) #current roi coordinates in the
     # instrument reference frame, when the instrument is pointing at the current grid origin point (next observation)
@@ -241,7 +242,7 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
             fpshape = MultiPolygon(polygon_list)
         else:
             fpshape = Polygon((list(zip(aux[:, 0], aux[:, 1]))))
-
+        fpshape = fpshape.buffer(0)
 
 
         inter = (targetpshape.difference(fpshape)).buffer(0)

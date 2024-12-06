@@ -59,7 +59,6 @@ def sortcw(*args):
         cx = polygon.centroid.x
         cy = polygon.centroid.y # polygon centroid
 
-
         angle = np.arctan2(np.array(y) - cy, np.array(x) - cx)  # obtain angle
         ind = np.argsort(angle)[::-1]  # sort angles and get the indices
         x_sorted = np.array(x)[ind] # sort the longitude values according to the angle order
