@@ -111,11 +111,9 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
     else:
         poly1 = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
 
-    poly1 = poly1.buffer(0)
-
     cx = poly1.centroid.x
     cy = poly1.centroid.y
-
+    poly1 = poly1.buffer(0)
     ## Frontier Repair algorithm
     # The first time iteration is the starting time in the planning horizon
     t = startTime
@@ -143,7 +141,7 @@ def frontierRepair(startTime, endTime, tobs, inst, sc, target, inroi, olapx, ola
         else:
             polyroi = Polygon((list(zip(roi[:, 0], roi[:, 1]))))
 
-        polyroi = polyroi.buffer(0)
+
         gamma = [polyroi.centroid.x,polyroi.centroid.y]
         fprintc = footprint(t, inst, sc, target, resolution, gamma[0], gamma[1], 0)  # centroid footprint
 

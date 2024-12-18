@@ -76,7 +76,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
         polygon = MultiPolygon(polygon_list)
     else:
         polygon = Polygon((list(zip(x, y))))
-    polygon = polygon.buffer(0)
+
     # point camera at ROI's centroid
     cx = polygon.centroid.x
     cy = polygon.centroid.y

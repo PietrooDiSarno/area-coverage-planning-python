@@ -196,7 +196,6 @@ def visibleroi(roi_, et, target, obs):
     else:
         poly1 = Polygon((list(zip(lblon, lblat))))
     poly1 = poly1.buffer(0)
-
     if (np.isnan(roi[:, 0])).any():
         nanindex = np.where(np.isnan(roi[:, 0]))[0]
         polygon_list = []

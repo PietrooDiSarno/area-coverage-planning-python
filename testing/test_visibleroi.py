@@ -14,7 +14,7 @@ from spiceypy import str2et
 from pySPICElib.kernelFetch import kernelFetch
 
 # Import modules
-from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi_gpt import visibleroi
+from mosaic_algorithms.auxiliar_functions.polygon_functions.visibleroi import visibleroi
 
 
 # Main function
@@ -30,7 +30,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define the target area (ROI) as a polygon in lat/lon

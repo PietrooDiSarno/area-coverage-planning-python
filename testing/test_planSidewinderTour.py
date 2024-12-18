@@ -28,7 +28,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define the ROI (region of interest) as a polygon in latitude and longitude
@@ -44,7 +44,7 @@ def main():
     target = 'EUROPA'  # Target body
     sc = 'GALILEO ORBITER'  # Spacecraft identifier
     inst = 'GLL_SSI'  # Instrument identifier
-    inittime = utc2et('2023-01-01T12:00:00')  # Start time in ET (TDB seconds past J2000)
+    inittime = utc2et('1998-05-30T00:00:00')  # Start time in ET (TDB seconds past J2000)
     olapx = 0.2  # 20% overlap in x-direction
     olapy = 0.2  # 20% overlap in y-direction
 

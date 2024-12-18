@@ -242,8 +242,8 @@ def updateGrid(roi, inst_tour, inst_grid, grid_dirx, grid_diry, cx, cy, olapx, o
             fpshape = MultiPolygon(polygon_list)
         else:
             fpshape = Polygon((list(zip(aux[:, 0], aux[:, 1]))))
-
         fpshape = fpshape.buffer(0)
+
 
         inter = (targetpshape.difference(fpshape)).buffer(0)
         areaI = inter.area

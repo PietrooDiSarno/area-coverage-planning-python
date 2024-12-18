@@ -66,6 +66,7 @@ cx, cy = polygon.centroid.x, polygon.centroid.y
 roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Pwyll Crater"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 12:38:00.000 TDB')  # closest approach
+roistruct[count - 1]['inittime'] = -55549818.62068965
 
 """
 """
@@ -150,3 +151,5 @@ roistruct[count - 1]['cpoint'] = np.array([cx, cy])
 roistruct[count - 1]['name'] = "Taliesin"
 roistruct[count - 1]['inittime'] = mat2py_str2et('1998 MAR 29 14:21:00.000 TDB')
 """
+
+
