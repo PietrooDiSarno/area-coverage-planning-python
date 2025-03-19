@@ -77,7 +77,7 @@ def minimumWidthDirection(x_, y_):
 
     # Return minimum width direction
     thetamin = angle[mini]
-    polygon = Polygon(np.column_stack((x, y)))
+    polygon = Polygon(np.column_stack((x, y))).buffer(0)
     area = polygon.area
     height = area / minwidth
 

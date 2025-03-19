@@ -572,5 +572,3 @@ def footprint(t, inst, sc, target, res, *args):
     surfPoints,t,target,sc,fp,inst = footprint2map(surfPoints,t,target,sc,fp,inst)
 
     return fp
-
-

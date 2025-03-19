@@ -76,7 +76,7 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
         polygon = MultiPolygon(polygon_list)
     else:
         polygon = Polygon((list(zip(x, y))))
-
+    polygon = polygon.buffer(0)
     # point camera at ROI's centroid
     cx = polygon.centroid.x
     cy = polygon.centroid.y
@@ -100,7 +100,11 @@ def planSidewinderTour(target, roi, sc, inst, inittime, olapx, olapy):
     else:
         poly_aux =Polygon((list(zip(targetArea[:, 0], targetArea[:, 1]))))
 
+
+    #poly_aux = poly_aux.buffer(0)
+
     origin[0], origin[1] = poly_aux.centroid.x, poly_aux.centroid.y
+
 
     # Get minimum width direction of the footprint
     angle,_,_,_ = minimumWidthDirection(targetArea[:,0],targetArea[:,1])

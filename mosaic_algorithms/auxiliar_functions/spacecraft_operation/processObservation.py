@@ -63,7 +63,7 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
     tour.pop(0) #delete this observation from the planned tour
     empty = False
 
-    # Check an.m. intercept...
+    # Check a.m. intercept...
     if a[0] > 180:
         a[0] -= 360
 
@@ -110,6 +110,8 @@ def processObservation(A, tour, fpList, poly1, t, slewRate, tobs, amIntercept, i
                 poly2 = Polygon(fprinti['bvertices'])
 
         poly2 = poly2.buffer(0)
+
+
         A.append(a)  # add it in the list of planned observations
         poly1 = (poly1.difference(poly2)).buffer(0)  # update uncovered area
 

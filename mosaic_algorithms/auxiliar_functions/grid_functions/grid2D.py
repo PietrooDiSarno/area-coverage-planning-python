@@ -84,8 +84,9 @@ def grid2D(fpref, olapx, olapy, gamma_, targetArea):
     else:
         polygon = Polygon(targetArea)
 
+
     cx, cy = polygon.centroid.x, polygon.centroid.y
-    polygon = polygon.buffer(0)
+
     orientedArea = np.zeros([max(np.shape(targetArea)),2])
     for j in range(max(np.shape(targetArea))):
         orientedArea[j, :] = np.array([cx, cy]) + rotmat @ (targetArea[j, :] - np.array([cx, cy]))

@@ -3,7 +3,6 @@ import copy
 import numpy as np
 from shapely.geometry import MultiPolygon, Polygon, Point
 
-from mosaic_algorithms.paper.figure3.input_data_fig3 import target
 
 
 def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gridPoints_, vPoints_, method):
@@ -99,8 +98,8 @@ def floodFillAlgorithm(w, h, olapx, olapy, gamma, targetArea, perimeterArea, gri
         peripshape = MultiPolygon(polygon_list)
     else:
         peripshape = Polygon(perimeterArea)
-    peripshape = peripshape.buffer(0)
-    fpshape = Polygon(zip(fpx, fpy)).buffer(0)
+
+    fpshape = Polygon(zip(fpx, fpy))
     inter = (peripshape.difference(fpshape)).buffer(0)
     areaI = inter.area
     areaP = peripshape.area

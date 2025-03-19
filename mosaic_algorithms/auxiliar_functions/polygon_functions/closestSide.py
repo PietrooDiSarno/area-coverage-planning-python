@@ -72,7 +72,7 @@ def closestSide(gt1, gt2, targetArea, angle):
     ylimit = [minlat, maxlat]
     xbox = np.array([xlimit[0], xlimit[0], xlimit[1], xlimit[1], xlimit[0]])
     ybox = np.array([ylimit[0], ylimit[1], ylimit[1], ylimit[0], ylimit[0]])
-    boundary_box = Polygon(zip(xbox, ybox))
+    boundary_box = Polygon(zip(xbox, ybox)).buffer(0)
 
     # Define line between the centroid and the ground track
     line = LineString([(sclon, sclat), (cx, cy)])
