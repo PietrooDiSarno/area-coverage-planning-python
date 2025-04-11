@@ -87,7 +87,7 @@ def flood_fill_algorithm(w, h, olapx, olapy, gamma,
         return grid_points, v_points
 
     # Check if the rectangle at gamma and size [w,h] is contained in the perimeter area
-    if peripshape.contains(Point(gamma)):
+    if peripshape.intersects(Point(gamma)):
         inside = True
     else:
         if abs(areaI - areaP) / fpshape.area > 0.2:

@@ -28,7 +28,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define a sample surface point on the target (e.g., latitudinal coordinates for Mars)

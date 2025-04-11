@@ -48,7 +48,7 @@ def main():
     fpThreshold = 0.2  # Dismissal threshold
 
     # Call the grid2d function
-    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area, fpThreshold)
+    matrix_grid, dirx, diry = grid2d(fpref, olapx, olapy, gamma, target_area,fpThreshold)
 
     # Visualization
     visualize_results(target_area, matrix_grid, fpref['width'], fpref['height'], fpref['angle'])

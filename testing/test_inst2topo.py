@@ -13,8 +13,8 @@ from pySPICElib.kernelFetch import kernelFetch
 
 # Assume inst2topo and topo2inst are defined in the same script or imported from another module
 # from your_module import inst2topo, topo2inst
-from mosaic_algorithms.auxiliar_functions.grid_functions.inst2topo_gpt import inst2topo
-from mosaic_algorithms.auxiliar_functions.grid_functions.topo2inst_gpt import topo2inst
+from mosaic_algorithms.auxiliar_functions.grid_functions.inst2topo import inst2topo
+from mosaic_algorithms.auxiliar_functions.grid_functions.topo2inst import topo2inst
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     """
 
     # Load SPICE kernels
-    kf = kernelFetch()
+    kf = kernelFetch(textFilesPath_='../')
     kf.ffFile(metaK='input/galileo/inputkernels.txt', forceDownload=False)
 
     # Define instrument frame grid points (e.g., a simple 2D grid)

@@ -229,6 +229,8 @@ def visibleroi(roi_, et, target, obs):
 
     # visibility flag
     if vroi.size == 0:
-         flag = True
+        flag = True
 
     return vroi, inter, flag
+
+
