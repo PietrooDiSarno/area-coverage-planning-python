@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_axisar in MATLAB can receive:
 # - axis: DOUBLE = Array[3,1]
 # - angle: DOUBLE = Scalar
@@ -18,7 +19,7 @@ import numpy as np
 # - r: ndarray(3x3) of floats
 
 def mat2py_axisar(axis, angle):
-    axis=np.array(axis).reshape(3,)
-    r=spice.axisar(axis,angle)
+    axis = np.array(axis).reshape(3, )
+    r = spice.axisar(axis, angle)
 
     return r

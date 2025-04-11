@@ -4,6 +4,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_srfrec in MATLAB can receive:
 # - body:  [1,1] = size(body); int32 = class(body)
 # - lon:  [1,n] = size(lon); double = class(lon)
@@ -24,17 +25,17 @@ import numpy as np
 # - rectan: ndarray
 
 
-def mat2py_srfrec(body,lon,lat):
-    body=int(body)
-    if np.size(lon)==1:
-        lon=np.array(lon)
-        lat=np.array(lat)
-        rectan=spice.srfrec(body,float(lon),float(lat)).reshape(3,)
+def mat2py_srfrec(body, lon, lat):
+    body = int(body)
+    if np.size(lon) == 1:
+        lon = np.array(lon)
+        lat = np.array(lat)
+        rectan = spice.srfrec(body, float(lon), float(lat)).reshape(3, )
 
     else:
         rectan = np.zeros(shape=(3, np.size(lon)))
-        lon=np.array(lon).reshape(np.size(lon),)
-        lat=np.array(lat).reshape(np.size(lat),)
+        lon = np.array(lon).reshape(np.size(lon), )
+        lat = np.array(lat).reshape(np.size(lat), )
         for i in range(lon.size):
-            rectan[:, i]= spice.srfrec(body,float(lon[i]),float(lat[i]))
+            rectan[:, i] = spice.srfrec(body, float(lon[i]), float(lat[i]))
     return rectan

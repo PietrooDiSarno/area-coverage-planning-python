@@ -34,7 +34,7 @@ def minimumWidthDirection(x_, y_):
     x = copy.deepcopy(x_)
     y = copy.deepcopy(y_)
 
-    # Check if the polygon is divided in two (a.m. intersection)...
+    # Check if the polygon is divided into two (a.m. intersection)...
     ind = np.where(np.isnan(x))[0]
     if ind.size > 0:
         x[:ind[0]] += 360
@@ -46,9 +46,9 @@ def minimumWidthDirection(x_, y_):
     cx = poly_aux.centroid.x
     cy = poly_aux.centroid.y
 
-    vertices=np.zeros([np.size(x),2])
+    vertices = np.zeros([np.size(x),2])
     # Sort the vertices in clockwise direction
-    vertices[:,0],vertices[:,1] = sortcw(x,y)
+    vertices[:, 0], vertices[:, 1] = sortcw(x, y)
 
     # Minimum width direction
     npoints = 361
@@ -80,7 +80,6 @@ def minimumWidthDirection(x_, y_):
     polygon = Polygon(np.column_stack((x, y))).buffer(0)
     area = polygon.area
     height = area / minwidth
-
 
     # Constrain angle between 0º and 180º
     if thetamin >= 180:

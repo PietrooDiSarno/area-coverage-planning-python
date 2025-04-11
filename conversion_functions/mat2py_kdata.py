@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_kdata in MATLAB can receive:
 # - which: [1,1] = size(which); int32 = class(which)
 # - kind:  [1,c1] = size(kind); char = class(kind) OR [1,1] = size(kind); cell = class(kind)
@@ -24,21 +25,26 @@ import numpy as np
 # The function spice.kdata in Python gives as output:
 # - tuple of (file,filtyp,srcfil,handle,found). The type of the tuple is Tuple[str, str, str, int, bool]
 
-def mat2py_kdata(which,kind):
+def mat2py_kdata(which, kind):
+    file = None
+    filtyp = None
+    srcfil = None
+    handle = -1
+    found = False
 
-    if isinstance(kind,list):
-        kind=kind[0]
+    if isinstance(kind, list):
+        kind = kind[0]
 
     try:
-      file,filtyp,srcfil,handle=spice.kdata(which,kind)
-      found=True
+        file, filtyp, srcfil, handle = spice.kdata(which, kind)
+        found = True
 
     except Exception as e:
-      if str(e)=='Spice returns not found for function: kdata':
-          file=''
-          filtyp=''
-          srcfil=''
-          handle=0
-          found=False
+        if str(e) == 'Spice returns not found for function: kdata':
+            file = ''
+            filtyp = ''
+            srcfil = ''
+            handle = 0
+            found = False
 
-    return file,filtyp,srcfil,handle,found
+    return file, filtyp, srcfil, handle, found

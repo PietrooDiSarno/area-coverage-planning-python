@@ -3,6 +3,7 @@
 import numpy as np
 import spiceypy as spice
 
+
 # The function cspice_spkpos in MATLAB can receive:
 # - normal: DOUBLE = Array[3]
 # - point: DOUBLE = Array[3]
@@ -17,10 +18,8 @@ import spiceypy as spice
 # The function spice.spkpos in Python gives as output:
 # - plane: plane
 
-def mat2py_nvp2pl(normal,point):
+def mat2py_nvp2pl(normal, point):
+    normal = np.array(normal, dtype='float').reshape(3, )
+    point = np.array(point, dtype='float').reshape(3, )
 
-    normal=np.array(normal,dtype='float').reshape(3,)
-    point=np.array(point,dtype='float').reshape(3,)
-
-    return spice.nvp2pl(normal,point)
-
+    return spice.nvp2pl(normal, point)

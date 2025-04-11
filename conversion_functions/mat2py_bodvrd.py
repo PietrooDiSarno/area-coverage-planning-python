@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_bodvrd in MATLAB can receive:
 # - bodynm: [1,c1] = size(bodynm); char = class(bodynm) OR [1,1] = size(bodynm); cell = class(bodynm)
 # - item: [1,c2] = size(item); char = class(item) OR [1,1] = size(item); cell = class(item)
@@ -29,14 +30,11 @@ import numpy as np
 
 
 def mat2py_bodvrd(bodynm, item, maxn):
+    if isinstance(bodynm, list): bodynm = bodynm[0]
+    if isinstance(item, list): item = item[0]
 
-    if isinstance(bodynm,list): bodynm=bodynm[0]
-    if isinstance(item,list): item=item[0]
-
-    dim,values = spice.bodvrd(bodynm,item,maxn)
-    while len(values)!=dim:
-        values=np.delete(values,-1)
-    values=np.reshape(values,[dim,])
+    dim, values = spice.bodvrd(bodynm, item, maxn)
+    while len(values) != dim:
+        values = np.delete(values, -1)
+    values = np.reshape(values, [dim, ])
     return values
-
-

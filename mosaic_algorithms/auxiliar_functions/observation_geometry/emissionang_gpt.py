@@ -35,7 +35,6 @@ def emissionang(srfpoint, t, target, obs):
     # Parameters
     method = 'ELLIPSOID'  # Assumption: target body modeled as a tri-axial ellipsoid
     _, targetframe, _ = mat2py_cnmfrm(target)  # Retrieve the target frame ID in SPICE
-    targetframe = targetframe[0][0]
 
     # Convert srfpoint to rectangular coordinates if provided in latitudinal coordinates
     if len(srfpoint) == 2:
@@ -61,7 +60,7 @@ def emissionang(srfpoint, t, target, obs):
     # Obtain the outward surface normal vector at the surface point
     # Initialize normal vectors array
     if np.isscalar(t):
-        nrmvec = mat2py_srfnrm(method, target, t, targetframe, srfpoint_rect).reshape(3, 1)
+        nrmvec = mat2py_srfnrm(method, target, t, targetframe, srfpoint_rect).reshape(3,)
     else:
         nrmvec = np.zeros((3, len(t)))
         for i in range(len(t)):

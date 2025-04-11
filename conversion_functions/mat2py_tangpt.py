@@ -3,6 +3,7 @@
 import spiceypy as spice
 import numpy as np
 
+
 # The function cspice_tangpt in MATLAB can receive:
 # - method:  [1,c1] = size(method); char = class(method) OR [1,1] = size(method); cell = class(method)
 # - target: [1,c2] = size(target); char = class(target) OR [1,1] = size(target); cell = class(target)
@@ -28,7 +29,7 @@ import numpy as np
 # The function cspice_tangpt in MATLAB gives as output:
 # - tanpt: [3,1] = size(tanpt); double = class(tanpt)
 # - alt: [1,1] = size(alt); double = class(alt)
-# - range: [1,1] = size(range); double = class(range)
+# - rrange: [1,1] = size(rrange); double = class(rrange)
 # - srfpt: [3,1] = size(srfpt); double = class(srfpt)
 # - trgepc: [1,1] = size(trgepc); double = class(trgepc)
 # - srfvec: [3,1] = size(srfvec); double = class(srfvec)
@@ -37,19 +38,20 @@ import numpy as np
 # - tuple of (tanpt,alt,range,srfpt,trgepc,srfvec). The type of the tuple is
 # Tuple[ndarray,float,float,ndarray,float,ndarray]
 
-def mat2py_tangpt(method,target,et,fixref,abcorr,corloc,obsrvr,dref,dvec):
-    if isinstance(method,list): method=method[0]
-    if isinstance(target,list): target=target[0]
-    et=float(et)
-    if isinstance(fixref,list): fixref=fixref[0]
-    if isinstance(abcorr,list): abcorr=abcorr[0]
-    if isinstance(obsrvr,list): obsrvr=obsrvr[0]
-    if isinstance(dref,list): dref=dref[0]
-    dvec=np.array(dvec).reshape(len(dvec),)
+def mat2py_tangpt(method, target, et, fixref, abcorr, corloc, obsrvr, dref, dvec):
+    if isinstance(method, list): method = method[0]
+    if isinstance(target, list): target = target[0]
+    et = float(et)
+    if isinstance(fixref, list): fixref = fixref[0]
+    if isinstance(abcorr, list): abcorr = abcorr[0]
+    if isinstance(obsrvr, list): obsrvr = obsrvr[0]
+    if isinstance(dref, list): dref = dref[0]
+    dvec = np.array(dvec).reshape(len(dvec), )
 
-    tanpt,alt,range,srfpt,trgepc,srfvec=spice.tangpt(method,target,et,fixref,abcorr,corloc,obsrvr,dref,dvec)
-    tanpt=np.array(tanpt).reshape(len(tanpt),)
-    srfpt=np.array(srfpt).reshape(len(srfpt),)
-    srfvec=np.array(srfvec).reshape(len(srfvec),)
+    tanpt, alt, rrange, srfpt, trgepc, srfvec = spice.tangpt(
+        method, target, et, fixref, abcorr, corloc, obsrvr, dref, dvec)
+    tanpt = np.array(tanpt).reshape(len(tanpt), )
+    srfpt = np.array(srfpt).reshape(len(srfpt), )
+    srfvec = np.array(srfvec).reshape(len(srfvec), )
 
-    return tanpt,alt,range,srfpt,trgepc,srfvec
+    return tanpt, alt, rrange, srfpt, trgepc, srfvec

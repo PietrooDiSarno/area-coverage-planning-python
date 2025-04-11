@@ -61,7 +61,7 @@ def closestSide(target, sc, t, targetArea, angle):
     # Compute spacecraft sub-observer point to see what side of the target area is closer to it
     # Assumption: Tri-axial ellipsoid to model the target surface
     # Equivalent to MATLAB: subobs = cspice_subpnt('NEAR POINT/ELLIPSOID', target, t, targetFrame, 'NONE', sc);
-    subobs = mat2py_subpnt('NEAR POINT/ELLIPSOID', target, t, targetFrame, 'NONE', sc)
+    subobs, _, _ = mat2py_subpnt('NEAR POINT/ELLIPSOID', target, t, targetFrame, 'NONE', sc)
     # Convert rectangular coordinates to latitudinal coordinates
     # Equivalent to MATLAB: [~, sclon, sclat] = cspice_reclat(subobs);
     _, sclon, sclat = mat2py_reclat(subobs)
@@ -75,7 +75,7 @@ def closestSide(target, sc, t, targetArea, angle):
     sclon, sclat = aux[0], aux[1]
 
     # Compute spacecraft sub-observer point 5 minutes later to determine movement direction
-    subobs_ = mat2py_subpnt('NEAR POINT/ELLIPSOID', target, t + 5*60, targetFrame, 'NONE', sc)
+    subobs_, _, _ = mat2py_subpnt('NEAR POINT/ELLIPSOID', target, t + 5*60, targetFrame, 'NONE', sc)
     _, sclon_, sclat_ = mat2py_reclat(subobs_)
     sclon_ *= mat2py_dpr()
     sclat_ *= mat2py_dpr()
@@ -140,6 +140,8 @@ def closestSide(target, sc, t, targetArea, angle):
             dir1 = 'west'
         elif minidx == 3:
             dir1 = 'east'
+        else:
+            dir1 = 'unk'
     else:
         # There is an intersection between the line and the bounding box
         # Extract intersection point(s)
@@ -161,6 +163,8 @@ def closestSide(target, sc, t, targetArea, angle):
             dir1 = 'south'
         elif abs(yi - maxlat) < 1e-2:
             dir1 = 'north'
+        else:
+            dir1 = 'unk'
 
         # Determine if the spacecraft is moving towards or away from the closest side
         dist = np.linalg.norm(np.array([sclon, sclat]) - np.array([cx, cy]))
@@ -193,5 +197,8 @@ def closestSide(target, sc, t, targetArea, angle):
         else:
             # Spacecraft is moving downwards
             dir2 = 'south'
+    else:
+        dir2 = 'unk'
 
+    # Return directions
     return dir1, dir2
